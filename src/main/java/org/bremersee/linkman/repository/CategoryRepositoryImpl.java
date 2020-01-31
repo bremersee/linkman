@@ -16,12 +16,26 @@
 
 package org.bremersee.linkman.repository;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.bremersee.security.access.Ace;
+import org.bremersee.security.access.Acl;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Christian Bremer
  */
-public interface CategoryRepository
-    extends ReactiveMongoRepository<CategoryEntity, String>, CategoryRepositoryCustom {
+public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
+
+  private ReactiveMongoTemplate mongoTemplate;
+
+  public CategoryRepositoryImpl(
+      ReactiveMongoTemplate mongoTemplate) {
+    this.mongoTemplate = mongoTemplate;
+  }
+
+  public Flux<CategoryEntity> findCategories(Acl<? extends Ace> linkAcl) {
+
+    return null;
+  }
 
 }

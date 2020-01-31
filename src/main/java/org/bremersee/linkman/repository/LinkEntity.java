@@ -17,6 +17,7 @@
 package org.bremersee.linkman.repository;
 
 import java.util.Map;
+import java.util.Set;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import lombok.Getter;
@@ -59,5 +60,7 @@ public class LinkEntity {
   private String description;
 
   private Map<String, String> descriptionTranslations;
+
+  // private Set<String> categoryIds;
 
 }

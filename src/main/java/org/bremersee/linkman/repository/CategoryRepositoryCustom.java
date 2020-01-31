@@ -16,12 +16,9 @@
 
 package org.bremersee.linkman.repository;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-
 /**
  * @author Christian Bremer
  */
-public interface CategoryRepository
-    extends ReactiveMongoRepository<CategoryEntity, String>, CategoryRepositoryCustom {
+public interface CategoryRepositoryCustom {
 
 }
