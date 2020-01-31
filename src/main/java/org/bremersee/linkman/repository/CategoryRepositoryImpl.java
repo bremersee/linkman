@@ -16,9 +16,14 @@
 
 package org.bremersee.linkman.repository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.bremersee.security.access.Ace;
 import org.bremersee.security.access.Acl;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 
 /**
@@ -33,9 +38,44 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
     this.mongoTemplate = mongoTemplate;
   }
 
-  public Flux<CategoryEntity> findCategories(Acl<? extends Ace> linkAcl) {
+  @Override
+  public Flux<CategoryEntity> findCategories(final Acl<? extends Ace> linkAcl) {
+    return Optional.ofNullable(linkAcl == null ? null : linkAcl.entryMap().get("read"))
+        .map(ace -> query(createCriteriaList(ace)))
+        .orElseGet(Flux::empty);
+  }
 
-    return null;
+  private List<Criteria> createCriteriaList(final Ace ace) {
+    final List<Criteria> criteriaList = new ArrayList<>();
+    if (ace.isGuest()) {
+      criteriaList.add(Criteria.where("matchesGuest").is(true));
+    } else {
+      if (!ace.getUsers().isEmpty()) {
+        criteriaList.add(Criteria
+            .where("matchesUsers").elemMatch(new Criteria().in(ace.getUsers())));
+      }
+      if (!ace.getRoles().isEmpty()) {
+        criteriaList.add(Criteria
+            .where("matchesRoles").elemMatch(new Criteria().in(ace.getRoles())));
+      }
+      if (!ace.getGroups().isEmpty()) {
+        criteriaList.add(Criteria
+            .where("matchesGroups").elemMatch(new Criteria().in(ace.getGroups())));
+      }
+    }
+    return criteriaList;
+  }
+
+  private Flux<CategoryEntity> query(final List<Criteria> criteriaList) {
+    if (criteriaList.isEmpty()) {
+      return Flux.empty();
+    } else if (criteriaList.size() == 1) {
+      return mongoTemplate.find(Query.query(criteriaList.get(0)), CategoryEntity.class);
+    } else {
+      final Criteria criteria = new Criteria()
+          .orOperator(criteriaList.toArray(new Criteria[0]));
+      return mongoTemplate.find(Query.query(criteria), CategoryEntity.class);
+    }
   }
 
 }

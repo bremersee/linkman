@@ -16,9 +16,15 @@
 
 package org.bremersee.linkman.repository;
 
+import org.bremersee.security.access.Ace;
+import org.bremersee.security.access.Acl;
+import reactor.core.publisher.Flux;
+
 /**
  * @author Christian Bremer
  */
 public interface CategoryRepositoryCustom {
+
+  Flux<CategoryEntity> findCategories(Acl<? extends Ace> linkAcl);
 
 }

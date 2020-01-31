@@ -45,9 +45,6 @@ public class AclEntity implements Acl<AceEntity> {
   @Indexed
   private String owner;
 
-  // TODO zuviel aufwand, sollte für benutzer angelegt werden
-  // private Boolean localNetRequired;
-
   private AceEntity administration = new AceEntity();
 
   private AceEntity create = new AceEntity(); // = administration
