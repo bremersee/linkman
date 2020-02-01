@@ -1,0 +1,112 @@
+/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.controller;
+
+import org.bremersee.linkman.model.CategorySpecification;
+import org.bremersee.linkman.service.CategoryService;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/**
+ * The category controller.
+ *
+ * @author Christian Bremer
+ */
+@RestController
+public class CategoryController {
+
+  private final CategoryService categoryService;
+
+  /**
+   * Instantiates a new category controller.
+   *
+   * @param categoryService the category service
+   */
+  public CategoryController(CategoryService categoryService) {
+    this.categoryService = categoryService;
+  }
+
+  /**
+   * Gets categories.
+   *
+   * @return the categories
+   */
+  @GetMapping(path = "/api/admin/categories", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Flux<CategorySpecification> getCategories() {
+    return categoryService.getCategories();
+  }
+
+  /**
+   * Add category.
+   *
+   * @param category the category
+   * @return the added category
+   */
+  @PostMapping(path = "/api/admin/categories",
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public Mono<CategorySpecification> addCategory(@RequestBody CategorySpecification category) {
+    return categoryService.addCategory(category);
+  }
+
+  /**
+   * Gets category.
+   *
+   * @param id the id
+   * @return the category
+   */
+  @GetMapping(path = "/api/admin/categories/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono<CategorySpecification> getCategory(@PathVariable("id") String id) {
+    return categoryService.getCategory(id);
+  }
+
+  /**
+   * Update category.
+   *
+   * @param id the id
+   * @param category the category
+   * @return the the updated category
+   */
+  @PutMapping(path = "/api/admin/categories/{id}",
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public Mono<CategorySpecification> updateCategory(
+      @PathVariable("id") String id,
+      @RequestBody CategorySpecification category) {
+    return categoryService.updateCategory(id, category);
+  }
+
+  /**
+   * Delete category.
+   *
+   * @param id the id
+   * @return void
+   */
+  @DeleteMapping(path = "/api/admin/categories/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono<Void> deleteCategory(@PathVariable("id") String id) {
+    return categoryService.deleteCategory(id);
+  }
+
+}

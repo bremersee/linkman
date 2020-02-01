@@ -19,6 +19,8 @@ package org.bremersee.linkman.repository;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
 /**
+ * The link repository.
+ *
  * @author Christian Bremer
  */
 public interface LinkRepository

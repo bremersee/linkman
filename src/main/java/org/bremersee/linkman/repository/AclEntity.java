@@ -45,20 +45,12 @@ public class AclEntity implements Acl<AceEntity> {
   @Indexed
   private String owner;
 
-  private AceEntity administration = new AceEntity();
-
-  private AceEntity create = new AceEntity(); // = administration
-
-  private AceEntity delete = new AceEntity(); // = administration
-
   private AceEntity read = new AceEntity();
-
-  private AceEntity write = new AceEntity(); // = administration
 
   /**
    * Instantiates a new access control list entity.
    *
-   * @param owner   the owner
+   * @param owner the owner
    * @param entries the entries
    */
   public AclEntity(final String owner, final Map<String, ? extends Ace> entries) {
@@ -68,24 +60,8 @@ public class AclEntity implements Acl<AceEntity> {
         if (entry != null && entry.getKey() != null && entry.getValue() != null) {
           final String permission = entry.getKey().toLowerCase();
           final AceEntity ace = new AceEntity(entry.getValue());
-          switch (permission) {
-            case PermissionConstants.ADMINISTRATION:
-              administration = ace;
-              break;
-            case PermissionConstants.CREATE:
-              create = ace;
-              break;
-            case PermissionConstants.DELETE:
-              delete = ace;
-              break;
-            case PermissionConstants.READ:
-              read = ace;
-              break;
-            case PermissionConstants.WRITE:
-              write = ace;
-              break;
-            default:
-              break;
+          if (PermissionConstants.READ.equals(permission)) {
+            read = ace;
           }
         }
       }
@@ -95,11 +71,7 @@ public class AclEntity implements Acl<AceEntity> {
   @Override
   public Map<String, ? extends AceEntity> entryMap() {
     final Map<String, AceEntity> map = new TreeMap<>();
-    map.put(PermissionConstants.ADMINISTRATION, administration.unmodifiable());
-    map.put(PermissionConstants.CREATE, create.unmodifiable());
-    map.put(PermissionConstants.DELETE, delete.unmodifiable());
     map.put(PermissionConstants.READ, read.unmodifiable());
-    map.put(PermissionConstants.WRITE, write.unmodifiable());
     return Collections.unmodifiableMap(map);
   }
 

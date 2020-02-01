@@ -1,6 +1,4 @@
 bremersee:
-  ldaptive:
-    enabled: false
   security:
     cors:
       allow-all: true
@@ -10,6 +8,10 @@ bremersee:
         client-id: ${OPENID_CLIENT_ID:omnia}
         client-secret: ${OPENID_CLIENT_SECRET:changeit}
         token-endpoint: ${OPENID_TOKEN_ENDPOINT:https://openid.dev.bremersee.org/auth/realms/omnia/protocol/openid-connect/token}
+    acl:
+      switch-admin-access: false
+      default-permissions:
+        - "read"
   exception-mapping:
     api-paths:
       - /api/**
@@ -20,20 +22,6 @@ bremersee:
       include-exception-class-name: true
       include-handler: true
       include-path: true
-    exception-mappings:
-      - exception-class-name: org.springframework.dao.DuplicateKeyException
-        status: 409
-        message: "Group already exists."
-        code: "GRP:1000"
-      - exception-class-name: org.springframework.dao.OptimisticLockingFailureException
-        status: 409
-        message: "Version is not up to date."
-        code: "GRP:1001"
-      - exception-class-name: java.lang.UnsupportedOperationException
-        status: 400
-        code: "GRP:1002"
-  groupman:
-    local-role: "ROLE_LOCAL_USER"
 
 spring:
   security:
@@ -112,55 +100,3 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
-
----
-
-spring:
-  profiles: ldap
-
-bremersee:
-  ldaptive:
-    enabled: true
-    use-unbound-id-provider: false
-    ldap-url: ${LDAP_URL:ldaps://example.org:636}
-    use-ssl: ${LDAP_SSL:true}
-    use-start-tls: ${LDAP_START_TLS:false}
-    bind-dn: ${LDAP_BIND_DN:areader@example.org}
-    bind-credential: ${LDAP_BIND_PASSWORD:changeit}
-    pooled: true
-    min-pool-size: 3
-    max-pool-size: 10
-    validate-on-check-in: false
-    validate-on-check-out: false
-    validate-periodically: true
-    validate-period: 300
-    idle-time: 600
-    block-wait-time: 10000
-    search-validator:
-      search-request:
-        base-dn: ${LDAP_BASE_DN:dc=example,dc=org}
-        search-filter:
-          filter: ${LDAP_VALIDATION_FILTER:(cn=Administrator)}
-        size-limit: 1
-        search-scope: ONELEVEL
-        return-attributes:
-          - cn
-  domain-controller:
-    group-base-dn: ${LDAP_GROUP_DN:cn=Groups,dc=example,dc=org}
-    user-base-dn: ${LDAP_USER_DN:cn=Users,dc=example,dc=org}
-    admin-name: 'Administrator'
-    ignored-ldap-groups:
-      - 'Allowed RODC Password Replication Group'
-      - 'Cert Publishers'
-      - 'Denied RODC Password Replication Group'
-      - 'DnsAdmins'
-      - 'DnsUpdateProxy'
-      - 'Domain Admins'
-      - 'Domain Computers'
-      - 'Domain Guests'
-      - 'Domain Users'
-      - 'Enterprise Admins'
-      - 'Enterprise Read-only Domain Controllers'
-      - 'Group Policy Creator Owners'
-      - 'RAS and IAS Servers'
-      - 'Read-only Domain Controllers'

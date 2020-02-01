@@ -16,10 +16,11 @@
 
 package org.bremersee.linkman.repository;
 
+import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +31,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.validation.annotation.Validated;
 
 /**
+ * The link entity.
+ *
  * @author Christian Bremer
  */
 @Document(collection = "links")
@@ -37,14 +40,17 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 @NoArgsConstructor
 @Validated
-public class LinkEntity {
+public class LinkEntity implements Comparable<LinkEntity> {
 
   @Id
   private String id;
 
   private AclEntity acl;
+
+  private int order;
 
   @NotBlank
   private String href;
@@ -61,6 +67,50 @@ public class LinkEntity {
 
   private Map<String, String> descriptionTranslations;
 
-  // private Set<String> categoryIds;
+  /**
+   * Gets text.
+   *
+   * @param language the language
+   * @return the text
+   */
+  public String getText(Locale language) {
+    if (language == null || textTranslations == null) {
+      return text;
+    }
+    return textTranslations.getOrDefault(language.getLanguage(), text);
+  }
+
+  /**
+   * Gets description.
+   *
+   * @param language the language
+   * @return the description
+   */
+  public String getDescription(Locale language) {
+    if (language == null || descriptionTranslations == null) {
+      return description;
+    }
+    return descriptionTranslations.getOrDefault(language.getLanguage(), description);
+  }
+
+  @Override
+  public int compareTo(final LinkEntity o) {
+    return compareTo(o, null);
+  }
+
+  /**
+   * Compare to.
+   *
+   * @param o the other link
+   * @param language the language
+   * @return the result
+   */
+  public int compareTo(final LinkEntity o, final Locale language) {
+    int result = order - o.order;
+    return result != 0
+        ? result
+        : String.valueOf(getText(language))
+            .compareToIgnoreCase(String.valueOf(o.getText(language)));
+  }
 
 }

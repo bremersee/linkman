@@ -14,40 +14,33 @@
  * limitations under the License.
  */
 
-package org.bremersee.linkman.repository;
+package org.bremersee.linkman.model;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * The category entity.
+ * The category specification.
  *
  * @author Christian Bremer
  */
-@Document(collection = "categories")
-@TypeAlias("category")
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
 @Validated
-public class CategoryEntity implements Comparable<CategoryEntity> {
+public class CategorySpecification {
 
-  @Id
   private String id;
 
   private int order;
@@ -56,49 +49,44 @@ public class CategoryEntity implements Comparable<CategoryEntity> {
 
   private Map<String, String> translations = new LinkedHashMap<>();
 
-  @Indexed
   private Boolean matchesGuest;
 
-  @Indexed
   private Set<String> matchesUsers = new LinkedHashSet<>();
 
-  @Indexed
   private Set<String> matchesRoles = new LinkedHashSet<>();
 
-  @Indexed
   private Set<String> matchesGroups = new LinkedHashSet<>();
 
   /**
-   * Gets name.
+   * Instantiates a new category specification.
    *
-   * @param language the language
-   * @return the name
+   * @param id the id
+   * @param order the order
+   * @param name the name
+   * @param translations the translations
+   * @param matchesGuest the matches guest
+   * @param matchesUsers the matches users
+   * @param matchesRoles the matches roles
+   * @param matchesGroups the matches groups
    */
-  public String getName(Locale language) {
-    if (language == null || translations == null) {
-      return name;
-    }
-    return translations.getOrDefault(language.getLanguage(), name);
+  @Builder(toBuilder = true)
+  @SuppressWarnings("unused")
+  public CategorySpecification(
+      String id,
+      int order,
+      String name,
+      Map<String, String> translations,
+      Boolean matchesGuest,
+      Set<String> matchesUsers,
+      Set<String> matchesRoles,
+      Set<String> matchesGroups) {
+    this.id = id;
+    this.order = order;
+    this.name = name;
+    this.translations = translations;
+    this.matchesGuest = matchesGuest;
+    this.matchesUsers = matchesUsers;
+    this.matchesRoles = matchesRoles;
+    this.matchesGroups = matchesGroups;
   }
-
-  @Override
-  public int compareTo(final CategoryEntity o) {
-    return compareTo(o, null);
-  }
-
-  /**
-   * Compare to.
-   *
-   * @param o the other category
-   * @param language the language
-   * @return the result
-   */
-  public int compareTo(final CategoryEntity o, final Locale language) {
-    int result = order - o.order;
-    return result != 0
-        ? result
-        : String.valueOf(getName(language))
-            .compareToIgnoreCase(String.valueOf(o.getName(language)));
-  }
-
 }

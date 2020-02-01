@@ -14,16 +14,44 @@
  * limitations under the License.
  */
 
-package org.bremersee.linkman.repository;
+package org.bremersee.linkman.controller;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import java.util.Set;
+import lombok.Getter;
 
 /**
- * The category repository.
+ * The user context.
  *
  * @author Christian Bremer
  */
-public interface CategoryRepository
-    extends ReactiveMongoRepository<CategoryEntity, String>, CategoryRepositoryCustom {
+class UserContext {
 
+  @Getter
+  private final String userId;
+
+  @Getter
+  private final Set<String> roles;
+
+  @Getter
+  private final Set<String> groups;
+
+  /**
+   * Instantiates a new user context.
+   */
+  UserContext() {
+    this(null, null, null);
+  }
+
+  /**
+   * Instantiates a new user context.
+   *
+   * @param userId the user id
+   * @param roles the roles
+   * @param groups the groups
+   */
+  UserContext(String userId, Set<String> roles, Set<String> groups) {
+    this.userId = userId;
+    this.roles = roles;
+    this.groups = groups;
+  }
 }

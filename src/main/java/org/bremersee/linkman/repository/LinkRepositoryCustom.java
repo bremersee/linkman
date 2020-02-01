@@ -20,10 +20,20 @@ import java.util.Set;
 import reactor.core.publisher.Flux;
 
 /**
+ * The custom link repository.
+ *
  * @author Christian Bremer
  */
 public interface LinkRepositoryCustom {
 
+  /**
+   * Find readable links.
+   *
+   * @param userId the user id
+   * @param roles the roles
+   * @param groups the groups
+   * @return the readable links
+   */
   Flux<LinkEntity> findReadableLinks(String userId, Set<String> roles, Set<String> groups);
 
 }

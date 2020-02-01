@@ -60,7 +60,7 @@ public class SwaggerConfiguration {
    * Instantiates a new swagger configuration.
    *
    * @param swaggerProperties the swagger properties
-   * @param resolver          the resolver
+   * @param resolver the resolver
    */
   public SwaggerConfiguration(SwaggerProperties swaggerProperties, TypeResolver resolver) {
     this.swaggerProperties = swaggerProperties;
@@ -69,7 +69,7 @@ public class SwaggerConfiguration {
 
   /**
    * Returns the swagger docket. The swagger definition will be available under {@code
-   * http://localhost:8090/v2/api-docs}**.
+   * http://localhost:8090/v2/api-docs}***.
    *
    * @return the swagger docket
    */
@@ -138,7 +138,7 @@ public class SwaggerConfiguration {
      * Instantiates a new Recursive alternate type rule.
      *
      * @param typeResolver the type resolver
-     * @param rules        the rules
+     * @param rules the rules
      */
     public RecursiveAlternateTypeRule(TypeResolver typeResolver, List<AlternateTypeRule> rules) {
       // Unused but cannot be null

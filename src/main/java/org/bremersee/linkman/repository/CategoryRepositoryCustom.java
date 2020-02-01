@@ -21,10 +21,18 @@ import org.bremersee.security.access.Acl;
 import reactor.core.publisher.Flux;
 
 /**
+ * The custom category repository.
+ *
  * @author Christian Bremer
  */
 public interface CategoryRepositoryCustom {
 
+  /**
+   * Find categories.
+   *
+   * @param linkAcl the link acl
+   * @return the categories
+   */
   Flux<CategoryEntity> findCategories(Acl<? extends Ace> linkAcl);
 
 }

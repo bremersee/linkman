@@ -21,18 +21,27 @@ import java.util.List;
 import java.util.Optional;
 import org.bremersee.security.access.Ace;
 import org.bremersee.security.access.Acl;
+import org.bremersee.security.access.PermissionConstants;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 
 /**
+ * The custom category repository implementation.
+ *
  * @author Christian Bremer
  */
+@SuppressWarnings("unused")
 public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 
   private ReactiveMongoTemplate mongoTemplate;
 
+  /**
+   * Instantiates a new custom category repository.
+   *
+   * @param mongoTemplate the mongo template
+   */
   public CategoryRepositoryImpl(
       ReactiveMongoTemplate mongoTemplate) {
     this.mongoTemplate = mongoTemplate;
@@ -40,7 +49,8 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 
   @Override
   public Flux<CategoryEntity> findCategories(final Acl<? extends Ace> linkAcl) {
-    return Optional.ofNullable(linkAcl == null ? null : linkAcl.entryMap().get("read"))
+    return Optional
+        .ofNullable(linkAcl == null ? null : linkAcl.entryMap().get(PermissionConstants.READ))
         .map(ace -> query(createCriteriaList(ace)))
         .orElseGet(Flux::empty);
   }

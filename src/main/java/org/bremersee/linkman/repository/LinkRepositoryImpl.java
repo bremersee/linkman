@@ -20,20 +20,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 /**
+ * The custom link repository implementation.
+ *
  * @author Christian Bremer
  */
+@SuppressWarnings("unused")
 public class LinkRepositoryImpl implements LinkRepositoryCustom {
 
   private ReactiveMongoTemplate mongoTemplate;
 
+  /**
+   * Instantiates a new custom link repository.
+   *
+   * @param mongoTemplate the mongo template
+   */
   public LinkRepositoryImpl(ReactiveMongoTemplate mongoTemplate) {
     this.mongoTemplate = mongoTemplate;
   }

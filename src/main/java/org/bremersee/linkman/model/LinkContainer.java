@@ -16,16 +16,44 @@
 
 package org.bremersee.linkman.model;
 
-import java.util.ArrayList;
 import java.util.List;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.bremersee.common.model.Link;
 
 /**
+ * The link container.
+ *
  * @author Christian Bremer
  */
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
 public class LinkContainer {
 
   private String category;
 
-  private List<Link> links = new ArrayList<>();
+  private List<Link> links;
+
+  /**
+   * Instantiates a new link container.
+   *
+   * @param category the category
+   * @param links the links
+   */
+  @Builder(toBuilder = true)
+  @SuppressWarnings("unused")
+  public LinkContainer(
+      String category,
+      List<Link> links) {
+    this.category = category;
+    this.links = links;
+  }
+
 }

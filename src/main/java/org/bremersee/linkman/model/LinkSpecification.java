@@ -19,17 +19,33 @@ package org.bremersee.linkman.model;
 import java.util.Map;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.bremersee.common.model.AccessControlList;
-import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.springframework.validation.annotation.Validated;
 
 /**
+ * The link specification.
+ *
  * @author Christian Bremer
  */
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
+@Validated
 public class LinkSpecification {
 
   private String id;
 
   private AccessControlList acl;
+
+  private int order;
 
   @NotBlank
   private String href;
@@ -38,12 +54,44 @@ public class LinkSpecification {
   @Size(min = 3, max = 75)
   private String text;
 
-  private Map<TwoLetterLanguageCode, String> textTranslations;
+  private Map<String, String> textTranslations;
 
   @NotBlank
   @Size(max = 255)
   private String description;
 
-  private Map<TwoLetterLanguageCode, String> descriptionTranslations;
+  private Map<String, String> descriptionTranslations;
 
+  /**
+   * Instantiates a new link specification.
+   *
+   * @param id the id
+   * @param acl the acl
+   * @param order the order
+   * @param href the href
+   * @param text the text
+   * @param textTranslations the text translations
+   * @param description the description
+   * @param descriptionTranslations the description translations
+   */
+  @Builder(toBuilder = true)
+  @SuppressWarnings("unused")
+  public LinkSpecification(
+      String id,
+      AccessControlList acl,
+      int order,
+      String href,
+      String text,
+      Map<String, String> textTranslations,
+      String description,
+      Map<String, String> descriptionTranslations) {
+    this.id = id;
+    this.acl = acl;
+    this.order = order;
+    this.href = href;
+    this.text = text;
+    this.textTranslations = textTranslations;
+    this.description = description;
+    this.descriptionTranslations = descriptionTranslations;
+  }
 }

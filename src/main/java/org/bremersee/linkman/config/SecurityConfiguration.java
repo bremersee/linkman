@@ -48,6 +48,14 @@ import org.springframework.security.web.server.util.matcher.NegatedServerWebExch
 public class SecurityConfiguration {
 
   /**
+   * The admin roles.
+   */
+  static final String[] ADMIN_ROLES = {
+      AuthorityConstants.ADMIN_ROLE_NAME,
+      "ROLE_LINK_ADMIN"
+  };
+
+  /**
    * The jwt login.
    */
   @ConditionalOnWebApplication
@@ -65,7 +73,7 @@ public class SecurityConfiguration {
     /**
      * Instantiates a new jwt login.
      *
-     * @param jwtConverter                      the jwt converter
+     * @param jwtConverter the jwt converter
      * @param passwordFlowAuthenticationManager the password flow authentication manager
      */
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -98,8 +106,10 @@ public class SecurityConfiguration {
           .authorizeExchange()
           .pathMatchers("/v2/**")
           .permitAll()
+          .pathMatchers("/api/public/**")
+          .permitAll()
           .pathMatchers("/api/admin/**")
-          .hasAuthority(AuthorityConstants.ADMIN_ROLE_NAME)
+          .hasAnyAuthority(ADMIN_ROLES)
           .anyExchange()
           .authenticated();
 
@@ -183,8 +193,10 @@ public class SecurityConfiguration {
           .authorizeExchange()
           .pathMatchers("/v2/**")
           .permitAll()
+          .pathMatchers("/api/public/**")
+          .permitAll()
           .pathMatchers("/api/admin/**")
-          .hasAuthority(AuthorityConstants.ADMIN_ROLE_NAME)
+          .hasAnyAuthority(ADMIN_ROLES)
           .anyExchange()
           .authenticated()
           .and()
