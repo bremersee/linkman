@@ -40,29 +40,36 @@ public class LinkmanProperties {
 
   private String groupmanBaseUri;
 
-  private DefaultCategory defaultCategory = new DefaultCategory();
+  private Category defaultCategory;
+
+  private Category publicCategory;
 
   /**
-   * The default category.
+   * Instantiates new linkman properties.
+   */
+  public LinkmanProperties() {
+    defaultCategory = new Category();
+    defaultCategory.setName("Not categorized");
+    defaultCategory.getTranslations().put("de", "Nicht kategorisiert");
+    defaultCategory.getTranslations().put("fr", "Non catégorisé");
+
+    publicCategory = new Category();
+    publicCategory.setName("Public");
+    publicCategory.getTranslations().put("de", "Öffentlich");
+  }
+
+  /**
+   * The init category.
    */
   @Getter
   @Setter
   @ToString
   @EqualsAndHashCode
-  public static class DefaultCategory {
+  public static class Category {
 
     private String name;
 
     private Map<String, String> translations = new LinkedHashMap<>();
-
-    /**
-     * Instantiates a new default category.
-     */
-    public DefaultCategory() {
-      name = "Not categorized";
-      translations.put("de", "Nicht kategorisiert");
-      translations.put("fr", "Non catégorisé");
-    }
   }
 
 }

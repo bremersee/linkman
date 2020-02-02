@@ -19,6 +19,7 @@ package org.bremersee.linkman.repository;
 import org.bremersee.security.access.Ace;
 import org.bremersee.security.access.Acl;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * The custom category repository.
@@ -26,6 +27,13 @@ import reactor.core.publisher.Flux;
  * @author Christian Bremer
  */
 public interface CategoryRepositoryCustom {
+
+  /**
+   * Count public categories.
+   *
+   * @return the size
+   */
+  Mono<Long> countPublicCategories();
 
   /**
    * Find categories.

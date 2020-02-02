@@ -26,6 +26,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * The custom category repository implementation.
@@ -45,6 +46,13 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
   public CategoryRepositoryImpl(
       ReactiveMongoTemplate mongoTemplate) {
     this.mongoTemplate = mongoTemplate;
+  }
+
+  @Override
+  public Mono<Long> countPublicCategories() {
+    return mongoTemplate.count(
+        Query.query(Criteria.where("matchesGuest").is(true)),
+        CategoryEntity.class);
   }
 
   @Override

@@ -16,11 +16,15 @@
 
 package org.bremersee.linkman.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
+import org.bremersee.linkman.config.LinkmanProperties;
 import org.bremersee.linkman.model.CategorySpecification;
 import org.bremersee.linkman.repository.CategoryEntity;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Component;
@@ -33,7 +37,10 @@ import reactor.core.publisher.Mono;
  * @author Christian Bremer
  */
 @Component
+@Slf4j
 public class CategoryServiceImpl implements CategoryService {
+
+  private LinkmanProperties properties;
 
   private CategoryRepository categoryRepository;
 
@@ -42,14 +49,37 @@ public class CategoryServiceImpl implements CategoryService {
   /**
    * Instantiates a new category service.
    *
+   * @param properties the properties
    * @param categoryRepository the category repository
    * @param modelMapper the model mapper
    */
   public CategoryServiceImpl(
+      LinkmanProperties properties,
       CategoryRepository categoryRepository,
       ModelMapper modelMapper) {
+    this.properties = properties;
     this.categoryRepository = categoryRepository;
     this.modelMapper = modelMapper;
+  }
+
+  /**
+   * Init.
+   */
+  @EventListener(ApplicationReadyEvent.class)
+  public void init() {
+    final CategorySpecification publicCategory = CategorySpecification.builder()
+        .matchesGuest(true)
+        .order(Integer.MIN_VALUE)
+        .name(properties.getPublicCategory().getName())
+        .translations(properties.getPublicCategory().getTranslations())
+        .build();
+    final CategorySpecification savedPublicCategory = categoryRepository.countPublicCategories()
+        .filter(size -> size == 0)
+        .flatMap(size -> addCategory(publicCategory))
+        .block();
+    if (savedPublicCategory != null) {
+      log.info("Public category created: {}", savedPublicCategory);
+    }
   }
 
   @Override
@@ -63,7 +93,12 @@ public class CategoryServiceImpl implements CategoryService {
     final CategorySpecification model = category.toBuilder()
         .id(null)
         .build();
-    return categoryRepository.save(modelMapper.map(model, CategoryEntity.class))
+    return categoryRepository.countPublicCategories()
+        .flatMap(size -> size > 0 && Boolean.TRUE.equals(model.getMatchesGuest())
+            ? Mono.error(ServiceException.badRequest(
+            "There is already a public category.",
+            "ONLY_ONE_PUBLIC_CATEGORY_IS_ALLOWED"))
+            : categoryRepository.save(modelMapper.map(model, CategoryEntity.class)))
         .map(entity -> modelMapper.map(entity, CategorySpecification.class));
   }
 

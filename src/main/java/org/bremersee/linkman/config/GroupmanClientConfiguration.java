@@ -16,6 +16,7 @@
 
 package org.bremersee.linkman.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.RestApiExceptionParser;
 import org.bremersee.groupman.api.GroupWebfluxControllerApi;
 import org.bremersee.groupman.mock.GroupWebfluxControllerMock;
@@ -35,6 +36,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Christian Bremer
  */
 @Configuration
+@Slf4j
 public class GroupmanClientConfiguration {
 
   private LinkmanProperties properties;
@@ -59,8 +61,10 @@ public class GroupmanClientConfiguration {
 
     final String baseUri = properties.getGroupmanBaseUri();
     if (!StringUtils.hasText(baseUri) || "false".equalsIgnoreCase(baseUri.trim())) {
+      log.warn("Using groupman mock, because no groupman base uri was specified.");
       return new GroupWebfluxControllerMock();
     }
+    log.info("Using groupman client with base uri {}", properties.getGroupmanBaseUri());
     final WebClient webClient = WebClient.builder()
         .baseUrl(properties.getGroupmanBaseUri())
         .filter(new AccessTokenAppender(ReactiveAccessTokenProviders.fromAuthentication()))
