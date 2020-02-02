@@ -16,8 +16,12 @@
 
 package org.bremersee.linkman.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.Map;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -33,6 +37,7 @@ import org.springframework.validation.annotation.Validated;
  *
  * @author Christian Bremer
  */
+@ApiModel(description = "The specification of a link.")
 @Getter
 @Setter
 @ToString
@@ -41,35 +46,53 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class LinkSpecification {
 
+  @ApiModelProperty(value = "The id of the link.")
+  @JsonProperty("id")
   private String id;
 
+  @ApiModelProperty(
+      value = "The access control list that specifies who can see the link.",
+      required = true)
+  @JsonProperty("acl")
+  @NotNull
   private AccessControlList acl;
 
+  @ApiModelProperty(value = "The sort order.", required = true)
+  @JsonProperty(value = "order", required = true)
   private int order;
 
+  @ApiModelProperty(value = "The linked resource.", required = true)
+  @JsonProperty(value = "href", required = true)
   @NotBlank
   private String href;
 
+  @ApiModelProperty(value = "The text that is displayed instead of the link.", required = true)
+  @JsonProperty(value = "text", required = true)
   @NotBlank
   @Size(min = 3, max = 75)
   private String text;
 
+  @ApiModelProperty(value = "The translations of the text.")
+  @JsonProperty("textTranslations")
   private Map<String, String> textTranslations;
 
-  @NotBlank
+  @ApiModelProperty(value = "The description of the link.")
+  @JsonProperty("description")
   @Size(max = 255)
   private String description;
 
+  @ApiModelProperty(value = "The translations of the description.")
+  @JsonProperty("descriptionTranslations")
   private Map<String, String> descriptionTranslations;
 
   /**
    * Instantiates a new link specification.
    *
    * @param id the id
-   * @param acl the acl
-   * @param order the order
-   * @param href the href
-   * @param text the text
+   * @param acl the access control list that specifies who can see the link
+   * @param order the sort order
+   * @param href the linked resource (href)
+   * @param text the text that is displayed instead of the link
    * @param textTranslations the text translations
    * @param description the description
    * @param descriptionTranslations the description translations

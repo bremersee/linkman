@@ -85,12 +85,13 @@ public class LinkServiceImpl implements LinkService {
             .map(categoryEntity -> Tuples.of(categoryEntity, link)))
         .sort((o1, o2) -> o1.getT1().compareTo(o2.getT1(), language))
         .collectMultimap(
-            tuple -> tuple.getT1().getName(language),
+            Tuple2::getT1,
             Tuple2::getT2,
             LinkedHashMap::new)
         .flatMapMany(map -> Flux.fromStream(map.entrySet().stream()
             .map(mapEntry -> LinkContainer.builder()
-                .category(mapEntry.getKey())
+                .category(mapEntry.getKey().getName(language))
+                .pub(Boolean.TRUE.equals(mapEntry.getKey().getMatchesGuest()))
                 .links(mapEntry.getValue().stream()
                     .sorted((o1, o2) -> o1.compareTo(o2, language))
                     .map(linkEntity -> Link.builder()

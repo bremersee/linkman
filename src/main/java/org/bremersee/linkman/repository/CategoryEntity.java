@@ -20,8 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +30,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 
 /**
@@ -42,7 +43,6 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
 @NoArgsConstructor
 @Validated
 public class CategoryEntity implements Comparable<CategoryEntity> {
@@ -67,6 +67,36 @@ public class CategoryEntity implements Comparable<CategoryEntity> {
 
   @Indexed
   private Set<String> matchesGroups = new LinkedHashSet<>();
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    CategoryEntity entity = (CategoryEntity) o;
+    if (StringUtils.hasText(id) && StringUtils.hasText(entity.id)) {
+      return id.equals(entity.getId());
+    }
+    return order == entity.order
+        && Objects.equals(name, entity.name)
+        && Objects.equals(translations, entity.translations)
+        && Objects.equals(matchesGuest, entity.matchesGuest)
+        && Objects.equals(matchesUsers, entity.matchesUsers)
+        && Objects.equals(matchesRoles, entity.matchesRoles)
+        && Objects.equals(matchesGroups, entity.matchesGroups);
+  }
+
+  @Override
+  public int hashCode() {
+    if (StringUtils.hasText(id)) {
+      return id.hashCode();
+    }
+    return Objects
+        .hash(order, name, translations, matchesGuest, matchesUsers, matchesRoles, matchesGroups);
+  }
 
   /**
    * Gets name.

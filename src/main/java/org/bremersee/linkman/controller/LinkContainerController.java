@@ -16,6 +16,9 @@
 
 package org.bremersee.linkman.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
@@ -29,10 +32,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * The link container controller.
@@ -40,6 +45,7 @@ import reactor.core.publisher.Mono;
  * @author Christian Bremer
  */
 @RestController
+@Validated
 public class LinkContainerController {
 
   private final LinkService linkService;
@@ -85,8 +91,20 @@ public class LinkContainerController {
    * @param language the language
    * @return the link containers
    */
+  @ApiOperation(
+      value = "Get categorized links.",
+      nickname = "getLinkContainers",
+      response = LinkContainer.class,
+      responseContainer = "List",
+      tags = {"link-container-controller"})
+  @ApiResponses(value = {
+      @ApiResponse(
+          code = 200, message = "OK", response = LinkContainer.class, responseContainer = "List")
+  })
   @GetMapping(path = "/api/public/links", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Flux<LinkContainer> getLinkContainers(final Locale language) {
+  public Flux<LinkContainer> getLinkContainers(
+      @ApiIgnore final Locale language) {
+
     return manyWithUserContext(userContext -> linkService.getLinks(
         language,
         userContext.getUserId(),

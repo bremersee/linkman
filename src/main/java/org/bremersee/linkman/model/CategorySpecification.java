@@ -16,10 +16,15 @@
 
 package org.bremersee.linkman.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -33,6 +38,7 @@ import org.springframework.validation.annotation.Validated;
  *
  * @author Christian Bremer
  */
+@ApiModel(description = "The specification of a category.")
 @Getter
 @Setter
 @ToString
@@ -41,20 +47,42 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class CategorySpecification {
 
+  @ApiModelProperty(value = "The id of the category.")
+  @JsonProperty("id")
   private String id;
 
+  @ApiModelProperty(value = "The sort order.", required = true)
+  @JsonProperty(value = "order", required = true)
   private int order;
 
+  @ApiModelProperty(value = "The default name.", required = true)
+  @JsonProperty(value = "name", required = true)
+  @NotBlank
+  @Size(min = 1, max = 75)
   private String name;
 
+  @ApiModelProperty(value = "The translations of the name. Key is two letter language code, "
+      + "Value is translation.")
+  @JsonProperty("translations")
   private Map<String, String> translations = new LinkedHashMap<>();
 
-  private Boolean matchesGuest;
+  @ApiModelProperty(value = "Specifies whether the links of this category can be seen without "
+      + "authentication. Default is false.")
+  @JsonProperty("matchesGuest")
+  private Boolean matchesGuest = Boolean.FALSE;
 
+  @ApiModelProperty(value = "Specifies the users that can see the links of this category.")
+  @JsonProperty("matchesUsers")
   private Set<String> matchesUsers = new LinkedHashSet<>();
 
+  @ApiModelProperty(value = "Specifies the roles of the users that can see the links of this "
+      + "category.")
+  @JsonProperty("matchesRoles")
   private Set<String> matchesRoles = new LinkedHashSet<>();
 
+  @ApiModelProperty(value = "Specifies the groups of the users that can see the links of this "
+      + "category.")
+  @JsonProperty("matchesGroups")
   private Set<String> matchesGroups = new LinkedHashSet<>();
 
   /**
@@ -84,7 +112,7 @@ public class CategorySpecification {
     this.order = order;
     this.name = name;
     this.translations = translations;
-    this.matchesGuest = matchesGuest;
+    this.matchesGuest = Boolean.TRUE.equals(matchesGuest);
     this.matchesUsers = matchesUsers;
     this.matchesRoles = matchesRoles;
     this.matchesGroups = matchesGroups;

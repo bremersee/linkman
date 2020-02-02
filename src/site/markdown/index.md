@@ -1,3 +1,3 @@
-# Groupman
+# Linkman
 
-A group management service.
+A link management service.

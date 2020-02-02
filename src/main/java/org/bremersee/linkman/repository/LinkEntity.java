@@ -18,9 +18,9 @@ package org.bremersee.linkman.repository;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +28,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 
 /**
@@ -40,7 +41,6 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
 @NoArgsConstructor
 @Validated
 public class LinkEntity implements Comparable<LinkEntity> {
@@ -91,6 +91,36 @@ public class LinkEntity implements Comparable<LinkEntity> {
       return description;
     }
     return descriptionTranslations.getOrDefault(language.getLanguage(), description);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    LinkEntity that = (LinkEntity) o;
+    if (StringUtils.hasText(id) && StringUtils.hasText(that.id)) {
+      return id.equals(that.getId());
+    }
+    return order == that.order &&
+        Objects.equals(acl, that.acl) &&
+        Objects.equals(href, that.href) &&
+        Objects.equals(text, that.text) &&
+        Objects.equals(textTranslations, that.textTranslations) &&
+        Objects.equals(description, that.description) &&
+        Objects.equals(descriptionTranslations, that.descriptionTranslations);
+  }
+
+  @Override
+  public int hashCode() {
+    if (StringUtils.hasText(id)) {
+      return id.hashCode();
+    }
+    return Objects
+        .hash(acl, order, href, text, textTranslations, description, descriptionTranslations);
   }
 
   @Override

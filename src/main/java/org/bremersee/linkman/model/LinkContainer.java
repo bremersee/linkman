@@ -16,6 +16,10 @@
 
 package org.bremersee.linkman.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModelProperty.AccessMode;
 import java.util.List;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -30,6 +34,7 @@ import org.bremersee.common.model.Link;
  *
  * @author Christian Bremer
  */
+@ApiModel(description = "The category and it's links.")
 @Getter
 @Setter
 @ToString
@@ -37,22 +42,34 @@ import org.bremersee.common.model.Link;
 @NoArgsConstructor
 public class LinkContainer {
 
+  @ApiModelProperty(value = "The name of the category.", accessMode = AccessMode.READ_ONLY)
+  @JsonProperty("category")
   private String category;
 
+  @ApiModelProperty(value = "Specifies whether the links of this category can be seen without "
+      + "authentication. Default is false.", required = true, accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = "pub", required = true)
+  private boolean pub;
+
+  @ApiModelProperty(value = "The links of the category.", accessMode = AccessMode.READ_ONLY)
+  @JsonProperty("links")
   private List<Link> links;
 
   /**
    * Instantiates a new link container.
    *
    * @param category the category
+   * @param pub specifies whether the category is public or not
    * @param links the links
    */
   @Builder(toBuilder = true)
   @SuppressWarnings("unused")
   public LinkContainer(
       String category,
+      boolean pub,
       List<Link> links) {
     this.category = category;
+    this.pub = pub;
     this.links = links;
   }
 
