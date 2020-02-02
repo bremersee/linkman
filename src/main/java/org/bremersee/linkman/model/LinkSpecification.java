@@ -19,6 +19,7 @@ package org.bremersee.linkman.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -79,7 +80,7 @@ public class LinkSpecification {
 
   @ApiModelProperty(value = "The translations of the text.")
   @JsonProperty("textTranslations")
-  private Map<String, String> textTranslations;
+  private Map<String, String> textTranslations = new LinkedHashMap<>();
 
   @ApiModelProperty(value = "The description of the link.")
   @JsonProperty("description")
@@ -88,7 +89,7 @@ public class LinkSpecification {
 
   @ApiModelProperty(value = "The translations of the description.")
   @JsonProperty("descriptionTranslations")
-  private Map<String, String> descriptionTranslations;
+  private Map<String, String> descriptionTranslations = new LinkedHashMap<>();
 
   /**
    * Instantiates a new link specification.
@@ -119,10 +120,44 @@ public class LinkSpecification {
     this.acl = acl;
     this.order = order;
     this.href = href;
-    this.blank = Boolean.TRUE.equals(blank);
+    setBlank(blank);
     this.text = text;
-    this.textTranslations = textTranslations;
+    setTextTranslations(textTranslations);
     this.description = description;
-    this.descriptionTranslations = descriptionTranslations;
+    setDescriptionTranslations(descriptionTranslations);
+  }
+
+  /**
+   * Sets blank.
+   *
+   * @param blank the blank
+   */
+  public void setBlank(Boolean blank) {
+    this.blank = Boolean.TRUE.equals(blank);
+  }
+
+  /**
+   * Sets text translations.
+   *
+   * @param textTranslations the text translations
+   */
+  public void setTextTranslations(Map<String, String> textTranslations) {
+    this.textTranslations.clear();
+    if (textTranslations != null) {
+      this.textTranslations.putAll(textTranslations);
+    }
+  }
+
+  /**
+   * Sets description translations.
+   *
+   * @param descriptionTranslations the description translations
+   */
+  public void setDescriptionTranslations(
+      Map<String, String> descriptionTranslations) {
+    this.descriptionTranslations.clear();
+    if (descriptionTranslations != null) {
+      this.descriptionTranslations.putAll(descriptionTranslations);
+    }
   }
 }

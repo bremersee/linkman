@@ -111,10 +111,67 @@ public class CategorySpecification {
     this.id = id;
     this.order = order;
     this.name = name;
-    this.translations = translations;
+    setTranslations(translations);
+    setMatchesGuest(matchesGuest);
+    setMatchesUsers(matchesUsers);
+    setMatchesRoles(matchesRoles);
+    setMatchesGroups(matchesGroups);
+  }
+
+  /**
+   * Sets translations.
+   *
+   * @param translations the translations
+   */
+  public void setTranslations(Map<String, String> translations) {
+    this.translations.clear();
+    if (translations != null) {
+      this.translations.putAll(translations);
+    }
+  }
+
+  /**
+   * Sets matches guest.
+   *
+   * @param matchesGuest the matches guest
+   */
+  public void setMatchesGuest(Boolean matchesGuest) {
     this.matchesGuest = Boolean.TRUE.equals(matchesGuest);
-    this.matchesUsers = matchesUsers;
-    this.matchesRoles = matchesRoles;
-    this.matchesGroups = matchesGroups;
+  }
+
+  /**
+   * Sets matches users.
+   *
+   * @param matchesUsers the matches users
+   */
+  public void setMatchesUsers(Set<String> matchesUsers) {
+    this.matchesUsers.clear();
+    if (matchesUsers != null) {
+      this.matchesUsers.addAll(matchesUsers);
+    }
+  }
+
+  /**
+   * Sets matches roles.
+   *
+   * @param matchesRoles the matches roles
+   */
+  public void setMatchesRoles(Set<String> matchesRoles) {
+    this.matchesRoles.clear();
+    if (matchesRoles != null) {
+      this.matchesRoles.addAll(matchesRoles);
+    }
+  }
+
+  /**
+   * Sets matches groups.
+   *
+   * @param matchesGroups the matches groups
+   */
+  public void setMatchesGroups(Set<String> matchesGroups) {
+    this.matchesGroups.clear();
+    if (matchesGroups != null) {
+      this.matchesGroups.addAll(matchesGroups);
+    }
   }
 }
