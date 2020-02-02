@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 /**
@@ -57,14 +59,14 @@ public class LinkRepositoryImpl implements LinkRepositoryCustom {
           criteriaList.add(Criteria.where("acl.owner").is(user));
           criteriaList.add(Criteria.where("acl.read.users").all(user));
         });
+    /*
     Optional.ofNullable(groups)
         .ifPresent(roleSet -> criteriaList
             .add(Criteria.where("acl.read.roles").elemMatch(new Criteria().in(roleSet))));
     Optional.ofNullable(groups)
         .ifPresent(groupSet -> criteriaList
             .add(Criteria.where("acl.read.groups").elemMatch(new Criteria().in(groupSet))));
-
-    /* this works:
+     */
     Optional.ofNullable(roles).ifPresent(roleSet -> criteriaList.addAll(roleSet
         .stream()
         .filter(StringUtils::hasText)
@@ -75,7 +77,7 @@ public class LinkRepositoryImpl implements LinkRepositoryCustom {
         .filter(StringUtils::hasText)
         .map(group -> Criteria.where("acl.read.groups").all(group))
         .collect(Collectors.toList())));
-    */
+
     final Criteria criteria = new Criteria()
         .orOperator(criteriaList.toArray(new Criteria[0]));
     return mongoTemplate.find(Query.query(criteria), LinkEntity.class);

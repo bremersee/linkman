@@ -97,6 +97,7 @@ public class LinkServiceImpl implements LinkService {
                     .map(linkEntity -> Link.builder()
                         .id(linkEntity.getId())
                         .href(linkEntity.getHref())
+                        .blank(linkEntity.getBlank())
                         .text(linkEntity.getText(language))
                         .description(linkEntity.getDescription(language))
                         .build())

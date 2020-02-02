@@ -66,6 +66,11 @@ public class LinkSpecification {
   @NotBlank
   private String href;
 
+  @ApiModelProperty(
+      value = "Specified whether to open the link in a blank target (default is false).")
+  @JsonProperty("blank")
+  private Boolean blank = Boolean.FALSE;
+
   @ApiModelProperty(value = "The text that is displayed instead of the link.", required = true)
   @JsonProperty(value = "text", required = true)
   @NotBlank
@@ -92,6 +97,7 @@ public class LinkSpecification {
    * @param acl the access control list that specifies who can see the link
    * @param order the sort order
    * @param href the linked resource (href)
+   * @param blank specified whether to open the link in a blank target (default is false)
    * @param text the text that is displayed instead of the link
    * @param textTranslations the text translations
    * @param description the description
@@ -104,6 +110,7 @@ public class LinkSpecification {
       AccessControlList acl,
       int order,
       String href,
+      Boolean blank,
       String text,
       Map<String, String> textTranslations,
       String description,
@@ -112,6 +119,7 @@ public class LinkSpecification {
     this.acl = acl;
     this.order = order;
     this.href = href;
+    this.blank = Boolean.TRUE.equals(blank);
     this.text = text;
     this.textTranslations = textTranslations;
     this.description = description;

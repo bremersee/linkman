@@ -111,12 +111,22 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   public Mono<CategorySpecification> updateCategory(String id, CategorySpecification category) {
+    final CategorySpecification model = category.toBuilder().id(id).build();
     return categoryRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Category", id)))
-        .flatMap(entity -> categoryRepository
-            .save(modelMapper.map(
-                category.toBuilder().id(entity.getId()).build(),
-                CategoryEntity.class)))
+        .flatMap(entity -> {
+          if (Boolean.TRUE.equals(model.getMatchesGuest())
+              && !Boolean.TRUE.equals(entity.getMatchesGuest())) {
+            return categoryRepository.countPublicCategories()
+                .flatMap(size -> size > 0
+                    ? Mono.error(ServiceException.badRequest(
+                    "There is already a public category.",
+                    "ONLY_ONE_PUBLIC_CATEGORY_IS_ALLOWED"))
+                    : categoryRepository.save(modelMapper.map(model, CategoryEntity.class)));
+          } else {
+            return categoryRepository.save(modelMapper.map(model, CategoryEntity.class));
+          }
+        })
         .map(entity -> modelMapper.map(entity, CategorySpecification.class));
   }
 

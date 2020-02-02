@@ -55,6 +55,8 @@ public class LinkEntity implements Comparable<LinkEntity> {
   @NotBlank
   private String href;
 
+  private Boolean blank = Boolean.FALSE;
+
   @NotBlank
   @Size(min = 3, max = 75)
   private String text;
@@ -108,6 +110,7 @@ public class LinkEntity implements Comparable<LinkEntity> {
     return order == that.order &&
         Objects.equals(acl, that.acl) &&
         Objects.equals(href, that.href) &&
+        Objects.equals(blank, that.blank) &&
         Objects.equals(text, that.text) &&
         Objects.equals(textTranslations, that.textTranslations) &&
         Objects.equals(description, that.description) &&
@@ -119,8 +122,8 @@ public class LinkEntity implements Comparable<LinkEntity> {
     if (StringUtils.hasText(id)) {
       return id.hashCode();
     }
-    return Objects
-        .hash(acl, order, href, text, textTranslations, description, descriptionTranslations);
+    return Objects.hash(
+        acl, order, href, blank, text, textTranslations, description, descriptionTranslations);
   }
 
   @Override
