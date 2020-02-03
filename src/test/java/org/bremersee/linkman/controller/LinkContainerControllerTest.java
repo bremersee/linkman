@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -143,6 +144,7 @@ class LinkContainerControllerTest {
         .id("developerCategory")
         .order(50)
         .name("Developer")
+        .translations(Collections.singletonMap("fr", "Développeur"))
         .matchesGroups(Collections.singleton("developers"))
         .build();
     CategoryEntity developerCategoryEntity = modelMapper
@@ -203,7 +205,10 @@ class LinkContainerControllerTest {
         .id("developerLink")
         .href("http://developer.example.org")
         .text("Developer page")
+        .textTranslations(Collections.singletonMap("fr", "Page développeur"))
         .description("The developer page.")
+        .descriptionTranslations(
+            Collections.singletonMap("fr", "La page contient des liens vers les ressources."))
         .acl(AclBuilder.builder()
             .addGroup("developers", PermissionConstants.READ)
             .buildAccessControlList())
@@ -353,6 +358,7 @@ class LinkContainerControllerTest {
         .get()
         .uri("/api/public/links")
         .accept(MediaType.APPLICATION_JSON)
+        .header(HttpHeaders.ACCEPT_LANGUAGE, "fr")
         .exchange()
         .expectStatus().isOk()
         .expectBodyList(LinkContainer.class)
@@ -364,16 +370,20 @@ class LinkContainerControllerTest {
 
   private void assertThatDeveloperLinkIsPresent(List<LinkContainer> list) {
     assertEquals(1L, list.stream()
-        .filter(linkContainer -> "Developer".equals(linkContainer.getCategory()))
+        .filter(linkContainer -> "Développeur".equals(linkContainer.getCategory()))
         .count());
     Optional<LinkContainer> optional = list.stream()
-        .filter(linkContainer -> "Developer".equals(linkContainer.getCategory()))
+        .filter(linkContainer -> "Développeur".equals(linkContainer.getCategory()))
         .findFirst();
     assertTrue(optional.isPresent());
     LinkContainer container = optional.get();
     assertNotNull(container.getLinks());
     assertEquals(1, container.getLinks().size());
     assertEquals("developerLink", container.getLinks().get(0).getId());
+    assertEquals("Page développeur", container.getLinks().get(0).getText());
+    assertEquals(
+        "La page contient des liens vers les ressources.",
+        container.getLinks().get(0).getDescription());
   }
 
   /**
