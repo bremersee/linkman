@@ -42,8 +42,8 @@ import org.bremersee.common.model.Link;
 @NoArgsConstructor
 public class LinkContainer {
 
-  @ApiModelProperty(value = "The name of the category.", accessMode = AccessMode.READ_ONLY)
-  @JsonProperty("category")
+  @ApiModelProperty(value = "The name of the category.", required = true, accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = "category", required = true)
   private String category;
 
   @ApiModelProperty(value = "Specifies whether the links of this category can be seen without "

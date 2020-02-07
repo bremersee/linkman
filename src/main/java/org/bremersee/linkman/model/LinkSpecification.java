@@ -54,7 +54,7 @@ public class LinkSpecification {
   @ApiModelProperty(
       value = "The access control list that specifies who can see the link.",
       required = true)
-  @JsonProperty("acl")
+  @JsonProperty(value = "acl", required = true)
   @NotNull
   private AccessControlList acl;
 

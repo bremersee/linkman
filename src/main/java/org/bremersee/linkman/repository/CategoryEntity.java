@@ -124,7 +124,7 @@ public class CategoryEntity implements Comparable<CategoryEntity> {
    * @return the result
    */
   public int compareTo(final CategoryEntity o, final Locale language) {
-    int result = order - o.order;
+    int result = Integer.compare(order, o.order);
     return result != 0
         ? result
         : String.valueOf(getName(language))
