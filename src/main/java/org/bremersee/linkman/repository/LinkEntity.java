@@ -139,7 +139,7 @@ public class LinkEntity implements Comparable<LinkEntity> {
    * @return the result
    */
   public int compareTo(final LinkEntity o, final Locale language) {
-    int result = order - o.order;
+    int result = Integer.compare(order, o.order);
     return result != 0
         ? result
         : String.valueOf(getText(language))
