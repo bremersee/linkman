@@ -30,6 +30,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
@@ -104,14 +105,11 @@ public class SecurityConfiguration {
 
       http
           .authorizeExchange()
-          .pathMatchers("/v2/**")
-          .permitAll()
-          .pathMatchers("/api/public/**")
-          .permitAll()
-          .pathMatchers("/api/admin/**")
-          .hasAnyAuthority(ADMIN_ROLES)
-          .anyExchange()
-          .authenticated();
+          .pathMatchers(HttpMethod.OPTIONS).permitAll()
+          .pathMatchers("/v2/**").permitAll()
+          .pathMatchers("/api/public/**").permitAll()
+          .pathMatchers("/api/admin/**").hasAnyAuthority(ADMIN_ROLES)
+          .anyExchange().authenticated();
 
       return http.build();
     }
@@ -135,6 +133,7 @@ public class SecurityConfiguration {
 
       http
           .authorizeExchange()
+          .pathMatchers(HttpMethod.OPTIONS).permitAll()
           .matchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
           .matchers(EndpointRequest.to(InfoEndpoint.class)).permitAll()
           .anyExchange().hasAuthority(AuthorityConstants.ACTUATOR_ROLE_NAME);
@@ -191,14 +190,11 @@ public class SecurityConfiguration {
           .securityMatcher(new NegatedServerWebExchangeMatcher(EndpointRequest.toAnyEndpoint()))
           .csrf().disable()
           .authorizeExchange()
-          .pathMatchers("/v2/**")
-          .permitAll()
-          .pathMatchers("/api/public/**")
-          .permitAll()
-          .pathMatchers("/api/admin/**")
-          .hasAnyAuthority(ADMIN_ROLES)
-          .anyExchange()
-          .authenticated()
+          .pathMatchers(HttpMethod.OPTIONS).permitAll()
+          .pathMatchers("/v2/**").permitAll()
+          .pathMatchers("/api/public/**").permitAll()
+          .pathMatchers("/api/admin/**").hasAnyAuthority(ADMIN_ROLES)
+          .anyExchange().authenticated()
           .and()
           .httpBasic()
           .and()
@@ -221,6 +217,7 @@ public class SecurityConfiguration {
           .securityMatcher(EndpointRequest.toAnyEndpoint())
           .csrf().disable()
           .authorizeExchange()
+          .pathMatchers(HttpMethod.OPTIONS).permitAll()
           .matchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
           .matchers(EndpointRequest.to(InfoEndpoint.class)).permitAll()
           .anyExchange().hasAuthority(AuthorityConstants.ACTUATOR_ROLE_NAME)
