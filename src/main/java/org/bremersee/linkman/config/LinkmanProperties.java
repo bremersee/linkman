@@ -17,11 +17,14 @@
 package org.bremersee.linkman.config;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +43,8 @@ public class LinkmanProperties {
 
   private String groupmanBaseUri;
 
+  private Set<TwoLetterLanguageCode> availableLanguages = new LinkedHashSet<>();
+
   private Category defaultCategory;
 
   private Category publicCategory;
@@ -48,6 +53,31 @@ public class LinkmanProperties {
    * Instantiates new linkman properties.
    */
   public LinkmanProperties() {
+    availableLanguages.add(TwoLetterLanguageCode.BG);
+    availableLanguages.add(TwoLetterLanguageCode.HR);
+    availableLanguages.add(TwoLetterLanguageCode.CS);
+    availableLanguages.add(TwoLetterLanguageCode.DA);
+    availableLanguages.add(TwoLetterLanguageCode.NL);
+    availableLanguages.add(TwoLetterLanguageCode.EN);
+    availableLanguages.add(TwoLetterLanguageCode.ET);
+    availableLanguages.add(TwoLetterLanguageCode.FI);
+    availableLanguages.add(TwoLetterLanguageCode.FR);
+    availableLanguages.add(TwoLetterLanguageCode.DE);
+    availableLanguages.add(TwoLetterLanguageCode.EL);
+    availableLanguages.add(TwoLetterLanguageCode.HU);
+    availableLanguages.add(TwoLetterLanguageCode.GA);
+    availableLanguages.add(TwoLetterLanguageCode.IT);
+    availableLanguages.add(TwoLetterLanguageCode.LV);
+    availableLanguages.add(TwoLetterLanguageCode.LT);
+    availableLanguages.add(TwoLetterLanguageCode.MT);
+    availableLanguages.add(TwoLetterLanguageCode.PL);
+    availableLanguages.add(TwoLetterLanguageCode.PT);
+    availableLanguages.add(TwoLetterLanguageCode.RO);
+    availableLanguages.add(TwoLetterLanguageCode.SK);
+    availableLanguages.add(TwoLetterLanguageCode.SL);
+    availableLanguages.add(TwoLetterLanguageCode.ES);
+    availableLanguages.add(TwoLetterLanguageCode.SV);
+
     defaultCategory = new Category();
     defaultCategory.setName("Not categorized");
     defaultCategory.getTranslations().put("de", "Nicht kategorisiert");

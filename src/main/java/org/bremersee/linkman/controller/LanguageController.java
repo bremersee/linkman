@@ -19,10 +19,9 @@ package org.bremersee.linkman.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.Arrays;
 import java.util.Locale;
 import org.bremersee.common.model.JavaLocaleDescription;
-import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.bremersee.linkman.config.LinkmanProperties;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +35,17 @@ import reactor.core.publisher.Flux;
  */
 @RestController
 public class LanguageController {
+
+  private LinkmanProperties properties;
+
+  /**
+   * Instantiates a new language controller.
+   *
+   * @param properties the properties
+   */
+  public LanguageController(LinkmanProperties properties) {
+    this.properties = properties;
+  }
 
   /**
    * Gets available languages.
@@ -58,7 +68,7 @@ public class LanguageController {
   })
   @GetMapping(path = "/api/public/languages", produces = MediaType.APPLICATION_JSON_VALUE)
   public Flux<JavaLocaleDescription> getAvailableLanguages(Locale inLocale) {
-    return Flux.fromStream(Arrays.stream(TwoLetterLanguageCode.values())
+    return Flux.fromStream(properties.getAvailableLanguages().stream()
         .map(code -> new JavaLocaleDescription(
             code.toString(),
             code.toLocale().getDisplayLanguage(inLocale)))

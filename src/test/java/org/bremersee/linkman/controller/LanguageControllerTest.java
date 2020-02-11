@@ -63,8 +63,8 @@ class LanguageControllerTest {
   @Test
   void getAvailableLanguages() {
     JavaLocaleDescription expected = new JavaLocaleDescription(
-        TwoLetterLanguageCode.BE.toString(),
-        TwoLetterLanguageCode.BE.toLocale().getDisplayLanguage(Locale.FRANCE));
+        TwoLetterLanguageCode.BG.toString(),
+        TwoLetterLanguageCode.BG.toLocale().getDisplayLanguage(Locale.FRANCE));
     webTestClient
         .get()
         .uri("/api/public/languages")
@@ -74,7 +74,6 @@ class LanguageControllerTest {
         .expectStatus().isOk()
         .expectBodyList(JavaLocaleDescription.class)
         .value(list -> {
-          System.out.println("List = " + list);
           assertFalse(list.isEmpty());
           assertEquals(Locale.FRENCH.getLanguage(), list.get(0).getLocale());
           assertTrue(list.contains(expected));
