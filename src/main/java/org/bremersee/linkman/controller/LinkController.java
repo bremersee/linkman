@@ -16,10 +16,14 @@
 
 package org.bremersee.linkman.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
 import org.bremersee.linkman.model.LinkSpecification;
 import org.bremersee.linkman.service.LinkService;
@@ -40,6 +44,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Christian Bremer
  */
+@Tag(name = "link-controller", description = "The link API.")
 @RestController
 @Validated
 public class LinkController {
@@ -60,19 +65,20 @@ public class LinkController {
    *
    * @return the links
    */
-  @ApiOperation(
-      value = "Get all links.",
-      nickname = "getLinks",
-      response = LinkSpecification.class,
-      responseContainer = "List",
+  @Operation(
+      summary = "Get all links.",
+      operationId = "getLinks",
       tags = {"link-controller"})
   @ApiResponses(value = {
       @ApiResponse(
-          code = 200,
-          message = "OK",
-          response = LinkSpecification.class,
-          responseContainer = "List"),
-      @ApiResponse(code = 403, message = "Forbidden")
+          responseCode = "200",
+          description = "The links.",
+          content = @Content(
+              array = @ArraySchema(
+                  schema = @Schema(implementation = LinkSpecification.class)))),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
   })
   @GetMapping(path = "/api/admin/links", produces = MediaType.APPLICATION_JSON_VALUE)
   public Flux<LinkSpecification> getLinks() {
@@ -85,22 +91,32 @@ public class LinkController {
    * @param link the link
    * @return the added link
    */
-  @ApiOperation(
-      value = "Add a link.",
-      nickname = "addLink",
-      response = LinkSpecification.class,
+  @Operation(
+      summary = "Add a link.",
+      operationId = "addLink",
       tags = {"link-controller"})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "OK", response = LinkSpecification.class),
-      @ApiResponse(code = 400, message = "Bad Request",
-          response = org.bremersee.exception.model.RestApiException.class),
-      @ApiResponse(code = 403, message = "Forbidden")
+      @ApiResponse(
+          responseCode = "200",
+          description = "The added link.",
+          content = @Content(
+              schema = @Schema(
+                  implementation = LinkSpecification.class))),
+      @ApiResponse(
+          responseCode = "400",
+          description = "Bad Request",
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
   })
   @PostMapping(path = "/api/admin/links",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public Mono<LinkSpecification> addLink(
-      @ApiParam(value = "The new link.", required = true) @Valid @RequestBody
+      @Parameter(description = "The new link.", required = true) @Valid @RequestBody
           LinkSpecification link) {
 
     return linkService.addLink(link);
@@ -112,20 +128,30 @@ public class LinkController {
    * @param id the id
    * @return the link
    */
-  @ApiOperation(
-      value = "Get a link.",
-      nickname = "getLink",
-      response = LinkSpecification.class,
+  @Operation(
+      summary = "Get a link.",
+      operationId = "getLink",
       tags = {"link-controller"})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "OK", response = LinkSpecification.class),
-      @ApiResponse(code = 404, message = "Not Found",
-          response = org.bremersee.exception.model.RestApiException.class),
-      @ApiResponse(code = 403, message = "Forbidden")
+      @ApiResponse(
+          responseCode = "200",
+          description = "The link.",
+          content = @Content(
+              schema = @Schema(
+                  implementation = LinkSpecification.class))),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Not Found",
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
   })
   @GetMapping(path = "/api/admin/links/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<LinkSpecification> getLink(
-      @ApiParam(value = "The link ID.", required = true) @PathVariable("id") String id) {
+      @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id) {
     return linkService.getLink(id);
   }
 
@@ -136,25 +162,39 @@ public class LinkController {
    * @param link the link
    * @return the updated link
    */
-  @ApiOperation(
-      value = "Update a link.",
-      nickname = "updateLink",
-      response = LinkSpecification.class,
+  @Operation(
+      summary = "Update a link.",
+      operationId = "updateLink",
       tags = {"link-controller"})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "OK", response = LinkSpecification.class),
-      @ApiResponse(code = 400, message = "Bad Request",
-          response = org.bremersee.exception.model.RestApiException.class),
-      @ApiResponse(code = 404, message = "Not Found",
-          response = org.bremersee.exception.model.RestApiException.class),
-      @ApiResponse(code = 403, message = "Forbidden")
+      @ApiResponse(
+          responseCode = "200",
+          description = "The updated link.",
+          content = @Content(
+              schema = @Schema(
+                  implementation = LinkSpecification.class))),
+      @ApiResponse(
+          responseCode = "400",
+          description = "Bad Request",
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Not Found",
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
   })
   @PutMapping(path = "/api/admin/links/{id}",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public Mono<LinkSpecification> updateLink(
-      @ApiParam(value = "The link ID.", required = true) @PathVariable("id") String id,
-      @ApiParam(value = "The new link specification.", required = true) @Valid @RequestBody
+      @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
+      @Parameter(description = "The new link specification.", required = true) @Valid @RequestBody
           LinkSpecification link) {
 
     return linkService.updateLink(id, link);
@@ -166,17 +206,21 @@ public class LinkController {
    * @param id the id
    * @return void
    */
-  @ApiOperation(
-      value = "Delete a link.",
-      nickname = "deleteLink",
+  @Operation(
+      summary = "Delete a link.",
+      operationId = "deleteLink",
       tags = {"link-controller"})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "OK", response = LinkSpecification.class),
-      @ApiResponse(code = 403, message = "Forbidden")
+      @ApiResponse(
+          responseCode = "200",
+          description = "OK"),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
   })
   @DeleteMapping(path = "/api/admin/links/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<Void> deleteLink(
-      @ApiParam(value = "The link ID.", required = true) @PathVariable("id") String id) {
+      @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id) {
 
     return linkService.deleteLink(id);
   }

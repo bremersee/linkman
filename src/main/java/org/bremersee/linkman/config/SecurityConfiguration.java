@@ -106,7 +106,9 @@ public class SecurityConfiguration {
       http
           .authorizeExchange()
           .pathMatchers(HttpMethod.OPTIONS).permitAll()
-          .pathMatchers("/v2/**").permitAll()
+          .pathMatchers("/swagger-ui.html").permitAll()
+          .pathMatchers("/webjars/**").permitAll()
+          .pathMatchers("/v3/**").permitAll()
           .pathMatchers("/api/public/**").permitAll()
           .pathMatchers("/api/admin/**").hasAnyAuthority(ADMIN_ROLES)
           .anyExchange().authenticated();
@@ -191,7 +193,9 @@ public class SecurityConfiguration {
           .csrf().disable()
           .authorizeExchange()
           .pathMatchers(HttpMethod.OPTIONS).permitAll()
-          .pathMatchers("/v2/**").permitAll()
+          .pathMatchers("/swagger-ui.html").permitAll()
+          .pathMatchers("/webjars/**").permitAll()
+          .pathMatchers("/v3/**").permitAll()
           .pathMatchers("/api/public/**").permitAll()
           .pathMatchers("/api/admin/**").hasAnyAuthority(ADMIN_ROLES)
           .anyExchange().authenticated()

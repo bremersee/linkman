@@ -17,8 +17,8 @@
 package org.bremersee.linkman.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.validation.constraints.NotBlank;
@@ -38,7 +38,7 @@ import org.springframework.validation.annotation.Validated;
  *
  * @author Christian Bremer
  */
-@ApiModel(description = "The specification of a link.")
+@Schema(description = "The specification of a link.")
 @Getter
 @Setter
 @ToString
@@ -47,47 +47,53 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class LinkSpecification {
 
-  @ApiModelProperty(value = "The id of the link.")
+  @Schema(description = "Unique identifier of the link.", accessMode = AccessMode.READ_ONLY)
   @JsonProperty("id")
   private String id;
 
-  @ApiModelProperty(
-      value = "The access control list that specifies who can see the link.",
+  @Schema(
+      description = "The access control list that specifies who can see the link.",
       required = true)
   @JsonProperty(value = "acl", required = true)
   @NotNull
   private AccessControlList acl;
 
-  @ApiModelProperty(value = "The sort order.", required = true)
+  @Schema(description = "The sort order.", required = true, example = "100")
   @JsonProperty(value = "order", required = true)
   private int order;
 
-  @ApiModelProperty(value = "The linked resource.", required = true)
+  @Schema(description = "The linked resource.", required = true, example = "http://example.org")
   @JsonProperty(value = "href", required = true)
   @NotBlank
   private String href;
 
-  @ApiModelProperty(
-      value = "Specified whether to open the link in a blank target (default is false).")
+  @Schema(
+      description = "Specified whether to open the link in a blank target (default is false).",
+      defaultValue = "false")
   @JsonProperty("blank")
   private Boolean blank = Boolean.FALSE;
 
-  @ApiModelProperty(value = "The text that is displayed instead of the link.", required = true)
+  @Schema(
+      description = "The text that is displayed instead of the link.",
+      required = true,
+      example = "The example page")
   @JsonProperty(value = "text", required = true)
   @NotBlank
   @Size(min = 3, max = 75)
   private String text;
 
-  @ApiModelProperty(value = "The translations of the text.")
+  @Schema(description = "The translations of the text.")
   @JsonProperty("textTranslations")
   private Map<String, String> textTranslations = new LinkedHashMap<>();
 
-  @ApiModelProperty(value = "The description of the link.")
+  @Schema(
+      description = "The description of the link.",
+      example = "On the example page you can view some examples.")
   @JsonProperty("description")
   @Size(max = 255)
   private String description;
 
-  @ApiModelProperty(value = "The translations of the description.")
+  @Schema(description = "The translations of the description.")
   @JsonProperty("descriptionTranslations")
   private Map<String, String> descriptionTranslations = new LinkedHashMap<>();
 
