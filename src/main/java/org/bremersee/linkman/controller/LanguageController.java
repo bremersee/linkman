@@ -16,9 +16,14 @@
 
 package org.bremersee.linkman.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Locale;
 import org.bremersee.common.model.JavaLocaleDescription;
 import org.bremersee.linkman.config.LinkmanProperties;
@@ -33,6 +38,7 @@ import reactor.core.publisher.Flux;
  *
  * @author Christian Bremer
  */
+@Tag(name = "language-controller", description = "The available languages API.")
 @RestController
 public class LanguageController {
 
@@ -53,21 +59,22 @@ public class LanguageController {
    * @param inLocale the language of the description
    * @return the available languages
    */
-  @ApiOperation(
-      value = "Get available languages.",
-      nickname = "getAvailableLanguages",
-      response = JavaLocaleDescription.class,
-      responseContainer = "List",
+  @Operation(
+      summary = "Get available languages.",
+      operationId = "getAvailableLanguages",
       tags = {"language-controller"})
   @ApiResponses(value = {
       @ApiResponse(
-          code = 200,
-          message = "OK",
-          response = JavaLocaleDescription.class,
-          responseContainer = "List")
+          responseCode = "200",
+          description = "The available languages.",
+          content = @Content(
+              array = @ArraySchema(
+                  schema = @Schema(implementation = JavaLocaleDescription.class))))
   })
   @GetMapping(path = "/api/public/languages", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Flux<JavaLocaleDescription> getAvailableLanguages(Locale inLocale) {
+  public Flux<JavaLocaleDescription> getAvailableLanguages(
+      @Parameter(hidden = true) Locale inLocale) {
+
     return Flux.fromStream(properties.getAvailableLanguages().stream()
         .map(code -> new JavaLocaleDescription(
             code.toString(),

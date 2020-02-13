@@ -16,10 +16,14 @@
 
 package org.bremersee.linkman.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
 import org.bremersee.linkman.model.CategorySpecification;
 import org.bremersee.linkman.service.CategoryService;
@@ -40,6 +44,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Christian Bremer
  */
+@Tag(name = "category-controller", description = "The category API.")
 @RestController
 @Validated
 public class CategoryController {
@@ -60,19 +65,20 @@ public class CategoryController {
    *
    * @return the categories
    */
-  @ApiOperation(
-      value = "Get all categories.",
-      nickname = "getCategories",
-      response = CategorySpecification.class,
-      responseContainer = "List",
+  @Operation(
+      summary = "Get all categories.",
+      operationId = "getCategories",
       tags = {"category-controller"})
   @ApiResponses(value = {
       @ApiResponse(
-          code = 200,
-          message = "OK",
-          response = CategorySpecification.class,
-          responseContainer = "List"),
-      @ApiResponse(code = 403, message = "Forbidden")
+          responseCode = "200",
+          description = "The categories.",
+          content = @Content(
+              array = @ArraySchema(
+                  schema = @Schema(implementation = CategorySpecification.class)))),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
   })
   @GetMapping(path = "/api/admin/categories", produces = MediaType.APPLICATION_JSON_VALUE)
   public Flux<CategorySpecification> getCategories() {
@@ -85,22 +91,32 @@ public class CategoryController {
    * @param category the category
    * @return the added category
    */
-  @ApiOperation(
-      value = "Add a category.",
-      nickname = "addCategory",
-      response = CategorySpecification.class,
+  @Operation(
+      summary = "Add a category.",
+      operationId = "addCategory",
       tags = {"category-controller"})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "OK", response = CategorySpecification.class),
-      @ApiResponse(code = 400, message = "Bad Request",
-          response = org.bremersee.exception.model.RestApiException.class),
-      @ApiResponse(code = 403, message = "Forbidden")
+      @ApiResponse(
+          responseCode = "200",
+          description = "The added category.",
+          content = @Content(
+              schema = @Schema(
+                  implementation = CategorySpecification.class))),
+      @ApiResponse(
+          responseCode = "400",
+          description = "Bad Request",
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
   })
   @PostMapping(path = "/api/admin/categories",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public Mono<CategorySpecification> addCategory(
-      @ApiParam(value = "The new category.", required = true) @Valid @RequestBody
+      @Parameter(description = "The new category.", required = true) @Valid @RequestBody
           CategorySpecification category) {
 
     return categoryService.addCategory(category);
@@ -112,20 +128,30 @@ public class CategoryController {
    * @param id the id
    * @return the category
    */
-  @ApiOperation(
-      value = "Get a category.",
-      nickname = "getCategory",
-      response = CategorySpecification.class,
+  @Operation(
+      summary = "Get a category.",
+      operationId = "getCategory",
       tags = {"category-controller"})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "OK", response = CategorySpecification.class),
-      @ApiResponse(code = 404, message = "Not Found",
-          response = org.bremersee.exception.model.RestApiException.class),
-      @ApiResponse(code = 403, message = "Forbidden")
+      @ApiResponse(
+          responseCode = "200",
+          description = "The category.",
+          content = @Content(
+              schema = @Schema(
+                  implementation = CategorySpecification.class))),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Not Found",
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
   })
   @GetMapping(path = "/api/admin/categories/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<CategorySpecification> getCategory(
-      @ApiParam(value = "The category ID.", required = true) @PathVariable("id") String id) {
+      @Parameter(description = "The category ID.", required = true) @PathVariable("id") String id) {
     return categoryService.getCategory(id);
   }
 
@@ -136,26 +162,40 @@ public class CategoryController {
    * @param category the category
    * @return the the updated category
    */
-  @ApiOperation(
-      value = "Update a category.",
-      nickname = "updateCategory",
-      response = CategorySpecification.class,
+  @Operation(
+      summary = "Update a category.",
+      operationId = "updateCategory",
       tags = {"category-controller"})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "OK", response = CategorySpecification.class),
-      @ApiResponse(code = 400, message = "Bad Request",
-          response = org.bremersee.exception.model.RestApiException.class),
-      @ApiResponse(code = 404, message = "Not Found",
-          response = org.bremersee.exception.model.RestApiException.class),
-      @ApiResponse(code = 403, message = "Forbidden")
+      @ApiResponse(
+          responseCode = "200",
+          description = "The updated category.",
+          content = @Content(
+              schema = @Schema(
+                  implementation = CategorySpecification.class))),
+      @ApiResponse(
+          responseCode = "400",
+          description = "Bad Request",
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Not Found",
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
   })
   @PutMapping(path = "/api/admin/categories/{id}",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public Mono<CategorySpecification> updateCategory(
-      @ApiParam(value = "The category ID.", required = true) @PathVariable("id") String id,
-      @ApiParam(value = "The new category specification.", required = true) @Valid @RequestBody
-          CategorySpecification category) {
+      @Parameter(description = "The category ID.", required = true) @PathVariable("id") String id,
+      @Parameter(description = "The new category specification.", required = true)
+      @Valid @RequestBody CategorySpecification category) {
 
     return categoryService.updateCategory(id, category);
   }
@@ -166,17 +206,21 @@ public class CategoryController {
    * @param id the id
    * @return void
    */
-  @ApiOperation(
-      value = "Delete a category.",
-      nickname = "deleteCategory",
+  @Operation(
+      summary = "Delete a category.",
+      operationId = "deleteCategory",
       tags = {"category-controller"})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "OK", response = CategorySpecification.class),
-      @ApiResponse(code = 403, message = "Forbidden")
+      @ApiResponse(
+          responseCode = "200",
+          description = "OK"),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
   })
   @DeleteMapping(path = "/api/admin/categories/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<Void> deleteCategory(
-      @ApiParam(value = "The category ID.", required = true) @PathVariable("id") String id) {
+      @Parameter(description = "The category ID.", required = true) @PathVariable("id") String id) {
 
     return categoryService.deleteCategory(id);
   }

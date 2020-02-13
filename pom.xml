@@ -165,7 +165,8 @@
       <artifactId>spring-cloud-starter-zipkin</artifactId>
     </dependency>
 
-    <!-- swagger -->
+    <!-- swagger v2 -->
+    <!--
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-integration</artifactId>
@@ -193,6 +194,12 @@
       <groupId>io.springfox</groupId>
       <artifactId>springfox-swagger-ui</artifactId>
       <version>${springfox.version}</version>
+    </dependency>
+    -->
+
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-webflux-ui</artifactId>
     </dependency>
 
     <dependency>

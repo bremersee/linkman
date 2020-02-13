@@ -17,9 +17,7 @@
 package org.bremersee.linkman.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiModelProperty.AccessMode;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -34,7 +32,7 @@ import org.bremersee.common.model.Link;
  *
  * @author Christian Bremer
  */
-@ApiModel(description = "The category and it's links.")
+@Schema(description = "The category and it's links.")
 @Getter
 @Setter
 @ToString
@@ -42,16 +40,16 @@ import org.bremersee.common.model.Link;
 @NoArgsConstructor
 public class LinkContainer {
 
-  @ApiModelProperty(value = "The name of the category.", required = true, accessMode = AccessMode.READ_ONLY)
+  @Schema(description = "The name of the category.", required = true)
   @JsonProperty(value = "category", required = true)
   private String category;
 
-  @ApiModelProperty(value = "Specifies whether the links of this category can be seen without "
-      + "authentication. Default is false.", required = true, accessMode = AccessMode.READ_ONLY)
+  @Schema(description = "Specifies whether the links of this category can be seen without "
+      + "authentication. Default is false.", required = true)
   @JsonProperty(value = "pub", required = true)
   private boolean pub;
 
-  @ApiModelProperty(value = "The links of the category.", accessMode = AccessMode.READ_ONLY)
+  @Schema(description = "The links of the category.")
   @JsonProperty("links")
   private List<Link> links;
 

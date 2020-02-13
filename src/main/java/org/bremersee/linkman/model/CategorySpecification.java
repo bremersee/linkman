@@ -17,8 +17,8 @@
 package org.bremersee.linkman.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -38,7 +38,7 @@ import org.springframework.validation.annotation.Validated;
  *
  * @author Christian Bremer
  */
-@ApiModel(description = "The specification of a category.")
+@Schema(description = "The specification of a category.")
 @Getter
 @Setter
 @ToString
@@ -47,40 +47,41 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class CategorySpecification {
 
-  @ApiModelProperty(value = "The id of the category.")
+  @Schema(description = "Unique identifier of the category.", accessMode = AccessMode.READ_ONLY)
   @JsonProperty("id")
   private String id;
 
-  @ApiModelProperty(value = "The sort order.", required = true)
+  @Schema(description = "The sort order value.", required = true, example = "134")
   @JsonProperty(value = "order", required = true)
   private int order;
 
-  @ApiModelProperty(value = "The default name.", required = true)
+  @Schema(description = "The default name.", required = true, example = "Administration")
   @JsonProperty(value = "name", required = true)
   @NotBlank
   @Size(min = 1, max = 75)
   private String name;
 
-  @ApiModelProperty(value = "The translations of the name. Key is two letter language code, "
-      + "Value is translation.")
+  @Schema(
+      description = "The translations of the name. Key is two letter language code, "
+          + "value is translation.")
   @JsonProperty("translations")
   private Map<String, String> translations = new LinkedHashMap<>();
 
-  @ApiModelProperty(value = "Specifies whether the links of this category can be seen without "
-      + "authentication. Default is false.")
+  @Schema(description = "Specifies whether the links of this category can be seen without "
+      + "authentication. Default is false.", defaultValue = "false")
   @JsonProperty("matchesGuest")
   private Boolean matchesGuest = Boolean.FALSE;
 
-  @ApiModelProperty(value = "Specifies the users that can see the links of this category.")
+  @Schema(description = "Specifies the users that can see the links of this category.")
   @JsonProperty("matchesUsers")
   private Set<String> matchesUsers = new LinkedHashSet<>();
 
-  @ApiModelProperty(value = "Specifies the roles of the users that can see the links of this "
+  @Schema(description = "Specifies the roles of the users that can see the links of this "
       + "category.")
   @JsonProperty("matchesRoles")
   private Set<String> matchesRoles = new LinkedHashSet<>();
 
-  @ApiModelProperty(value = "Specifies the groups of the users that can see the links of this "
+  @Schema(description = "Specifies the groups of the users that can see the links of this "
       + "category.")
   @JsonProperty("matchesGroups")
   private Set<String> matchesGroups = new LinkedHashSet<>();

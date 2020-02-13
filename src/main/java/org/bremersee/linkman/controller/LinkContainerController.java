@@ -16,9 +16,14 @@
 
 package org.bremersee.linkman.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
@@ -37,13 +42,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * The link container controller.
  *
  * @author Christian Bremer
  */
+@Tag(name = "link-container-controller", description = "The categorized links API.")
 @RestController
 @Validated
 public class LinkContainerController {
@@ -91,19 +96,20 @@ public class LinkContainerController {
    * @param language the language
    * @return the link containers
    */
-  @ApiOperation(
-      value = "Get categorized links.",
-      nickname = "getLinkContainers",
-      response = LinkContainer.class,
-      responseContainer = "List",
+  @Operation(
+      summary = "Get categorized links.",
+      description = "Get categorized links for displaying in a menu.",
       tags = {"link-container-controller"})
   @ApiResponses(value = {
       @ApiResponse(
-          code = 200, message = "OK", response = LinkContainer.class, responseContainer = "List")
+          responseCode = "200",
+          description = "The categorized links.",
+          content = @Content(
+              array = @ArraySchema(schema = @Schema(implementation = LinkContainer.class))))
   })
   @GetMapping(path = "/api/public/links", produces = MediaType.APPLICATION_JSON_VALUE)
   public Flux<LinkContainer> getLinkContainers(
-      @ApiIgnore final Locale language) {
+      @Parameter(hidden = true) final Locale language) {
 
     return manyWithUserContext(userContext -> linkService.getLinks(
         language,
