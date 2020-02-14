@@ -100,3 +100,11 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
+
+---
+
+spring:
+  profiles: dev
+
+server:
+  forward-headers-strategy: framework
