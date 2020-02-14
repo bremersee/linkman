@@ -108,3 +108,5 @@ spring:
 
 server:
   forward-headers-strategy: framework
+  servlet:
+    context-path: /linkman
