@@ -106,9 +106,8 @@ public class SecurityConfiguration {
       http
           .authorizeExchange()
           .pathMatchers(HttpMethod.OPTIONS).permitAll()
-          .pathMatchers("/linkman/**").permitAll()
-          .pathMatchers("/swagger-ui.html").permitAll()
-          .pathMatchers("/webjars/**").permitAll()
+          // .pathMatchers("/swagger-ui.html").permitAll()
+          // .pathMatchers("/webjars/**").permitAll()
           .pathMatchers("/v3/**").permitAll()
           .pathMatchers("/api/public/**").permitAll()
           .pathMatchers("/api/admin/**").hasAnyAuthority(ADMIN_ROLES)
@@ -146,7 +145,7 @@ public class SecurityConfiguration {
   }
 
   /**
-   * The type Basic auth login.
+   * The basic auth login.
    */
   @ConditionalOnWebApplication
   @ConditionalOnProperty(
@@ -160,7 +159,7 @@ public class SecurityConfiguration {
     private AuthenticationProperties properties;
 
     /**
-     * Instantiates a new Basic auth login.
+     * Instantiates a new basic auth login.
      *
      * @param properties the properties
      */
@@ -179,7 +178,7 @@ public class SecurityConfiguration {
     }
 
     /**
-     * Builds the OAuth2 resource server filter chain.
+     * Builds the basic auth resource server filter chain.
      *
      * @param http the http
      * @return the security web filter chain
@@ -194,8 +193,8 @@ public class SecurityConfiguration {
           .csrf().disable()
           .authorizeExchange()
           .pathMatchers(HttpMethod.OPTIONS).permitAll()
-          .pathMatchers("/swagger-ui.html").permitAll()
-          .pathMatchers("/webjars/**").permitAll()
+          // .pathMatchers("/swagger-ui.html").permitAll()
+          // .pathMatchers("/webjars/**").permitAll()
           .pathMatchers("/v3/**").permitAll()
           .pathMatchers("/api/public/**").permitAll()
           .pathMatchers("/api/admin/**").hasAnyAuthority(ADMIN_ROLES)

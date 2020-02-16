@@ -166,17 +166,17 @@
     </dependency>
 
     <!-- Uses io.github.classgraph with version 4.6.32 -->
-    <!--
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-webflux-core</artifactId>
     </dependency>
-    -->
     <!-- Uses io.github.classgraph with version 4.8.44 -->
+    <!--
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-webflux-ui</artifactId>
     </dependency>
+    -->
 
     <dependency>
       <groupId>de.flapdoodle.embed</groupId>

@@ -106,15 +106,16 @@ spring:
 spring:
   profiles: dev
 
-#server:
-#  forward-headers-strategy: framework
-#  servlet:
-#    context-path: /linkman
-springdoc:
-  api-docs:
-    path: "/linkman/v3/api-docs"
-  webjars:
-    prefix: "/linkman/webjars"
-  swagger-ui:
-    path: "/linkman/swagger-ui.html"
-    oauth2-redirect-url: "/linkman/swagger-ui/oauth2-redirect.html"
+server:
+  forward-headers-strategy: framework
+#
+# Something seems to be not correct. The following configuration works, but in swagger-ui,
+# you must enter '/linkman/linkman/v3/api-docs'
+#springdoc:
+#  api-docs:
+#    path: "/linkman/v3/api-docs"
+#  webjars:
+#    prefix: "/linkman/webjars"
+#  swagger-ui:
+#    path: "/linkman/swagger-ui.html"
+#    oauth2-redirect-url: "/linkman/swagger-ui/oauth2-redirect.html"
