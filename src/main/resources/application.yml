@@ -112,9 +112,9 @@ server:
 #    context-path: /linkman
 springdoc:
   api-docs:
-    path: "/v3/api-docs"
+    path: "/linkman/v3/api-docs"
   webjars:
     prefix: "/linkman/webjars"
-#  swagger-ui:
-#    path: "/linkman/swagger-ui.html"
-#    config-url: "/linkman/v3/api-docs/swagger-config"
+  swagger-ui:
+    path: "/linkman/swagger-ui.html"
+    oauth2-redirect-url: "/linkman/swagger-ui/oauth2-redirect.html"
