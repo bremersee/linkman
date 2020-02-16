@@ -106,14 +106,15 @@ spring:
 spring:
   profiles: dev
 
-#server:
-#  forward-headers-strategy: framework
+server:
+  forward-headers-strategy: framework
 #  servlet:
 #    context-path: /linkman
 springdoc:
   api-docs:
     path: "/linkman/v3/api-docs"
   webjars:
-    prefix: "/linkman/webjars"
+    prefix: "/linkman"
   swagger-ui:
     path: "/linkman/swagger-ui.html"
+#    url:
