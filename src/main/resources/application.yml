@@ -110,3 +110,10 @@ server:
   forward-headers-strategy: framework
 #  servlet:
 #    context-path: /linkman
+springdoc:
+  api-docs:
+    path: "/linkman/v3/api-docs"
+  webjars:
+    prefix: "/linkman/webjars"
+  swagger-ui:
+    path: "/linkman/swagger-ui.html"
