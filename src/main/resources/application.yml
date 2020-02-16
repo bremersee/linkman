@@ -107,6 +107,6 @@ spring:
   profiles: dev
 
 server:
-  forward-headers-strategy: framework
+  forward-headers-strategy: native
 #  servlet:
 #    context-path: /linkman

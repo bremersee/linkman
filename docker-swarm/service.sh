@@ -8,6 +8,7 @@ docker service create \
   --label com.df.servicePath=/linkman \
   --label com.df.port=80 \
   --label com.df.reqPathSearchReplace='/linkman/,/' \
+  --label com.df.setReqHeader='X-Forwarded-Prefix /linkman' \
   --secret config-server-client-user-password \
   --restart-delay 10s \
   --restart-max-attempts 10 \

@@ -5,7 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.StringUtils;
+import org.springframework.web.filter.reactive.ForwardedHeaderFilter;
 import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 
 /**
  * The web configuration.
@@ -22,6 +24,9 @@ public class WebConfiguration {
    */
   public WebConfiguration(ServerProperties serverProperties) {
     this.serverProperties = serverProperties;
+
+    //ForwardedHeaderFilter f;
+    //ForwardedHeaderTransformer t;
   }
 
   /**
