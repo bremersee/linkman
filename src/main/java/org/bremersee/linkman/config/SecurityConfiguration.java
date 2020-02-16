@@ -106,6 +106,7 @@ public class SecurityConfiguration {
       http
           .authorizeExchange()
           .pathMatchers(HttpMethod.OPTIONS).permitAll()
+          .pathMatchers("/linkman/**").permitAll()
           .pathMatchers("/swagger-ui.html").permitAll()
           .pathMatchers("/webjars/**").permitAll()
           .pathMatchers("/v3/**").permitAll()

@@ -117,4 +117,4 @@ springdoc:
     prefix: "/linkman/webjars"
   swagger-ui:
     path: "/linkman/swagger-ui.html"
-#    url:
+    config-url: "/linkman/v3/api-docs/swagger-config"
