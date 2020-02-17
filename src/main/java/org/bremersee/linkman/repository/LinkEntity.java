@@ -16,15 +16,19 @@
 
 package org.bremersee.linkman.repository;
 
+import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.bremersee.linkman.model.Translation;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -61,13 +65,13 @@ public class LinkEntity implements Comparable<LinkEntity> {
   @Size(min = 3, max = 75)
   private String text;
 
-  private Map<String, String> textTranslations;
+  private Set<Translation> textTranslations = new LinkedHashSet<>();
 
   @NotBlank
   @Size(max = 255)
   private String description;
 
-  private Map<String, String> descriptionTranslations;
+  private Set<Translation> descriptionTranslations = new LinkedHashSet<>();
 
   /**
    * Gets text.
@@ -76,10 +80,12 @@ public class LinkEntity implements Comparable<LinkEntity> {
    * @return the text
    */
   public String getText(Locale language) {
-    if (language == null || textTranslations == null) {
-      return text;
-    }
-    return textTranslations.getOrDefault(language.getLanguage(), text);
+    final TwoLetterLanguageCode code = TwoLetterLanguageCode
+        .fromLocale(language, TwoLetterLanguageCode.EN);
+    return Optional.ofNullable(textTranslations)
+        .flatMap(set -> set.stream().filter(entry -> code == entry.getLanguage()).findAny())
+        .map(Translation::getValue)
+        .orElse(text);
   }
 
   /**
@@ -89,10 +95,12 @@ public class LinkEntity implements Comparable<LinkEntity> {
    * @return the description
    */
   public String getDescription(Locale language) {
-    if (language == null || descriptionTranslations == null) {
-      return description;
-    }
-    return descriptionTranslations.getOrDefault(language.getLanguage(), description);
+    final TwoLetterLanguageCode code = TwoLetterLanguageCode
+        .fromLocale(language, TwoLetterLanguageCode.EN);
+    return Optional.ofNullable(descriptionTranslations)
+        .flatMap(set -> set.stream().filter(entry -> code == entry.getLanguage()).findAny())
+        .map(Translation::getValue)
+        .orElse(description);
   }
 
   @Override

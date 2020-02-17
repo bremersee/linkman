@@ -16,12 +16,15 @@
 
 package org.bremersee.linkman.model;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -81,11 +84,15 @@ class CategorySpecificationTest {
   @Test
   void getTranslations() {
     CategorySpecification model = new CategorySpecification();
-    Map<String, String> value = Collections.singletonMap("key", "value");
+    Set<Translation> value = Collections.singleton(new Translation("de", "value"));
     model.setTranslations(value);
     assertEquals(value, model.getTranslations());
     assertEquals(model, CategorySpecification.builder().translations(value).build());
     assertTrue(model.toBuilder().build().toString().contains(value.toString()));
+
+    assertEquals("value", model.getName(TwoLetterLanguageCode.DE));
+    assertEquals("value", model.getName(new Locale("de")));
+    assertEquals("value", model.getName("de"));
   }
 
   /**

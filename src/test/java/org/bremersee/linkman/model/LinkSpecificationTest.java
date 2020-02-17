@@ -21,9 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import org.bremersee.common.model.AccessControlList;
+import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.bremersee.security.access.AclBuilder;
 import org.junit.jupiter.api.Test;
 
@@ -123,11 +125,15 @@ class LinkSpecificationTest {
   @Test
   void getTextTranslations() {
     LinkSpecification model = new LinkSpecification();
-    Map<String, String> value = Collections.singletonMap("key", "value");
+    Set<Translation> value = Collections.singleton(new Translation("de", "value"));
     model.setTextTranslations(value);
     assertEquals(value, model.getTextTranslations());
     assertEquals(model, LinkSpecification.builder().textTranslations(value).build());
     assertTrue(model.toBuilder().build().toString().contains(value.toString()));
+
+    assertEquals("value", model.getText(TwoLetterLanguageCode.DE));
+    assertEquals("value", model.getText(new Locale("de")));
+    assertEquals("value", model.getText("de"));
   }
 
   /**
@@ -149,10 +155,14 @@ class LinkSpecificationTest {
   @Test
   void getDescriptionTranslations() {
     LinkSpecification model = new LinkSpecification();
-    Map<String, String> value = Collections.singletonMap("key", "value");
+    Set<Translation> value = Collections.singleton(new Translation("fr", "value"));
     model.setDescriptionTranslations(value);
     assertEquals(value, model.getDescriptionTranslations());
     assertEquals(model, LinkSpecification.builder().descriptionTranslations(value).build());
     assertTrue(model.toBuilder().build().toString().contains(value.toString()));
+
+    assertEquals("value", model.getDescription(TwoLetterLanguageCode.FR));
+    assertEquals("value", model.getDescription(new Locale("fr")));
+    assertEquals("value", model.getDescription("fr"));
   }
 }

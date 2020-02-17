@@ -16,6 +16,8 @@
 
 package org.bremersee.linkman.service;
 
+import static org.bremersee.linkman.model.Translation.toTranslations;
+
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Set;
@@ -146,7 +148,7 @@ public class LinkServiceImpl implements LinkService {
   private CategoryEntity getDefaultCategory() {
     CategoryEntity entity = new CategoryEntity();
     entity.setName(properties.getDefaultCategory().getName());
-    entity.setTranslations(properties.getDefaultCategory().getTranslations());
+    entity.setTranslations(toTranslations(properties.getDefaultCategory().getTranslations()));
     entity.setOrder(Integer.MAX_VALUE);
     return entity;
   }

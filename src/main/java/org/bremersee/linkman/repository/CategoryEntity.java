@@ -16,16 +16,17 @@
 
 package org.bremersee.linkman.repository;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.bremersee.linkman.model.Translation;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -54,7 +55,7 @@ public class CategoryEntity implements Comparable<CategoryEntity> {
 
   private String name;
 
-  private Map<String, String> translations = new LinkedHashMap<>();
+  private Set<Translation> translations = new LinkedHashSet<>();
 
   @Indexed
   private Boolean matchesGuest;
@@ -67,6 +68,21 @@ public class CategoryEntity implements Comparable<CategoryEntity> {
 
   @Indexed
   private Set<String> matchesGroups = new LinkedHashSet<>();
+
+  /**
+   * Gets name.
+   *
+   * @param language the language
+   * @return the name
+   */
+  public String getName(Locale language) {
+    final TwoLetterLanguageCode code = TwoLetterLanguageCode
+        .fromLocale(language, TwoLetterLanguageCode.EN);
+    return Optional.ofNullable(translations)
+        .flatMap(set -> set.stream().filter(entry -> code == entry.getLanguage()).findAny())
+        .map(Translation::getValue)
+        .orElse(name);
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -96,19 +112,6 @@ public class CategoryEntity implements Comparable<CategoryEntity> {
     }
     return Objects
         .hash(order, name, translations, matchesGuest, matchesUsers, matchesRoles, matchesGroups);
-  }
-
-  /**
-   * Gets name.
-   *
-   * @param language the language
-   * @return the name
-   */
-  public String getName(Locale language) {
-    if (language == null || translations == null) {
-      return name;
-    }
-    return translations.getOrDefault(language.getLanguage(), name);
   }
 
   @Override

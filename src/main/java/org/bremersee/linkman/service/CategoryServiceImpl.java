@@ -16,6 +16,8 @@
 
 package org.bremersee.linkman.service;
 
+import static org.bremersee.linkman.model.Translation.toTranslations;
+
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.config.LinkmanProperties;
@@ -71,7 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
         .matchesGuest(true)
         .order(Integer.MIN_VALUE)
         .name(properties.getPublicCategory().getName())
-        .translations(properties.getPublicCategory().getTranslations())
+        .translations(toTranslations(properties.getPublicCategory().getTranslations()))
         .build();
     final CategorySpecification savedPublicCategory = categoryRepository.countPublicCategories()
         .filter(size -> size == 0)

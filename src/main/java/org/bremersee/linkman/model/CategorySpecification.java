@@ -19,9 +19,9 @@ package org.bremersee.linkman.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -31,6 +31,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.springframework.validation.annotation.Validated;
 
 /**
@@ -61,11 +62,9 @@ public class CategorySpecification {
   @Size(min = 1, max = 75)
   private String name;
 
-  @Schema(
-      description = "The translations of the name. Key is two letter language code, "
-          + "value is translation.")
+  @Schema(description = "The translations of the name.")
   @JsonProperty("translations")
-  private Map<String, String> translations = new LinkedHashMap<>();
+  private Set<Translation> translations = new LinkedHashSet<>();
 
   @Schema(description = "Specifies whether the links of this category can be seen without "
       + "authentication. Default is false.", defaultValue = "false")
@@ -104,7 +103,7 @@ public class CategorySpecification {
       String id,
       int order,
       String name,
-      Map<String, String> translations,
+      Set<Translation> translations,
       Boolean matchesGuest,
       Set<String> matchesUsers,
       Set<String> matchesRoles,
@@ -124,10 +123,10 @@ public class CategorySpecification {
    *
    * @param translations the translations
    */
-  public void setTranslations(Map<String, String> translations) {
+  public void setTranslations(Set<Translation> translations) {
     this.translations.clear();
     if (translations != null) {
-      this.translations.putAll(translations);
+      this.translations.addAll(translations);
     }
   }
 
@@ -175,4 +174,41 @@ public class CategorySpecification {
       this.matchesGroups.addAll(matchesGroups);
     }
   }
+
+  /**
+   * Gets name.
+   *
+   * @param language the language
+   * @return the name
+   */
+  public String getName(TwoLetterLanguageCode language) {
+    if (language == null) {
+      return name;
+    }
+    return Optional.ofNullable(translations)
+        .flatMap(set -> set.stream().filter(entry -> language == entry.getLanguage()).findAny())
+        .map(Translation::getValue)
+        .orElse(name);
+  }
+
+  /**
+   * Gets name.
+   *
+   * @param language the language
+   * @return the name
+   */
+  public String getName(Locale language) {
+    return getName(TwoLetterLanguageCode.fromLocale(language));
+  }
+
+  /**
+   * Gets name.
+   *
+   * @param language the language
+   * @return the name
+   */
+  public String getName(String language) {
+    return getName(TwoLetterLanguageCode.fromValue(language));
+  }
+
 }

@@ -26,13 +26,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import org.bremersee.exception.model.RestApiException;
 import org.bremersee.linkman.model.CategorySpecification;
+import org.bremersee.linkman.model.Translation;
 import org.bremersee.linkman.repository.CategoryEntity;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.test.security.authentication.WithJwtAuthenticationToken;
@@ -98,7 +99,7 @@ class CategoryControllerTest {
       .id(UUID.randomUUID().toString())
       .order(100)
       .name("Administration")
-      .translations(Collections.singletonMap("de", "Verwaltung"))
+      .translations(Collections.singleton(new Translation("de", "Verwaltung")))
       .matchesGuest(false)
       .matchesUsers(Collections.singleton("stephen"))
       .matchesRoles(Collections.singleton(ADMIN_ROLE_NAME))
@@ -256,8 +257,8 @@ class CategoryControllerTest {
   @Order(40)
   @Test
   void updateCategory() {
-    Map<String, String> newTranslations = new LinkedHashMap<>(testEntry.getTranslations());
-    newTranslations.put("fr", "Gestion");
+    Set<Translation> newTranslations = new LinkedHashSet<>(testEntry.getTranslations());
+    newTranslations.add(new Translation("fr", "Gestion"));
     CategorySpecification update = testEntry.toBuilder()
         .translations(newTranslations)
         .build();
@@ -270,7 +271,7 @@ class CategoryControllerTest {
         .exchange()
         .expectBody(CategorySpecification.class)
         .value((Consumer<CategorySpecification>) entry -> assertEquals(
-            "Gestion", entry.getTranslations().get("fr")));
+            "Gestion", entry.getName("fr")));
   }
 
   /**

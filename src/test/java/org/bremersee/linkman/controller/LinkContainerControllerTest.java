@@ -31,6 +31,7 @@ import org.bremersee.linkman.config.LinkmanProperties;
 import org.bremersee.linkman.model.CategorySpecification;
 import org.bremersee.linkman.model.LinkContainer;
 import org.bremersee.linkman.model.LinkSpecification;
+import org.bremersee.linkman.model.Translation;
 import org.bremersee.linkman.repository.CategoryEntity;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkEntity;
@@ -144,7 +145,7 @@ class LinkContainerControllerTest {
         .id("developerCategory")
         .order(50)
         .name("Developer")
-        .translations(Collections.singletonMap("fr", "Développeur"))
+        .translations(Collections.singleton(new Translation("fr", "Développeur")))
         .matchesGroups(Collections.singleton("developers"))
         .build();
     CategoryEntity developerCategoryEntity = modelMapper
@@ -205,10 +206,10 @@ class LinkContainerControllerTest {
         .id("developerLink")
         .href("http://developer.example.org")
         .text("Developer page")
-        .textTranslations(Collections.singletonMap("fr", "Page développeur"))
+        .textTranslations(Collections.singleton(new Translation("fr", "Page développeur")))
         .description("The developer page.")
-        .descriptionTranslations(
-            Collections.singletonMap("fr", "La page contient des liens vers les ressources."))
+        .descriptionTranslations(Collections.singleton(
+            new Translation("fr", "La page contient des liens vers les ressources.")))
         .acl(AclBuilder.builder()
             .addGroup("developers", PermissionConstants.READ)
             .buildAccessControlList())

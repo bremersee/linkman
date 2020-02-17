@@ -25,11 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import org.bremersee.linkman.model.LinkSpecification;
+import org.bremersee.linkman.model.Translation;
 import org.bremersee.linkman.repository.LinkEntity;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.bremersee.security.access.AclBuilder;
@@ -99,9 +102,9 @@ class LinkControllerTest {
       .href("http://admin.example.org")
       .blank(true)
       .text("Admin page")
-      .textTranslations(Collections.singletonMap("de", "Verwaltungsseite"))
+      .textTranslations(Collections.singleton(new Translation("de", "Verwaltungsseite")))
       .description("On the admin page you can do anything as admin.")
-      .descriptionTranslations(Collections.singletonMap("de", "Bla bla"))
+      .descriptionTranslations(Collections.singleton(new Translation("de", "Bla bla")))
       .acl(AclBuilder.builder()
           .guest(false, PermissionConstants.READ)
           .addUser("stephen", PermissionConstants.READ)
@@ -207,7 +210,7 @@ class LinkControllerTest {
         .order(99)
         .href("http://developers.example.org")
         .text("Developer page")
-        .textTranslations(Collections.singletonMap("de", "Entwicklerseite"))
+        .textTranslations(Collections.singleton(new Translation("de", "Entwicklerseite")))
         .description("The developer page contains ...")
         .acl(AclBuilder.builder()
             .addGroup("developers", PermissionConstants.READ)
@@ -226,7 +229,7 @@ class LinkControllerTest {
           assertNotNull(entry.getId());
           assertEquals("http://developers.example.org", entry.getHref());
           assertEquals("Developer page", entry.getText());
-          assertEquals("Entwicklerseite", entry.getTextTranslations().get("de"));
+          assertEquals("Entwicklerseite", entry.getText("de"));
           assertEquals("The developer page contains ...", entry.getDescription());
           assertNotNull(entry.getAcl());
           assertNotNull(entry.getAcl().getEntries());
@@ -268,8 +271,8 @@ class LinkControllerTest {
   @Order(40)
   @Test
   void updateLink() {
-    Map<String, String> newTranslations = new LinkedHashMap<>(testEntry.getTextTranslations());
-    newTranslations.put("fr", "Page d'administration");
+    Set<Translation> newTranslations = new LinkedHashSet<>(testEntry.getTextTranslations());
+    newTranslations.add(new Translation("fr", "Page d'administration"));
     LinkSpecification update = testEntry.toBuilder()
         .textTranslations(newTranslations)
         .build();
@@ -282,7 +285,7 @@ class LinkControllerTest {
         .exchange()
         .expectBody(LinkSpecification.class)
         .value((Consumer<LinkSpecification>) entry -> assertEquals(
-            "Page d'administration", entry.getTextTranslations().get("fr")));
+            "Page d'administration", entry.getText("fr")));
   }
 
   /**

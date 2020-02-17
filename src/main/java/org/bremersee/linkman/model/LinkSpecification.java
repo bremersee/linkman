@@ -19,8 +19,10 @@ package org.bremersee.linkman.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -31,6 +33,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.bremersee.common.model.AccessControlList;
+import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.springframework.validation.annotation.Validated;
 
 /**
@@ -84,7 +87,7 @@ public class LinkSpecification {
 
   @Schema(description = "The translations of the text.")
   @JsonProperty("textTranslations")
-  private Map<String, String> textTranslations = new LinkedHashMap<>();
+  private Set<Translation> textTranslations = new LinkedHashSet<>();
 
   @Schema(
       description = "The description of the link.",
@@ -95,7 +98,7 @@ public class LinkSpecification {
 
   @Schema(description = "The translations of the description.")
   @JsonProperty("descriptionTranslations")
-  private Map<String, String> descriptionTranslations = new LinkedHashMap<>();
+  private Set<Translation> descriptionTranslations = new LinkedHashSet<>();
 
   /**
    * Instantiates a new link specification.
@@ -119,9 +122,9 @@ public class LinkSpecification {
       String href,
       Boolean blank,
       String text,
-      Map<String, String> textTranslations,
+      Set<Translation> textTranslations,
       String description,
-      Map<String, String> descriptionTranslations) {
+      Set<Translation> descriptionTranslations) {
     this.id = id;
     this.acl = acl;
     this.order = order;
@@ -147,10 +150,10 @@ public class LinkSpecification {
    *
    * @param textTranslations the text translations
    */
-  public void setTextTranslations(Map<String, String> textTranslations) {
+  public void setTextTranslations(Set<Translation> textTranslations) {
     this.textTranslations.clear();
     if (textTranslations != null) {
-      this.textTranslations.putAll(textTranslations);
+      this.textTranslations.addAll(textTranslations);
     }
   }
 
@@ -160,10 +163,83 @@ public class LinkSpecification {
    * @param descriptionTranslations the description translations
    */
   public void setDescriptionTranslations(
-      Map<String, String> descriptionTranslations) {
+      Set<Translation> descriptionTranslations) {
     this.descriptionTranslations.clear();
     if (descriptionTranslations != null) {
-      this.descriptionTranslations.putAll(descriptionTranslations);
+      this.descriptionTranslations.addAll(descriptionTranslations);
     }
   }
+
+  /**
+   * Gets text.
+   *
+   * @param language the language
+   * @return the text
+   */
+  public String getText(TwoLetterLanguageCode language) {
+    if (language == null) {
+      return text;
+    }
+    return Optional.ofNullable(textTranslations)
+        .flatMap(set -> set.stream().filter(entry -> language == entry.getLanguage()).findAny())
+        .map(Translation::getValue)
+        .orElse(text);
+  }
+
+  /**
+   * Gets text.
+   *
+   * @param language the language
+   * @return the text
+   */
+  public String getText(Locale language) {
+    return getText(TwoLetterLanguageCode.fromLocale(language));
+  }
+
+  /**
+   * Gets text.
+   *
+   * @param language the language
+   * @return the text
+   */
+  public String getText(String language) {
+    return getText(TwoLetterLanguageCode.fromValue(language));
+  }
+
+  /**
+   * Gets description.
+   *
+   * @param language the language
+   * @return the description
+   */
+  public String getDescription(TwoLetterLanguageCode language) {
+    if (language == null) {
+      return description;
+    }
+    return Optional.ofNullable(descriptionTranslations)
+        .flatMap(set -> set.stream().filter(entry -> language == entry.getLanguage()).findAny())
+        .map(Translation::getValue)
+        .orElse(description);
+  }
+
+  /**
+   * Gets description.
+   *
+   * @param language the language
+   * @return the description
+   */
+  public String getDescription(Locale language) {
+    return getDescription(TwoLetterLanguageCode.fromLocale(language));
+  }
+
+  /**
+   * Gets description.
+   *
+   * @param language the language
+   * @return the description
+   */
+  public String getDescription(String language) {
+    return getDescription(TwoLetterLanguageCode.fromValue(language));
+  }
+
 }
