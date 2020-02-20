@@ -16,6 +16,7 @@
 
 package org.bremersee.linkman.config;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -42,6 +43,16 @@ import org.springframework.stereotype.Component;
 public class LinkmanProperties {
 
   private String groupmanBaseUri;
+
+  private String keycloakBaseUri = "false";
+
+  private String keycloakRealm = "master";
+
+  private String rolePrefix = "ROLE_";
+
+  private Set<String> excludedRoles = new HashSet<>();
+
+  private Set<String> excludedGroups = new HashSet<>();
 
   private Set<TwoLetterLanguageCode> availableLanguages = new LinkedHashSet<>();
 

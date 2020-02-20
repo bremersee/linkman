@@ -8,6 +8,10 @@ bremersee:
         client-id: ${OPENID_CLIENT_ID:linkman}
         client-secret: ${OPENID_CLIENT_SECRET:changeit}
         token-endpoint: ${OPENID_TOKEN_ENDPOINT:https://openid.dev.bremersee.org/auth/realms/omnia/protocol/openid-connect/token}
+      client-credentials-flow:
+        client-id: ${bremersee.security.authentication.password-flow.client-id}
+        client-secret: ${bremersee.security.authentication.password-flow.client-secret}
+        token-endpoint: ${bremersee.security.authentication.password-flow.token-endpoint}
     acl:
       switch-admin-access: false
       default-permissions:
@@ -22,6 +26,10 @@ bremersee:
       include-exception-class-name: true
       include-handler: true
       include-path: true
+  linkman:
+    groupman-base-uri: ${GROUPMAN_BASE_URI:false}
+    keycloak-base-uri: ${KEYCLOAK_BASE_URI:false}
+    keycloak-realm: ${KEYCLOAK_REALM:master}
 
 spring:
   security:
