@@ -46,8 +46,9 @@ public class SelectOption {
   @NotNull
   private String value;
 
-  @Schema(description = "The displayed value.")
+  @Schema(description = "The displayed value.", required = true)
   @JsonProperty(value = "displayValue", required = true)
+  @NotNull
   private String displayValue;
 
   /**
@@ -57,7 +58,7 @@ public class SelectOption {
    * @param displayValue the display value
    */
   @Builder(toBuilder = true)
-  public SelectOption(@NotNull String value, String displayValue) {
+  public SelectOption(String value, String displayValue) {
     this.value = value;
     this.displayValue = displayValue;
   }
