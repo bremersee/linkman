@@ -67,4 +67,11 @@ public interface CategoryService {
    */
   Mono<Void> deleteCategory(String id);
 
+  /**
+   * Checks whether a public category exists.
+   *
+   * @return {@code true} if a public category exists, otherwise {@code false}
+   */
+  Mono<Boolean> publicCategoryExists();
+
 }

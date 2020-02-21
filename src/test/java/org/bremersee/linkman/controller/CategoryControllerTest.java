@@ -37,6 +37,7 @@ import org.bremersee.linkman.model.Translation;
 import org.bremersee.linkman.repository.CategoryEntity;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.test.security.authentication.WithJwtAuthenticationToken;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -131,6 +132,23 @@ class CategoryControllerTest {
           assertTrue(entry.getMatchesGroups().contains("Admins"));
         })
         .verifyComplete();
+  }
+
+  /**
+   * Assert that public category exists.
+   */
+  @WithJwtAuthenticationToken(roles = {ADMIN_ROLE_NAME})
+  @Order(5)
+  @Test
+  void assertThatPublicCategoryExists() {
+    webTestClient
+        .get()
+        .uri("/api/admin/categories/f/public-exists")
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(Boolean.class)
+        .value(Assertions::assertTrue);
   }
 
   /**

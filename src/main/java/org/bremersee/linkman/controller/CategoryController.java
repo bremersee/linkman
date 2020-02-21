@@ -225,4 +225,23 @@ public class CategoryController {
     return categoryService.deleteCategory(id);
   }
 
+  @Operation(
+      summary = "Checks whether a public category exists.",
+      operationId = "publicCategoryExists",
+      tags = {"category-controller"})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "'true' if a public category exists, otherwise 'false'."),
+      @ApiResponse(
+          responseCode = "403",
+          description = "Forbidden")
+  })
+  @GetMapping(
+      path = "/api/admin/categories/f/public-exists",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono<Boolean> publicCategoryExists() {
+    return categoryService.publicCategoryExists();
+  }
+
 }

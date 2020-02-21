@@ -137,4 +137,10 @@ public class CategoryServiceImpl implements CategoryService {
     return categoryRepository.deleteById(id);
   }
 
+  @Override
+  public Mono<Boolean> publicCategoryExists() {
+    return categoryRepository.countPublicCategories()
+        .map(size -> size > 0L);
+  }
+
 }
