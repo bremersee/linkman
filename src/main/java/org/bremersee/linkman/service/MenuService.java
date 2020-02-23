@@ -14,34 +14,31 @@
  * limitations under the License.
  */
 
-package org.bremersee.linkman.repository;
+package org.bremersee.linkman.service;
 
+import java.util.Locale;
 import java.util.Set;
+import org.bremersee.linkman.model.MenuEntry;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
- * The custom category repository.
- *
  * @author Christian Bremer
  */
-public interface CategoryRepositoryCustom {
+public interface MenuService {
 
   /**
-   * Count public categories.
+   * Gets menu.
    *
-   * @return the size
-   */
-  Mono<Long> countPublicCategories();
-
-  /**
-   * Find readable categories.
-   *
+   * @param language the language
    * @param userId the user id
    * @param roles the roles
    * @param groups the groups
-   * @return the category entities
+   * @return the menu
    */
-  Flux<CategoryEntity> findReadableCategories(String userId, Set<String> roles, Set<String> groups);
+  Flux<MenuEntry> getMenu(
+      Locale language,
+      String userId,
+      Set<String> roles,
+      Set<String> groups);
 
 }

@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -32,13 +31,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.bremersee.common.model.AccessControlList;
 import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * The link specification.
- *
  * @author Christian Bremer
  */
 @Schema(description = "The specification of a link.")
@@ -48,18 +44,15 @@ import org.springframework.validation.annotation.Validated;
 @EqualsAndHashCode
 @NoArgsConstructor
 @Validated
-public class LinkSpecification {
+public class LinkSpec {
 
   @Schema(description = "Unique identifier of the link.", accessMode = AccessMode.READ_ONLY)
   @JsonProperty("id")
   private String id;
 
-  @Schema(
-      description = "The access control list that specifies who can see the link.",
-      required = true)
-  @JsonProperty(value = "acl", required = true)
-  @NotNull
-  private AccessControlList acl;
+  @Schema(description = "The category IDs.")
+  @JsonProperty("categoryIds")
+  private Set<String> categoryIds = new LinkedHashSet<>();
 
   @Schema(description = "The sort order.", required = true, example = "100")
   @JsonProperty(value = "order", required = true)
@@ -104,7 +97,7 @@ public class LinkSpecification {
    * Instantiates a new link specification.
    *
    * @param id the id
-   * @param acl the access control list that specifies who can see the link
+   * @param categoryIds the category IDs
    * @param order the sort order
    * @param href the linked resource (href)
    * @param blank specified whether to open the link in a blank target (default is false)
@@ -115,9 +108,9 @@ public class LinkSpecification {
    */
   @Builder(toBuilder = true)
   @SuppressWarnings("unused")
-  public LinkSpecification(
+  public LinkSpec(
       String id,
-      AccessControlList acl,
+      Set<String> categoryIds,
       int order,
       String href,
       Boolean blank,
@@ -126,7 +119,7 @@ public class LinkSpecification {
       String description,
       Set<Translation> descriptionTranslations) {
     this.id = id;
-    this.acl = acl;
+    setCategoryIds(categoryIds);
     this.order = order;
     this.href = href;
     setBlank(blank);
@@ -134,6 +127,13 @@ public class LinkSpecification {
     setTextTranslations(textTranslations);
     this.description = description;
     setDescriptionTranslations(descriptionTranslations);
+  }
+
+  public void setCategoryIds(Set<String> categoryIds) {
+    this.categoryIds.clear();
+    if (categoryIds != null) {
+      this.categoryIds.addAll(categoryIds);
+    }
   }
 
   /**

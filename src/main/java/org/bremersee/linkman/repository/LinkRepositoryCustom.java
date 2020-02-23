@@ -16,8 +16,9 @@
 
 package org.bremersee.linkman.repository;
 
-import java.util.Set;
+import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * The custom link repository.
@@ -27,13 +28,21 @@ import reactor.core.publisher.Flux;
 public interface LinkRepositoryCustom {
 
   /**
-   * Find readable links.
+   * Find by category id.
    *
-   * @param userId the user id
-   * @param roles the roles
-   * @param groups the groups
-   * @return the readable links
+   * @param categoryId the category id
+   * @return the link entities
    */
-  Flux<LinkEntity> findReadableLinks(String userId, Set<String> roles, Set<String> groups);
+  Flux<LinkEntity> findByCategoryId(String categoryId);
+
+  Flux<LinkEntity> findByCategoryId(String categoryId, Sort sort);
+
+  /**
+   * Remove category references. Links that have no references anymore, will be deleted.
+   *
+   * @param categoryId the category id
+   * @return void
+   */
+  Mono<Void> removeCategoryReferences(String categoryId);
 
 }

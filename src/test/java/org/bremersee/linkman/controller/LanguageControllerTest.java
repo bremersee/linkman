@@ -1,5 +1,6 @@
 package org.bremersee.linkman.controller;
 
+import static org.bremersee.security.core.AuthorityConstants.ADMIN_ROLE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Locale;
 import org.bremersee.common.model.JavaLocaleDescription;
 import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.bremersee.test.security.authentication.WithJwtAuthenticationToken;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -60,6 +62,7 @@ class LanguageControllerTest {
   /**
    * Gets available languages.
    */
+  @WithJwtAuthenticationToken(roles = {ADMIN_ROLE_NAME})
   @Test
   void getAvailableLanguages() {
     JavaLocaleDescription expected = new JavaLocaleDescription(
@@ -67,7 +70,7 @@ class LanguageControllerTest {
         TwoLetterLanguageCode.BG.toLocale().getDisplayLanguage(Locale.FRANCE));
     webTestClient
         .get()
-        .uri("/api/public/languages")
+        .uri("/api/languages")
         .accept(MediaType.APPLICATION_JSON)
         .header(HttpHeaders.ACCEPT_LANGUAGE, Locale.FRENCH.getLanguage())
         .exchange()

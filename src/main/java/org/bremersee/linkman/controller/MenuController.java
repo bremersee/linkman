@@ -29,8 +29,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.bremersee.groupman.api.GroupWebfluxControllerApi;
-import org.bremersee.linkman.model.LinkContainer;
-import org.bremersee.linkman.service.LinkService;
+import org.bremersee.linkman.model.MenuEntry;
+import org.bremersee.linkman.service.MenuService;
 import org.reactivestreams.Publisher;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -44,29 +44,21 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * The link container controller.
- *
  * @author Christian Bremer
  */
-@Tag(name = "link-container-controller", description = "The categorized links API.")
+@Tag(name = "menu-controller", description = "The categorized links API.")
 @RestController
 @Validated
-public class LinkContainerController {
+public class MenuController {
 
-  private final LinkService linkService;
+  private MenuService menuService;
 
-  private final GroupWebfluxControllerApi groupService;
+  private GroupWebfluxControllerApi groupService;
 
-  /**
-   * Instantiates a new link container controller.
-   *
-   * @param linkService the link service
-   * @param groupService the group service
-   */
-  public LinkContainerController(
-      LinkService linkService,
+  public MenuController(
+      MenuService menuService,
       GroupWebfluxControllerApi groupService) {
-    this.linkService = linkService;
+    this.menuService = menuService;
     this.groupService = groupService;
   }
 
@@ -99,19 +91,19 @@ public class LinkContainerController {
   @Operation(
       summary = "Get categorized links.",
       description = "Get categorized links for displaying in a menu.",
-      tags = {"link-container-controller"})
+      tags = {"menu-controller"})
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200",
           description = "The categorized links.",
           content = @Content(
-              array = @ArraySchema(schema = @Schema(implementation = LinkContainer.class))))
+              array = @ArraySchema(schema = @Schema(implementation = MenuEntry.class))))
   })
-  @GetMapping(path = "/api/public/links", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Flux<LinkContainer> getLinkContainers(
+  @GetMapping(path = "/api/menu", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Flux<MenuEntry> getLinkContainers(
       @Parameter(hidden = true) final Locale language) {
 
-    return manyWithUserContext(userContext -> linkService.getLinks(
+    return manyWithUserContext(userContext -> menuService.getMenu(
         language,
         userContext.getUserId(),
         userContext.getRoles(),

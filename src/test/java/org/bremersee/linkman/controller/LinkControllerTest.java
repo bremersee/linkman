@@ -19,20 +19,20 @@ package org.bremersee.linkman.controller;
 import static org.bremersee.security.core.AuthorityConstants.ADMIN_ROLE_NAME;
 import static org.bremersee.security.core.AuthorityConstants.USER_ROLE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-import org.bremersee.linkman.model.LinkSpecification;
+import org.bremersee.linkman.model.CategorySpec;
+import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.model.Translation;
+import org.bremersee.linkman.repository.CategoryEntity;
+import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkEntity;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.bremersee.security.access.AclBuilder;
@@ -56,7 +56,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import reactor.test.StepVerifier;
 
 /**
- * The type Link controller test.
+ * The link controller test.
  *
  * @author Christian Bremer
  */
@@ -67,6 +67,8 @@ import reactor.test.StepVerifier;
 @TestInstance(Lifecycle.PER_CLASS) // allows us to use @BeforeAll with a non-static method
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class LinkControllerTest {
+
+  private static final String categoryId = UUID.randomUUID().toString();
 
   /**
    * The application context.
@@ -82,6 +84,12 @@ class LinkControllerTest {
   WebTestClient webTestClient;
 
   /**
+   * The category repository.
+   */
+  @Autowired
+  CategoryRepository categoryRepository;
+
+  /**
    * The link repository.
    */
   @Autowired
@@ -94,10 +102,27 @@ class LinkControllerTest {
   ModelMapper modelMapper;
 
   /**
-   * The test entry.
+   * The test category.
    */
-  final LinkSpecification testEntry = LinkSpecification.builder()
+  final CategorySpec testCategory = CategorySpec.builder()
+      .id(categoryId)
+      .order(100)
+      .name("Administration")
+      .translations(Collections.singleton(new Translation("de", "Verwaltung")))
+      .acl(AclBuilder.builder()
+          .guest(false, PermissionConstants.READ)
+          .addUser("stephen", PermissionConstants.READ)
+          .addRole(ADMIN_ROLE_NAME, PermissionConstants.READ)
+          .addGroup("Admins", PermissionConstants.READ)
+          .buildAccessControlList())
+      .build();
+
+  /**
+   * The test link.
+   */
+  final LinkSpec testLink = LinkSpec.builder()
       .id(UUID.randomUUID().toString())
+      .categoryIds(Collections.singleton(categoryId))
       .order(100)
       .href("http://admin.example.org")
       .blank(true)
@@ -105,12 +130,6 @@ class LinkControllerTest {
       .textTranslations(Collections.singleton(new Translation("de", "Verwaltungsseite")))
       .description("On the admin page you can do anything as admin.")
       .descriptionTranslations(Collections.singleton(new Translation("de", "Bla bla")))
-      .acl(AclBuilder.builder()
-          .guest(false, PermissionConstants.READ)
-          .addUser("stephen", PermissionConstants.READ)
-          .addRole(ADMIN_ROLE_NAME, PermissionConstants.READ)
-          .addGroup("Admins", PermissionConstants.READ)
-          .buildAccessControlList())
       .build();
 
   /**
@@ -124,12 +143,18 @@ class LinkControllerTest {
         .configureClient()
         .build();
 
-    LinkEntity testEntity = modelMapper.map(testEntry, LinkEntity.class);
+    CategoryEntity testCategoryEntity = modelMapper.map(testCategory, CategoryEntity.class);
     StepVerifier
-        .create(linkRepository.save(testEntity))
+        .create(categoryRepository.save(testCategoryEntity))
+        .assertNext(entry -> assertEquals(testCategoryEntity.getId(), entry.getId()))
+        .verifyComplete();
+
+    LinkEntity testLinkEntity = modelMapper.map(testLink, LinkEntity.class);
+    StepVerifier
+        .create(linkRepository.save(testLinkEntity))
         .assertNext(entry -> {
-          assertEquals(testEntry.getId(), entry.getId());
-          assertEquals(testEntry.getOrder(), entry.getOrder());
+          assertEquals(testLink.getId(), entry.getId());
+          assertEquals(testLink.getOrder(), entry.getOrder());
           assertEquals("http://admin.example.org", entry.getHref());
           assertEquals(Boolean.TRUE, entry.getBlank());
           assertEquals("Admin page", entry.getText());
@@ -138,19 +163,6 @@ class LinkControllerTest {
               "On the admin page you can do anything as admin.",
               entry.getDescription());
           assertEquals("Bla bla", entry.getDescription(Locale.GERMAN));
-          assertNotNull(entry.getAcl());
-          assertNotNull(entry.getAcl().entryMap());
-          assertNotNull(entry.getAcl().entryMap().get(PermissionConstants.READ));
-          assertNotNull(entry.getAcl().entryMap().get(PermissionConstants.READ).getUsers());
-          assertNotNull(entry.getAcl().entryMap().get(PermissionConstants.READ).getRoles());
-          assertNotNull(entry.getAcl().entryMap().get(PermissionConstants.READ).getGroups());
-          assertFalse(entry.getAcl().entryMap().get(PermissionConstants.READ).isGuest());
-          assertTrue(entry.getAcl().entryMap().get(PermissionConstants.READ)
-              .getUsers().contains("stephen"));
-          assertTrue(entry.getAcl().entryMap().get(PermissionConstants.READ)
-              .getRoles().contains(ADMIN_ROLE_NAME));
-          assertTrue(entry.getAcl().entryMap().get(PermissionConstants.READ)
-              .getGroups().contains("Admins"));
         })
         .verifyComplete();
   }
@@ -167,14 +179,37 @@ class LinkControllerTest {
   void getLinks() {
     webTestClient
         .get()
-        .uri("/api/admin/links")
+        .uri("/api/links")
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk()
-        .expectBodyList(LinkSpecification.class)
+        .expectBodyList(LinkSpec.class)
         .value(list -> {
           assertEquals(1, list.size());
-          assertTrue(list.stream().anyMatch(entry -> testEntry.getId().equals(entry.getId())));
+          assertTrue(list.stream().anyMatch(entry -> testLink.getId().equals(entry.getId())));
+        });
+  }
+
+  /**
+   * Gets links.
+   */
+  @WithMockUser(
+      username = "admin",
+      password = "admin",
+      authorities = {ADMIN_ROLE_NAME})
+  @Order(12)
+  @Test
+  void getLinksOfCategory() {
+    webTestClient
+        .get()
+        .uri("/api/links?categoryId={id}", categoryId)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBodyList(LinkSpec.class)
+        .value(list -> {
+          assertEquals(1, list.size());
+          assertTrue(list.stream().anyMatch(entry -> testLink.getId().equals(entry.getId())));
         });
   }
 
@@ -190,7 +225,7 @@ class LinkControllerTest {
   void getLinksAndExpectForbidden() {
     webTestClient
         .get()
-        .uri("/api/admin/links")
+        .uri("/api/links")
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden();
@@ -206,35 +241,28 @@ class LinkControllerTest {
   @Order(20)
   @Test
   void addLink() {
-    LinkSpecification model = LinkSpecification.builder()
+    LinkSpec model = LinkSpec.builder()
         .order(99)
         .href("http://developers.example.org")
         .text("Developer page")
         .textTranslations(Collections.singleton(new Translation("de", "Entwicklerseite")))
         .description("The developer page contains ...")
-        .acl(AclBuilder.builder()
-            .addGroup("developers", PermissionConstants.READ)
-            .buildAccessControlList())
         .build();
     webTestClient
         .post()
-        .uri("/api/admin/links")
+        .uri("/api/links")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromValue(model))
         .exchange()
-        .expectBody(LinkSpecification.class)
-        .value((Consumer<LinkSpecification>) entry -> {
+        .expectBody(LinkSpec.class)
+        .value((Consumer<LinkSpec>) entry -> {
           assertNotNull(entry);
           assertNotNull(entry.getId());
           assertEquals("http://developers.example.org", entry.getHref());
           assertEquals("Developer page", entry.getText());
           assertEquals("Entwicklerseite", entry.getText("de"));
           assertEquals("The developer page contains ...", entry.getDescription());
-          assertNotNull(entry.getAcl());
-          assertNotNull(entry.getAcl().getEntries());
-          assertTrue(entry.getAcl().getEntries().stream()
-              .anyMatch(ace -> ace.getGroups().contains("developers")));
         });
   }
 
@@ -250,14 +278,14 @@ class LinkControllerTest {
   void getLink() {
     webTestClient
         .get()
-        .uri("/api/admin/links/{id}", testEntry.getId())
+        .uri("/api/links/{id}", testLink.getId())
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk()
-        .expectBody(LinkSpecification.class)
-        .value((Consumer<LinkSpecification>) entry -> {
-          assertEquals(testEntry.getId(), entry.getId());
-          assertEquals(testEntry.getOrder(), entry.getOrder());
+        .expectBody(LinkSpec.class)
+        .value((Consumer<LinkSpec>) entry -> {
+          assertEquals(testLink.getId(), entry.getId());
+          assertEquals(testLink.getOrder(), entry.getOrder());
         });
   }
 
@@ -271,20 +299,20 @@ class LinkControllerTest {
   @Order(40)
   @Test
   void updateLink() {
-    Set<Translation> newTranslations = new LinkedHashSet<>(testEntry.getTextTranslations());
+    Set<Translation> newTranslations = new LinkedHashSet<>(testLink.getTextTranslations());
     newTranslations.add(new Translation("fr", "Page d'administration"));
-    LinkSpecification update = testEntry.toBuilder()
+    LinkSpec update = testLink.toBuilder()
         .textTranslations(newTranslations)
         .build();
     webTestClient
         .put()
-        .uri("/api/admin/links/{id}", testEntry.getId())
+        .uri("/api/links/{id}", testLink.getId())
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromValue(update))
         .exchange()
-        .expectBody(LinkSpecification.class)
-        .value((Consumer<LinkSpecification>) entry -> assertEquals(
+        .expectBody(LinkSpec.class)
+        .value((Consumer<LinkSpec>) entry -> assertEquals(
             "Page d'administration", entry.getText("fr")));
   }
 
@@ -300,14 +328,14 @@ class LinkControllerTest {
   void deleteLink() {
     webTestClient
         .delete()
-        .uri("/api/admin/links/{id}", testEntry.getId())
+        .uri("/api/links/{id}", testLink.getId())
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk();
 
     webTestClient
         .get()
-        .uri("/api/admin/links/{id}", testEntry.getId())
+        .uri("/api/links/{id}", testLink.getId())
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound();

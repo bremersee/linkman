@@ -16,10 +16,8 @@
 
 package org.bremersee.linkman.service;
 
-import java.util.Locale;
-import java.util.Set;
-import org.bremersee.linkman.model.LinkContainer;
-import org.bremersee.linkman.model.LinkSpecification;
+import org.bremersee.linkman.model.LinkSpec;
+import org.springframework.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,24 +31,9 @@ public interface LinkService {
   /**
    * Gets links.
    *
-   * @param language the language
-   * @param userId the user id
-   * @param roles the roles
-   * @param groups the groups
    * @return the links
    */
-  Flux<LinkContainer> getLinks(
-      Locale language,
-      String userId,
-      Set<String> roles,
-      Set<String> groups);
-
-  /**
-   * Gets links.
-   *
-   * @return the links
-   */
-  Flux<LinkSpecification> getLinks();
+  Flux<LinkSpec> getLinks(@Nullable String categoryId);
 
   /**
    * Add link.
@@ -58,7 +41,7 @@ public interface LinkService {
    * @param link the link
    * @return the added link
    */
-  Mono<LinkSpecification> addLink(LinkSpecification link);
+  Mono<LinkSpec> addLink(LinkSpec link);
 
   /**
    * Gets link.
@@ -66,7 +49,7 @@ public interface LinkService {
    * @param id the id
    * @return the link
    */
-  Mono<LinkSpecification> getLink(String id);
+  Mono<LinkSpec> getLink(String id);
 
   /**
    * Update link.
@@ -75,7 +58,7 @@ public interface LinkService {
    * @param link the link
    * @return the updated link
    */
-  Mono<LinkSpecification> updateLink(String id, LinkSpecification link);
+  Mono<LinkSpec> updateLink(String id, LinkSpec link);
 
   /**
    * Delete link.

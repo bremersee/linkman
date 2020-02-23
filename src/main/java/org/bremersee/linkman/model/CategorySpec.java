@@ -16,6 +16,7 @@
 
 package org.bremersee.linkman.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
@@ -24,6 +25,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -31,7 +33,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.bremersee.common.model.AccessControlList;
 import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.bremersee.security.access.PermissionConstants;
 import org.springframework.validation.annotation.Validated;
 
 /**
@@ -46,11 +50,18 @@ import org.springframework.validation.annotation.Validated;
 @EqualsAndHashCode
 @NoArgsConstructor
 @Validated
-public class CategorySpecification {
+public class CategorySpec {
 
   @Schema(description = "Unique identifier of the category.", accessMode = AccessMode.READ_ONLY)
   @JsonProperty("id")
   private String id;
+
+  @Schema(
+      description = "The access control list that specifies who can see the category.",
+      required = true)
+  @JsonProperty(value = "acl", required = true)
+  @NotNull
+  private AccessControlList acl;
 
   @Schema(description = "The sort order value.", required = true, example = "134")
   @JsonProperty(value = "order", required = true)
@@ -66,25 +77,6 @@ public class CategorySpecification {
   @JsonProperty("translations")
   private Set<Translation> translations = new LinkedHashSet<>();
 
-  @Schema(description = "Specifies whether the links of this category can be seen without "
-      + "authentication. Default is false.", defaultValue = "false")
-  @JsonProperty("matchesGuest")
-  private Boolean matchesGuest = Boolean.FALSE;
-
-  @Schema(description = "Specifies the users that can see the links of this category.")
-  @JsonProperty("matchesUsers")
-  private Set<String> matchesUsers = new LinkedHashSet<>();
-
-  @Schema(description = "Specifies the roles of the users that can see the links of this "
-      + "category.")
-  @JsonProperty("matchesRoles")
-  private Set<String> matchesRoles = new LinkedHashSet<>();
-
-  @Schema(description = "Specifies the groups of the users that can see the links of this "
-      + "category.")
-  @JsonProperty("matchesGroups")
-  private Set<String> matchesGroups = new LinkedHashSet<>();
-
   /**
    * Instantiates a new category specification.
    *
@@ -92,30 +84,20 @@ public class CategorySpecification {
    * @param order the order
    * @param name the name
    * @param translations the translations
-   * @param matchesGuest the matches guest
-   * @param matchesUsers the matches users
-   * @param matchesRoles the matches roles
-   * @param matchesGroups the matches groups
    */
   @Builder(toBuilder = true)
   @SuppressWarnings("unused")
-  public CategorySpecification(
+  public CategorySpec(
       String id,
+      AccessControlList acl,
       int order,
       String name,
-      Set<Translation> translations,
-      Boolean matchesGuest,
-      Set<String> matchesUsers,
-      Set<String> matchesRoles,
-      Set<String> matchesGroups) {
+      Set<Translation> translations) {
     this.id = id;
+    this.acl = acl;
     this.order = order;
     this.name = name;
     setTranslations(translations);
-    setMatchesGuest(matchesGuest);
-    setMatchesUsers(matchesUsers);
-    setMatchesRoles(matchesRoles);
-    setMatchesGroups(matchesGroups);
   }
 
   /**
@@ -127,51 +109,6 @@ public class CategorySpecification {
     this.translations.clear();
     if (translations != null) {
       this.translations.addAll(translations);
-    }
-  }
-
-  /**
-   * Sets matches guest.
-   *
-   * @param matchesGuest the matches guest
-   */
-  public void setMatchesGuest(Boolean matchesGuest) {
-    this.matchesGuest = Boolean.TRUE.equals(matchesGuest);
-  }
-
-  /**
-   * Sets matches users.
-   *
-   * @param matchesUsers the matches users
-   */
-  public void setMatchesUsers(Set<String> matchesUsers) {
-    this.matchesUsers.clear();
-    if (matchesUsers != null) {
-      this.matchesUsers.addAll(matchesUsers);
-    }
-  }
-
-  /**
-   * Sets matches roles.
-   *
-   * @param matchesRoles the matches roles
-   */
-  public void setMatchesRoles(Set<String> matchesRoles) {
-    this.matchesRoles.clear();
-    if (matchesRoles != null) {
-      this.matchesRoles.addAll(matchesRoles);
-    }
-  }
-
-  /**
-   * Sets matches groups.
-   *
-   * @param matchesGroups the matches groups
-   */
-  public void setMatchesGroups(Set<String> matchesGroups) {
-    this.matchesGroups.clear();
-    if (matchesGroups != null) {
-      this.matchesGroups.addAll(matchesGroups);
     }
   }
 
@@ -209,6 +146,18 @@ public class CategorySpecification {
    */
   public String getName(String language) {
     return getName(TwoLetterLanguageCode.fromValue(language));
+  }
+
+  @Schema(hidden = true)
+  @JsonIgnore
+  public boolean isPublic() {
+    return Optional.ofNullable(getAcl())
+        .map(AccessControlList::getEntries)
+        .flatMap(accessControlEntries -> accessControlEntries.stream()
+            .filter(ace -> PermissionConstants.READ.equals(ace.getPermission()))
+            .findAny()
+            .map(ace -> Boolean.TRUE.equals(ace.getGuest())))
+        .orElse(false);
   }
 
 }

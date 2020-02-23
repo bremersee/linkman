@@ -67,7 +67,7 @@ public class RoleController {
               array = @ArraySchema(
                   schema = @Schema(implementation = SelectOption.class))))
   })
-  @GetMapping(path = "/api/admin/roles", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(path = "/api/roles", produces = MediaType.APPLICATION_JSON_VALUE)
   public Flux<SelectOption> getAvailableRoles() {
     return roleService.getAllRoles();
   }

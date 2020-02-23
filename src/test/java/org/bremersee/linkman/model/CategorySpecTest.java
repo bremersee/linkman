@@ -24,7 +24,9 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import org.bremersee.common.model.AccessControlList;
 import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.bremersee.security.access.AclBuilder;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -32,20 +34,20 @@ import org.junit.jupiter.api.Test;
  *
  * @author Christian Bremer
  */
-class CategorySpecificationTest {
+class CategorySpecTest {
 
   /**
    * Gets id.
    */
   @Test
   void getId() {
-    CategorySpecification model = new CategorySpecification();
+    CategorySpec model = new CategorySpec();
     String value = UUID.randomUUID().toString();
     model.setId(value);
     assertEquals(value, model.getId());
 
     assertEquals(model, model);
-    assertEquals(model, CategorySpecification.builder().id(value).build());
+    assertEquals(model, CategorySpec.builder().id(value).build());
     assertNotEquals(model, null);
     assertNotEquals(model, new Object());
 
@@ -53,15 +55,29 @@ class CategorySpecificationTest {
   }
 
   /**
+   * Gets acl.
+   */
+  @Test
+  void getAcl() {
+    String owner = UUID.randomUUID().toString();
+    CategorySpec model = new CategorySpec();
+    AccessControlList value = AclBuilder.builder().owner(owner).buildAccessControlList();
+    model.setAcl(value);
+    assertEquals(value, model.getAcl());
+    assertEquals(model, CategorySpec.builder().acl(value).build());
+    assertTrue(model.toBuilder().build().toString().contains(owner));
+  }
+
+  /**
    * Gets order.
    */
   @Test
   void getOrder() {
-    CategorySpecification model = new CategorySpecification();
+    CategorySpec model = new CategorySpec();
     int value = 100;
     model.setOrder(value);
     assertEquals(value, model.getOrder());
-    assertEquals(model, CategorySpecification.builder().order(value).build());
+    assertEquals(model, CategorySpec.builder().order(value).build());
     assertTrue(model.toBuilder().build().toString().contains(String.valueOf(value)));
   }
 
@@ -70,11 +86,11 @@ class CategorySpecificationTest {
    */
   @Test
   void getName() {
-    CategorySpecification model = new CategorySpecification();
+    CategorySpec model = new CategorySpec();
     String value = UUID.randomUUID().toString();
     model.setName(value);
     assertEquals(value, model.getName());
-    assertEquals(model, CategorySpecification.builder().name(value).build());
+    assertEquals(model, CategorySpec.builder().name(value).build());
     assertTrue(model.toBuilder().build().toString().contains(value));
   }
 
@@ -83,11 +99,11 @@ class CategorySpecificationTest {
    */
   @Test
   void getTranslations() {
-    CategorySpecification model = new CategorySpecification();
+    CategorySpec model = new CategorySpec();
     Set<Translation> value = Collections.singleton(new Translation("de", "value"));
     model.setTranslations(value);
     assertEquals(value, model.getTranslations());
-    assertEquals(model, CategorySpecification.builder().translations(value).build());
+    assertEquals(model, CategorySpec.builder().translations(value).build());
     assertTrue(model.toBuilder().build().toString().contains(value.toString()));
 
     assertEquals("value", model.getName(TwoLetterLanguageCode.DE));
@@ -95,54 +111,4 @@ class CategorySpecificationTest {
     assertEquals("value", model.getName("de"));
   }
 
-  /**
-   * Gets matches guest.
-   */
-  @Test
-  void getMatchesGuest() {
-    CategorySpecification model = new CategorySpecification();
-    model.setMatchesGuest(true);
-    assertEquals(Boolean.TRUE, model.getMatchesGuest());
-    assertEquals(model, CategorySpecification.builder().matchesGuest(true).build());
-    assertTrue(model.toBuilder().build().toString().contains(String.valueOf(true)));
-  }
-
-  /**
-   * Gets matches users.
-   */
-  @Test
-  void getMatchesUsers() {
-    CategorySpecification model = new CategorySpecification();
-    Set<String> value = Collections.singleton(UUID.randomUUID().toString());
-    model.setMatchesUsers(value);
-    assertEquals(value, model.getMatchesUsers());
-    assertEquals(model, CategorySpecification.builder().matchesUsers(value).build());
-    assertTrue(model.toBuilder().build().toString().contains(value.toString()));
-  }
-
-  /**
-   * Gets matches roles.
-   */
-  @Test
-  void getMatchesRoles() {
-    CategorySpecification model = new CategorySpecification();
-    Set<String> value = Collections.singleton(UUID.randomUUID().toString());
-    model.setMatchesRoles(value);
-    assertEquals(value, model.getMatchesRoles());
-    assertEquals(model, CategorySpecification.builder().matchesRoles(value).build());
-    assertTrue(model.toBuilder().build().toString().contains(value.toString()));
-  }
-
-  /**
-   * Gets matches groups.
-   */
-  @Test
-  void getMatchesGroups() {
-    CategorySpecification model = new CategorySpecification();
-    Set<String> value = Collections.singleton(UUID.randomUUID().toString());
-    model.setMatchesGroups(value);
-    assertEquals(value, model.getMatchesGroups());
-    assertEquals(model, CategorySpecification.builder().matchesGroups(value).build());
-    assertTrue(model.toBuilder().build().toString().contains(value.toString()));
-  }
 }

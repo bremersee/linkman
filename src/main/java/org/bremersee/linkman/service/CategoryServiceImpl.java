@@ -18,12 +18,17 @@ package org.bremersee.linkman.service;
 
 import static org.bremersee.linkman.model.Translation.toTranslations;
 
+import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.common.model.AccessControlEntry;
+import org.bremersee.common.model.AccessControlList;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.config.LinkmanProperties;
-import org.bremersee.linkman.model.CategorySpecification;
+import org.bremersee.linkman.model.CategorySpec;
 import org.bremersee.linkman.repository.CategoryEntity;
 import org.bremersee.linkman.repository.CategoryRepository;
+import org.bremersee.linkman.repository.LinkRepository;
+import org.bremersee.security.access.PermissionConstants;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -46,6 +51,8 @@ public class CategoryServiceImpl implements CategoryService {
 
   private CategoryRepository categoryRepository;
 
+  private LinkRepository linkRepository;
+
   private ModelMapper modelMapper;
 
   /**
@@ -53,14 +60,17 @@ public class CategoryServiceImpl implements CategoryService {
    *
    * @param properties the properties
    * @param categoryRepository the category repository
+   * @param linkRepository the link repository
    * @param modelMapper the model mapper
    */
   public CategoryServiceImpl(
       LinkmanProperties properties,
       CategoryRepository categoryRepository,
+      LinkRepository linkRepository,
       ModelMapper modelMapper) {
     this.properties = properties;
     this.categoryRepository = categoryRepository;
+    this.linkRepository = linkRepository;
     this.modelMapper = modelMapper;
   }
 
@@ -69,13 +79,18 @@ public class CategoryServiceImpl implements CategoryService {
    */
   @EventListener(ApplicationReadyEvent.class)
   public void init() {
-    final CategorySpecification publicCategory = CategorySpecification.builder()
-        .matchesGuest(true)
+    final CategorySpec publicCategory = CategorySpec.builder()
+        .acl(AccessControlList.builder()
+            .entries(Collections.singletonList(AccessControlEntry.builder()
+                .permission(PermissionConstants.READ)
+                .guest(true)
+                .build()))
+            .build())
         .order(Integer.MIN_VALUE)
         .name(properties.getPublicCategory().getName())
         .translations(toTranslations(properties.getPublicCategory().getTranslations()))
         .build();
-    final CategorySpecification savedPublicCategory = categoryRepository.countPublicCategories()
+    final CategorySpec savedPublicCategory = categoryRepository.countPublicCategories()
         .filter(size -> size == 0)
         .flatMap(size -> addCategory(publicCategory))
         .block();
@@ -85,40 +100,40 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public Flux<CategorySpecification> getCategories() {
+  public Flux<CategorySpec> getCategories() {
     return categoryRepository.findAll(Sort.by(Order.asc("order"), Order.asc("name")))
-        .map(entity -> modelMapper.map(entity, CategorySpecification.class));
+        .map(entity -> modelMapper.map(entity, CategorySpec.class));
   }
 
   @Override
-  public Mono<CategorySpecification> addCategory(CategorySpecification category) {
-    final CategorySpecification model = category.toBuilder()
+  public Mono<CategorySpec> addCategory(CategorySpec category) {
+    // TODO validate category
+    final CategorySpec model = category.toBuilder()
         .id(null)
         .build();
     return categoryRepository.countPublicCategories()
-        .flatMap(size -> size > 0 && Boolean.TRUE.equals(model.getMatchesGuest())
+        .flatMap(size -> size > 0 && model.isPublic()
             ? Mono.error(ServiceException.badRequest(
             "There is already a public category.",
             "ONLY_ONE_PUBLIC_CATEGORY_IS_ALLOWED"))
             : categoryRepository.save(modelMapper.map(model, CategoryEntity.class)))
-        .map(entity -> modelMapper.map(entity, CategorySpecification.class));
+        .map(entity -> modelMapper.map(entity, CategorySpec.class));
   }
 
   @Override
-  public Mono<CategorySpecification> getCategory(String id) {
+  public Mono<CategorySpec> getCategory(String id) {
     return categoryRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Category", id)))
-        .map(entity -> modelMapper.map(entity, CategorySpecification.class));
+        .map(entity -> modelMapper.map(entity, CategorySpec.class));
   }
 
   @Override
-  public Mono<CategorySpecification> updateCategory(String id, CategorySpecification category) {
-    final CategorySpecification model = category.toBuilder().id(id).build();
+  public Mono<CategorySpec> updateCategory(String id, CategorySpec category) {
+    final CategorySpec model = category.toBuilder().id(id).build();
     return categoryRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Category", id)))
         .flatMap(entity -> {
-          if (Boolean.TRUE.equals(model.getMatchesGuest())
-              && !Boolean.TRUE.equals(entity.getMatchesGuest())) {
+          if (model.isPublic() && !entity.isPublic()) {
             return categoryRepository.countPublicCategories()
                 .flatMap(size -> size > 0
                     ? Mono.error(ServiceException.badRequest(
@@ -129,12 +144,13 @@ public class CategoryServiceImpl implements CategoryService {
             return categoryRepository.save(modelMapper.map(model, CategoryEntity.class));
           }
         })
-        .map(entity -> modelMapper.map(entity, CategorySpecification.class));
+        .map(entity -> modelMapper.map(entity, CategorySpec.class));
   }
 
   @Override
   public Mono<Void> deleteCategory(String id) {
-    return categoryRepository.deleteById(id);
+    return categoryRepository.deleteById(id)
+        .then(linkRepository.removeCategoryReferences(id));
   }
 
   @Override

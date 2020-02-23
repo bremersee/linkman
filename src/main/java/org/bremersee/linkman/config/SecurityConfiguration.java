@@ -109,8 +109,8 @@ public class SecurityConfiguration {
           // .pathMatchers("/swagger-ui.html").permitAll()
           // .pathMatchers("/webjars/**").permitAll()
           .pathMatchers("/v3/**").permitAll()
-          .pathMatchers("/api/public/**").permitAll()
-          .pathMatchers("/api/admin/**").hasAnyAuthority(ADMIN_ROLES)
+          .pathMatchers("/api/menu").permitAll()
+          .pathMatchers("/api/**").hasAnyAuthority(ADMIN_ROLES)
           .anyExchange().authenticated();
 
       return http.build();
@@ -196,8 +196,8 @@ public class SecurityConfiguration {
           // .pathMatchers("/swagger-ui.html").permitAll()
           // .pathMatchers("/webjars/**").permitAll()
           .pathMatchers("/v3/**").permitAll()
-          .pathMatchers("/api/public/**").permitAll()
-          .pathMatchers("/api/admin/**").hasAnyAuthority(ADMIN_ROLES)
+          .pathMatchers("/api/menu").permitAll()
+          .pathMatchers("/api/**").hasAnyAuthority(ADMIN_ROLES)
           .anyExchange().authenticated()
           .and()
           .httpBasic()
