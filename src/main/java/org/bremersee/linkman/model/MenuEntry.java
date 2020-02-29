@@ -28,7 +28,7 @@ import lombok.ToString;
 import org.bremersee.common.model.Link;
 
 /**
- * The link container.
+ * The menu entry is a category with it's links.
  *
  * @author Christian Bremer
  */
@@ -38,7 +38,7 @@ import org.bremersee.common.model.Link;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-public class LinkContainer {
+public class MenuEntry {
 
   @Schema(description = "The name of the category.", required = true)
   @JsonProperty(value = "category", required = true)
@@ -62,7 +62,7 @@ public class LinkContainer {
    */
   @Builder(toBuilder = true)
   @SuppressWarnings("unused")
-  public LinkContainer(
+  public MenuEntry(
       String category,
       boolean pub,
       List<Link> links) {

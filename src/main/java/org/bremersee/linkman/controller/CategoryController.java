@@ -25,7 +25,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
-import org.bremersee.linkman.model.CategorySpecification;
+import org.bremersee.linkman.model.CategorySpec;
 import org.bremersee.linkman.service.CategoryService;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -75,13 +75,13 @@ public class CategoryController {
           description = "The categories.",
           content = @Content(
               array = @ArraySchema(
-                  schema = @Schema(implementation = CategorySpecification.class)))),
+                  schema = @Schema(implementation = CategorySpec.class)))),
       @ApiResponse(
           responseCode = "403",
           description = "Forbidden")
   })
-  @GetMapping(path = "/api/admin/categories", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Flux<CategorySpecification> getCategories() {
+  @GetMapping(path = "/api/categories", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Flux<CategorySpec> getCategories() {
     return categoryService.getCategories();
   }
 
@@ -101,7 +101,7 @@ public class CategoryController {
           description = "The added category.",
           content = @Content(
               schema = @Schema(
-                  implementation = CategorySpecification.class))),
+                  implementation = CategorySpec.class))),
       @ApiResponse(
           responseCode = "400",
           description = "Bad Request",
@@ -112,12 +112,12 @@ public class CategoryController {
           responseCode = "403",
           description = "Forbidden")
   })
-  @PostMapping(path = "/api/admin/categories",
+  @PostMapping(path = "/api/categories",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<CategorySpecification> addCategory(
+  public Mono<CategorySpec> addCategory(
       @Parameter(description = "The new category.", required = true) @Valid @RequestBody
-          CategorySpecification category) {
+          CategorySpec category) {
 
     return categoryService.addCategory(category);
   }
@@ -138,7 +138,7 @@ public class CategoryController {
           description = "The category.",
           content = @Content(
               schema = @Schema(
-                  implementation = CategorySpecification.class))),
+                  implementation = CategorySpec.class))),
       @ApiResponse(
           responseCode = "404",
           description = "Not Found",
@@ -149,8 +149,8 @@ public class CategoryController {
           responseCode = "403",
           description = "Forbidden")
   })
-  @GetMapping(path = "/api/admin/categories/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<CategorySpecification> getCategory(
+  @GetMapping(path = "/api/categories/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono<CategorySpec> getCategory(
       @Parameter(description = "The category ID.", required = true) @PathVariable("id") String id) {
     return categoryService.getCategory(id);
   }
@@ -172,7 +172,7 @@ public class CategoryController {
           description = "The updated category.",
           content = @Content(
               schema = @Schema(
-                  implementation = CategorySpecification.class))),
+                  implementation = CategorySpec.class))),
       @ApiResponse(
           responseCode = "400",
           description = "Bad Request",
@@ -189,13 +189,13 @@ public class CategoryController {
           responseCode = "403",
           description = "Forbidden")
   })
-  @PutMapping(path = "/api/admin/categories/{id}",
+  @PutMapping(path = "/api/categories/{id}",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<CategorySpecification> updateCategory(
+  public Mono<CategorySpec> updateCategory(
       @Parameter(description = "The category ID.", required = true) @PathVariable("id") String id,
       @Parameter(description = "The new category specification.", required = true)
-      @Valid @RequestBody CategorySpecification category) {
+      @Valid @RequestBody CategorySpec category) {
 
     return categoryService.updateCategory(id, category);
   }
@@ -218,7 +218,7 @@ public class CategoryController {
           responseCode = "403",
           description = "Forbidden")
   })
-  @DeleteMapping(path = "/api/admin/categories/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(path = "/api/categories/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<Void> deleteCategory(
       @Parameter(description = "The category ID.", required = true) @PathVariable("id") String id) {
 
@@ -238,7 +238,7 @@ public class CategoryController {
           description = "Forbidden")
   })
   @GetMapping(
-      path = "/api/admin/categories/f/public-exists",
+      path = "/api/categories/f/public-exists",
       produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<Boolean> publicCategoryExists() {
     return categoryService.publicCategoryExists();

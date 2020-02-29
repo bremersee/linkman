@@ -16,7 +16,7 @@
 
 package org.bremersee.linkman.service;
 
-import org.bremersee.linkman.model.CategorySpecification;
+import org.bremersee.linkman.model.CategorySpec;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -32,7 +32,7 @@ public interface CategoryService {
    *
    * @return the categories
    */
-  Flux<CategorySpecification> getCategories();
+  Flux<CategorySpec> getCategories();
 
   /**
    * Add category.
@@ -40,7 +40,7 @@ public interface CategoryService {
    * @param category the category
    * @return the added category
    */
-  Mono<CategorySpecification> addCategory(CategorySpecification category);
+  Mono<CategorySpec> addCategory(CategorySpec category);
 
   /**
    * Gets category.
@@ -48,7 +48,7 @@ public interface CategoryService {
    * @param id the id
    * @return the category
    */
-  Mono<CategorySpecification> getCategory(String id);
+  Mono<CategorySpec> getCategory(String id);
 
   /**
    * Update category.
@@ -57,7 +57,7 @@ public interface CategoryService {
    * @param category the category
    * @return the updated category
    */
-  Mono<CategorySpecification> updateCategory(String id, CategorySpecification category);
+  Mono<CategorySpec> updateCategory(String id, CategorySpec category);
 
   /**
    * Delete category.

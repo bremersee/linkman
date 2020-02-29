@@ -17,13 +17,10 @@
 package org.bremersee.linkman.controller;
 
 import static org.bremersee.security.core.AuthorityConstants.ADMIN_ROLE_NAME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Locale;
-import org.bremersee.common.model.JavaLocaleDescription;
-import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.bremersee.linkman.model.SelectOption;
 import org.bremersee.test.security.authentication.WithJwtAuthenticationToken;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -32,13 +29,12 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
- * The language controller test.
+ * The role controller test.
  *
  * @author Christian Bremer
  */
@@ -46,9 +42,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
     "bremersee.security.authentication.enable-jwt-support=true"
 })
 @ActiveProfiles({"default"})
-@TestInstance(Lifecycle.PER_CLASS)
-    // allows us to use @BeforeAll with a non-static method
-class LanguageControllerTest {
+@TestInstance(Lifecycle.PER_CLASS) // allows us to use @BeforeAll with a non-static method
+class RoleControllerTest {
 
   /**
    * The application context.
@@ -76,26 +71,23 @@ class LanguageControllerTest {
   }
 
   /**
-   * Gets available languages.
+   * Gets available roles.
    */
   @WithJwtAuthenticationToken(roles = {ADMIN_ROLE_NAME})
   @Test
-  void getAvailableLanguages() {
-    JavaLocaleDescription expected = new JavaLocaleDescription(
-        TwoLetterLanguageCode.BG.toString(),
-        TwoLetterLanguageCode.BG.toLocale().getDisplayLanguage(Locale.FRANCE));
+  void getAvailableRoles() {
     webTestClient
         .get()
-        .uri("/api/languages")
+        .uri("/api/roles")
         .accept(MediaType.APPLICATION_JSON)
-        .header(HttpHeaders.ACCEPT_LANGUAGE, Locale.FRENCH.getLanguage())
         .exchange()
         .expectStatus().isOk()
-        .expectBodyList(JavaLocaleDescription.class)
+        .expectBodyList(SelectOption.class)
         .value(list -> {
           assertFalse(list.isEmpty());
-          assertEquals(Locale.FRENCH.getLanguage(), list.get(0).getLocale());
-          assertTrue(list.contains(expected));
+          assertTrue(list.stream().anyMatch(entry -> "ROLE_ADMIN".equals(entry.getValue())));
+          assertTrue(list.stream().anyMatch(entry -> "ROLE_USER".equals(entry.getValue())));
+          assertTrue(list.stream().anyMatch(entry -> "ROLE_LOCAL_USER".equals(entry.getValue())));
         });
   }
 }

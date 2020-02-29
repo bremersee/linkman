@@ -71,7 +71,7 @@ public class LanguageController {
               array = @ArraySchema(
                   schema = @Schema(implementation = JavaLocaleDescription.class))))
   })
-  @GetMapping(path = "/api/public/languages", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(path = "/api/languages", produces = MediaType.APPLICATION_JSON_VALUE)
   public Flux<JavaLocaleDescription> getAvailableLanguages(
       @Parameter(hidden = true) Locale inLocale) {
 

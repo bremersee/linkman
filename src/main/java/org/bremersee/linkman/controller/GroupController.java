@@ -67,7 +67,7 @@ public class GroupController {
               array = @ArraySchema(
                   schema = @Schema(implementation = SelectOption.class))))
   })
-  @GetMapping(path = "/api/admin/groups", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(path = "/api/groups", produces = MediaType.APPLICATION_JSON_VALUE)
   public Flux<SelectOption> getAvailableGroups() {
     return groupService.getAllGroups();
   }

@@ -19,12 +19,12 @@ package org.bremersee.linkman.repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.bremersee.security.access.Ace;
-import org.bremersee.security.access.Acl;
-import org.bremersee.security.access.PermissionConstants;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -51,49 +51,52 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
   @Override
   public Mono<Long> countPublicCategories() {
     return mongoTemplate.count(
-        Query.query(Criteria.where("matchesGuest").is(true)),
+        Query.query(Criteria.where("acl.read.guest").is(true)),
         CategoryEntity.class);
   }
 
   @Override
-  public Flux<CategoryEntity> findCategories(final Acl<? extends Ace> linkAcl) {
-    return Optional
-        .ofNullable(linkAcl == null ? null : linkAcl.entryMap().get(PermissionConstants.READ))
-        .map(ace -> query(createCriteriaList(ace)))
-        .orElseGet(Flux::empty);
+  public Mono<CategoryEntity> findPublicCategory() {
+    return mongoTemplate.findOne(
+        Query.query(Criteria.where("acl.read.guest").is(true)).limit(1),
+        CategoryEntity.class);
   }
 
-  private List<Criteria> createCriteriaList(final Ace ace) {
+  @Override
+  public Flux<CategoryEntity> findReadableCategories(
+      String userId,
+      Set<String> roles,
+      Set<String> groups) {
+
     final List<Criteria> criteriaList = new ArrayList<>();
-    if (ace.isGuest()) {
-      criteriaList.add(Criteria.where("matchesGuest").is(true));
-    } else {
-      if (!ace.getUsers().isEmpty()) {
-        criteriaList.add(Criteria
-            .where("matchesUsers").elemMatch(new Criteria().in(ace.getUsers())));
-      }
-      if (!ace.getRoles().isEmpty()) {
-        criteriaList.add(Criteria
-            .where("matchesRoles").elemMatch(new Criteria().in(ace.getRoles())));
-      }
-      if (!ace.getGroups().isEmpty()) {
-        criteriaList.add(Criteria
-            .where("matchesGroups").elemMatch(new Criteria().in(ace.getGroups())));
-      }
-    }
-    return criteriaList;
-  }
+    criteriaList.add(Criteria.where("acl.read.guest").is(true));
+    Optional.ofNullable(userId)
+        .ifPresent(user -> {
+          criteriaList.add(Criteria.where("acl.owner").is(user));
+          criteriaList.add(Criteria.where("acl.read.users").all(user));
+        });
+    /*
+    Optional.ofNullable(groups)
+        .ifPresent(roleSet -> criteriaList
+            .add(Criteria.where("acl.read.roles").elemMatch(new Criteria().in(roleSet))));
+    Optional.ofNullable(groups)
+        .ifPresent(groupSet -> criteriaList
+            .add(Criteria.where("acl.read.groups").elemMatch(new Criteria().in(groupSet))));
+     */
+    Optional.ofNullable(roles).ifPresent(roleSet -> criteriaList.addAll(roleSet
+        .stream()
+        .filter(StringUtils::hasText)
+        .map(role -> Criteria.where("acl.read.roles").all(role))
+        .collect(Collectors.toList())));
+    Optional.ofNullable(groups).ifPresent(groupSet -> criteriaList.addAll(groupSet
+        .stream()
+        .filter(StringUtils::hasText)
+        .map(group -> Criteria.where("acl.read.groups").all(group))
+        .collect(Collectors.toList())));
 
-  private Flux<CategoryEntity> query(final List<Criteria> criteriaList) {
-    if (criteriaList.isEmpty()) {
-      return Flux.empty();
-    } else if (criteriaList.size() == 1) {
-      return mongoTemplate.find(Query.query(criteriaList.get(0)), CategoryEntity.class);
-    } else {
-      final Criteria criteria = new Criteria()
-          .orOperator(criteriaList.toArray(new Criteria[0]));
-      return mongoTemplate.find(Query.query(criteria), CategoryEntity.class);
-    }
+    final Criteria criteria = new Criteria()
+        .orOperator(criteriaList.toArray(new Criteria[0]));
+    return mongoTemplate.find(Query.query(criteria), CategoryEntity.class);
   }
 
 }

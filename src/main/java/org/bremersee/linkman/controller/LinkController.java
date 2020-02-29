@@ -25,7 +25,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
-import org.bremersee.linkman.model.LinkSpecification;
+import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -75,14 +76,16 @@ public class LinkController {
           description = "The links.",
           content = @Content(
               array = @ArraySchema(
-                  schema = @Schema(implementation = LinkSpecification.class)))),
+                  schema = @Schema(implementation = LinkSpec.class)))),
       @ApiResponse(
           responseCode = "403",
           description = "Forbidden")
   })
-  @GetMapping(path = "/api/admin/links", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Flux<LinkSpecification> getLinks() {
-    return linkService.getLinks();
+  @GetMapping(path = "/api/links", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Flux<LinkSpec> getLinks(
+      @Parameter(name = "categoryId", description = "The category ID.")
+      @RequestParam(name = "categoryId", required = false) String categoryId) {
+    return linkService.getLinks(categoryId);
   }
 
   /**
@@ -101,7 +104,7 @@ public class LinkController {
           description = "The added link.",
           content = @Content(
               schema = @Schema(
-                  implementation = LinkSpecification.class))),
+                  implementation = LinkSpec.class))),
       @ApiResponse(
           responseCode = "400",
           description = "Bad Request",
@@ -112,12 +115,12 @@ public class LinkController {
           responseCode = "403",
           description = "Forbidden")
   })
-  @PostMapping(path = "/api/admin/links",
+  @PostMapping(path = "/api/links",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<LinkSpecification> addLink(
+  public Mono<LinkSpec> addLink(
       @Parameter(description = "The new link.", required = true) @Valid @RequestBody
-          LinkSpecification link) {
+          LinkSpec link) {
 
     return linkService.addLink(link);
   }
@@ -138,7 +141,7 @@ public class LinkController {
           description = "The link.",
           content = @Content(
               schema = @Schema(
-                  implementation = LinkSpecification.class))),
+                  implementation = LinkSpec.class))),
       @ApiResponse(
           responseCode = "404",
           description = "Not Found",
@@ -149,8 +152,8 @@ public class LinkController {
           responseCode = "403",
           description = "Forbidden")
   })
-  @GetMapping(path = "/api/admin/links/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<LinkSpecification> getLink(
+  @GetMapping(path = "/api/links/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono<LinkSpec> getLink(
       @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id) {
     return linkService.getLink(id);
   }
@@ -172,7 +175,7 @@ public class LinkController {
           description = "The updated link.",
           content = @Content(
               schema = @Schema(
-                  implementation = LinkSpecification.class))),
+                  implementation = LinkSpec.class))),
       @ApiResponse(
           responseCode = "400",
           description = "Bad Request",
@@ -189,13 +192,13 @@ public class LinkController {
           responseCode = "403",
           description = "Forbidden")
   })
-  @PutMapping(path = "/api/admin/links/{id}",
+  @PutMapping(path = "/api/links/{id}",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<LinkSpecification> updateLink(
+  public Mono<LinkSpec> updateLink(
       @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
       @Parameter(description = "The new link specification.", required = true) @Valid @RequestBody
-          LinkSpecification link) {
+          LinkSpec link) {
 
     return linkService.updateLink(id, link);
   }
@@ -218,7 +221,7 @@ public class LinkController {
           responseCode = "403",
           description = "Forbidden")
   })
-  @DeleteMapping(path = "/api/admin/links/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(path = "/api/links/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<Void> deleteLink(
       @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id) {
 

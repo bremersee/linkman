@@ -56,8 +56,6 @@ public class LinkmanProperties {
 
   private Set<TwoLetterLanguageCode> availableLanguages = new LinkedHashSet<>();
 
-  private Category defaultCategory;
-
   private Category publicCategory;
 
   /**
@@ -88,11 +86,6 @@ public class LinkmanProperties {
     availableLanguages.add(TwoLetterLanguageCode.SL);
     availableLanguages.add(TwoLetterLanguageCode.ES);
     availableLanguages.add(TwoLetterLanguageCode.SV);
-
-    defaultCategory = new Category();
-    defaultCategory.setName("Not categorized");
-    defaultCategory.getTranslations().put("de", "Nicht kategorisiert");
-    defaultCategory.getTranslations().put("fr", "Non catégorisé");
 
     publicCategory = new Category();
     publicCategory.setName("Public");

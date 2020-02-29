@@ -27,9 +27,10 @@ import lombok.Setter;
 import lombok.ToString;
 import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.bremersee.linkman.model.Translation;
+import org.bremersee.security.access.PermissionConstants;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -51,23 +52,27 @@ public class CategoryEntity implements Comparable<CategoryEntity> {
   @Id
   private String id;
 
+  private AclEntity acl;
+
   private int order;
 
   private String name;
 
   private Set<Translation> translations = new LinkedHashSet<>();
 
-  @Indexed
-  private Boolean matchesGuest;
-
-  @Indexed
-  private Set<String> matchesUsers = new LinkedHashSet<>();
-
-  @Indexed
-  private Set<String> matchesRoles = new LinkedHashSet<>();
-
-  @Indexed
-  private Set<String> matchesGroups = new LinkedHashSet<>();
+  /**
+   * Returns {@code true} if the category is public, otherwise {@code false}.
+   *
+   * @return {@code true} if the category is public, otherwise {@code false}
+   */
+  @Transient
+  public boolean isPublic() {
+    return Optional.ofNullable(getAcl())
+        .map(AclEntity::entryMap)
+        .map(entryMap -> entryMap.get(PermissionConstants.READ))
+        .map(AceEntity::isGuest)
+        .orElse(false);
+  }
 
   /**
    * Gets name.
@@ -98,11 +103,7 @@ public class CategoryEntity implements Comparable<CategoryEntity> {
     }
     return order == entity.order
         && Objects.equals(name, entity.name)
-        && Objects.equals(translations, entity.translations)
-        && Objects.equals(matchesGuest, entity.matchesGuest)
-        && Objects.equals(matchesUsers, entity.matchesUsers)
-        && Objects.equals(matchesRoles, entity.matchesRoles)
-        && Objects.equals(matchesGroups, entity.matchesGroups);
+        && Objects.equals(translations, entity.translations);
   }
 
   @Override
@@ -111,7 +112,7 @@ public class CategoryEntity implements Comparable<CategoryEntity> {
       return id.hashCode();
     }
     return Objects
-        .hash(order, name, translations, matchesGuest, matchesUsers, matchesRoles, matchesGroups);
+        .hash(order, name, translations);
   }
 
   @Override

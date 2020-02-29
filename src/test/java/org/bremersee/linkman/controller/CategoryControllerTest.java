@@ -21,7 +21,6 @@ import static org.bremersee.security.core.AuthorityConstants.LOCAL_USER_ROLE_NAM
 import static org.bremersee.security.core.AuthorityConstants.USER_ROLE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -32,10 +31,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import org.bremersee.exception.model.RestApiException;
-import org.bremersee.linkman.model.CategorySpecification;
+import org.bremersee.linkman.model.CategorySpec;
 import org.bremersee.linkman.model.Translation;
 import org.bremersee.linkman.repository.CategoryEntity;
 import org.bremersee.linkman.repository.CategoryRepository;
+import org.bremersee.security.access.AclBuilder;
+import org.bremersee.security.access.PermissionConstants;
 import org.bremersee.test.security.authentication.WithJwtAuthenticationToken;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -96,15 +97,17 @@ class CategoryControllerTest {
   /**
    * The test entry.
    */
-  final CategorySpecification testEntry = CategorySpecification.builder()
+  final CategorySpec testEntry = CategorySpec.builder()
       .id(UUID.randomUUID().toString())
       .order(100)
       .name("Administration")
       .translations(Collections.singleton(new Translation("de", "Verwaltung")))
-      .matchesGuest(false)
-      .matchesUsers(Collections.singleton("stephen"))
-      .matchesRoles(Collections.singleton(ADMIN_ROLE_NAME))
-      .matchesGroups(Collections.singleton("Admins"))
+      .acl(AclBuilder.builder()
+          .guest(false, PermissionConstants.READ)
+          .addUser("stephen", PermissionConstants.READ)
+          .addRole(ADMIN_ROLE_NAME, PermissionConstants.READ)
+          .addGroup("Admins", PermissionConstants.READ)
+          .buildAccessControlList())
       .build();
 
   /**
@@ -117,7 +120,6 @@ class CategoryControllerTest {
         .bindToApplicationContext(this.context)
         .configureClient()
         .build();
-
     CategoryEntity testEntity = modelMapper.map(testEntry, CategoryEntity.class);
     StepVerifier
         .create(categoryRepository.save(testEntity))
@@ -126,10 +128,19 @@ class CategoryControllerTest {
           assertEquals(testEntry.getOrder(), entry.getOrder());
           assertEquals(testEntry.getName(), entry.getName());
           assertEquals("Verwaltung", entry.getName(new Locale("de")));
-          assertFalse(entry.getMatchesGuest());
-          assertTrue(entry.getMatchesUsers().contains("stephen"));
-          assertTrue(entry.getMatchesRoles().contains(ADMIN_ROLE_NAME));
-          assertTrue(entry.getMatchesGroups().contains("Admins"));
+          assertNotNull(entry.getAcl());
+          assertNotNull(entry.getAcl().entryMap());
+          assertNotNull(entry.getAcl().entryMap().get(PermissionConstants.READ));
+          assertNotNull(entry.getAcl().entryMap().get(PermissionConstants.READ).getUsers());
+          assertNotNull(entry.getAcl().entryMap().get(PermissionConstants.READ).getRoles());
+          assertNotNull(entry.getAcl().entryMap().get(PermissionConstants.READ).getGroups());
+          assertFalse(entry.getAcl().entryMap().get(PermissionConstants.READ).isGuest());
+          assertTrue(entry.getAcl().entryMap().get(PermissionConstants.READ)
+              .getUsers().contains("stephen"));
+          assertTrue(entry.getAcl().entryMap().get(PermissionConstants.READ)
+              .getRoles().contains(ADMIN_ROLE_NAME));
+          assertTrue(entry.getAcl().entryMap().get(PermissionConstants.READ)
+              .getGroups().contains("Admins"));
         })
         .verifyComplete();
   }
@@ -143,7 +154,7 @@ class CategoryControllerTest {
   void assertThatPublicCategoryExists() {
     webTestClient
         .get()
-        .uri("/api/admin/categories/f/public-exists")
+        .uri("/api/categories/f/public-exists")
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk()
@@ -160,14 +171,14 @@ class CategoryControllerTest {
   void getCategoriesAndExpectDefaultExists() {
     webTestClient
         .get()
-        .uri("/api/admin/categories")
+        .uri("/api/categories")
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk()
-        .expectBodyList(CategorySpecification.class)
+        .expectBodyList(CategorySpec.class)
         .value(list -> {
           assertEquals(2, list.size());
-          assertTrue(list.stream().anyMatch(entry -> Boolean.TRUE.equals(entry.getMatchesGuest())));
+          assertTrue(list.stream().anyMatch(entry -> Boolean.TRUE.equals(entry.isPublic())));
           assertTrue(list.stream().anyMatch(entry -> testEntry.getId().equals(entry.getId())));
         });
   }
@@ -181,7 +192,7 @@ class CategoryControllerTest {
   void getCategoriesAndExpectForbidden() {
     webTestClient
         .get()
-        .uri("/api/admin/categories")
+        .uri("/api/categories")
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden();
@@ -196,27 +207,42 @@ class CategoryControllerTest {
   void addCategory() {
     webTestClient
         .post()
-        .uri("/api/admin/categories")
+        .uri("/api/categories")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(CategorySpecification.builder()
+        .body(BodyInserters.fromValue(CategorySpec.builder()
             .name("For local users")
             .order(200)
-            .matchesUsers(Collections.singleton("remote-admin"))
-            .matchesRoles(Collections.singleton(LOCAL_USER_ROLE_NAME))
-            .matchesGroups(Collections.singleton("Company Admins"))
+            .acl(AclBuilder.builder()
+                .guest(false, PermissionConstants.READ)
+                .addUser("remote-admin", PermissionConstants.READ)
+                .addRole(LOCAL_USER_ROLE_NAME, PermissionConstants.READ)
+                .addGroup("Company Admins", PermissionConstants.READ)
+                .buildAccessControlList())
             .build()))
         .exchange()
-        .expectBody(CategorySpecification.class)
-        .value((Consumer<CategorySpecification>) entry -> {
+        .expectBody(CategorySpec.class)
+        .value((Consumer<CategorySpec>) entry -> {
           assertNotNull(entry);
           assertNotNull(entry.getId());
           assertEquals("For local users", entry.getName());
           assertEquals(200, entry.getOrder());
-          assertNotEquals(Boolean.TRUE, entry.getMatchesGuest());
-          assertTrue(entry.getMatchesUsers().contains("remote-admin"));
-          assertTrue(entry.getMatchesRoles().contains(LOCAL_USER_ROLE_NAME));
-          assertTrue(entry.getMatchesGroups().contains("Company Admins"));
+          assertNotNull(entry.getAcl());
+          assertNotNull(entry.getAcl().getEntries());
+          assertTrue(entry.getAcl().getEntries().stream()
+              .anyMatch(ace -> PermissionConstants.READ.equals(ace.getPermission())));
+          assertTrue(entry.getAcl().getEntries().stream()
+              .anyMatch(ace -> PermissionConstants.READ.equals(ace.getPermission())
+                  && Boolean.FALSE.equals(ace.getGuest())));
+          assertTrue(entry.getAcl().getEntries().stream()
+              .anyMatch(ace -> PermissionConstants.READ.equals(ace.getPermission())
+                  && ace.getUsers().contains("remote-admin")));
+          assertTrue(entry.getAcl().getEntries().stream()
+              .anyMatch(ace -> PermissionConstants.READ.equals(ace.getPermission())
+                  && ace.getRoles().contains(LOCAL_USER_ROLE_NAME)));
+          assertTrue(entry.getAcl().getEntries().stream()
+              .anyMatch(ace -> PermissionConstants.READ.equals(ace.getPermission())
+                  && ace.getGroups().contains("Company Admins")));
         });
   }
 
@@ -229,13 +255,15 @@ class CategoryControllerTest {
   void addPublicCategoryAndExpectError() {
     webTestClient
         .post()
-        .uri("/api/admin/categories")
+        .uri("/api/categories")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(CategorySpecification.builder()
+        .body(BodyInserters.fromValue(CategorySpec.builder()
             .name("More public links")
             .order(-200)
-            .matchesGuest(true)
+            .acl(AclBuilder.builder()
+                .guest(true, PermissionConstants.READ)
+                .buildAccessControlList())
             .build()))
         .exchange()
         .expectStatus().isBadRequest()
@@ -253,18 +281,14 @@ class CategoryControllerTest {
   void getCategory() {
     webTestClient
         .get()
-        .uri("/api/admin/categories/{id}", testEntry.getId())
+        .uri("/api/categories/{id}", testEntry.getId())
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk()
-        .expectBody(CategorySpecification.class)
-        .value((Consumer<CategorySpecification>) entry -> {
+        .expectBody(CategorySpec.class)
+        .value((Consumer<CategorySpec>) entry -> {
           assertEquals(testEntry.getOrder(), entry.getOrder());
           assertEquals(testEntry.getName(), entry.getName());
-          assertFalse(entry.getMatchesGuest());
-          assertTrue(entry.getMatchesUsers().contains("stephen"));
-          assertTrue(entry.getMatchesRoles().contains(ADMIN_ROLE_NAME));
-          assertTrue(entry.getMatchesGroups().contains("Admins"));
         });
   }
 
@@ -277,18 +301,18 @@ class CategoryControllerTest {
   void updateCategory() {
     Set<Translation> newTranslations = new LinkedHashSet<>(testEntry.getTranslations());
     newTranslations.add(new Translation("fr", "Gestion"));
-    CategorySpecification update = testEntry.toBuilder()
+    CategorySpec update = testEntry.toBuilder()
         .translations(newTranslations)
         .build();
     webTestClient
         .put()
-        .uri("/api/admin/categories/{id}", testEntry.getId())
+        .uri("/api/categories/{id}", testEntry.getId())
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromValue(update))
         .exchange()
-        .expectBody(CategorySpecification.class)
-        .value((Consumer<CategorySpecification>) entry -> assertEquals(
+        .expectBody(CategorySpec.class)
+        .value((Consumer<CategorySpec>) entry -> assertEquals(
             "Gestion", entry.getName("fr")));
   }
 
@@ -299,12 +323,14 @@ class CategoryControllerTest {
   @Order(45)
   @Test
   void makeCategoryPublicAndExpectError() {
-    CategorySpecification update = testEntry.toBuilder()
-        .matchesGuest(true)
+    CategorySpec update = testEntry.toBuilder()
+        .acl(AclBuilder.builder()
+            .guest(true, PermissionConstants.READ)
+            .buildAccessControlList())
         .build();
     webTestClient
         .put()
-        .uri("/api/admin/categories/{id}", testEntry.getId())
+        .uri("/api/categories/{id}", testEntry.getId())
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromValue(update))
@@ -324,14 +350,14 @@ class CategoryControllerTest {
   void deleteCategory() {
     webTestClient
         .delete()
-        .uri("/api/admin/categories/{id}", testEntry.getId())
+        .uri("/api/categories/{id}", testEntry.getId())
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk();
 
     webTestClient
         .get()
-        .uri("/api/admin/categories/{id}", testEntry.getId())
+        .uri("/api/categories/{id}", testEntry.getId())
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound();

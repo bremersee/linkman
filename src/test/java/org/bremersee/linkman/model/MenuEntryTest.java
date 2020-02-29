@@ -27,24 +27,24 @@ import org.bremersee.common.model.Link;
 import org.junit.jupiter.api.Test;
 
 /**
- * The link container test.
+ * The menu entry test.
  *
  * @author Christian Bremer
  */
-class LinkContainerTest {
+class MenuEntryTest {
 
   /**
    * Gets category.
    */
   @Test
   void getCategory() {
-    LinkContainer model = new LinkContainer();
+    MenuEntry model = new MenuEntry();
     String value = UUID.randomUUID().toString();
     model.setCategory(value);
     assertEquals(value, model.getCategory());
 
     assertEquals(model, model);
-    assertEquals(model, LinkContainer.builder().category(value).build());
+    assertEquals(model, MenuEntry.builder().category(value).build());
     assertNotEquals(model, null);
     assertNotEquals(model, new Object());
 
@@ -56,10 +56,10 @@ class LinkContainerTest {
    */
   @Test
   void isPub() {
-    LinkContainer model = new LinkContainer();
+    MenuEntry model = new MenuEntry();
     model.setPub(true);
     assertTrue(model.isPub());
-    assertEquals(model, LinkContainer.builder().pub(true).build());
+    assertEquals(model, MenuEntry.builder().pub(true).build());
     assertTrue(model.toBuilder().build().toString().contains(String.valueOf(true)));
   }
 
@@ -70,10 +70,10 @@ class LinkContainerTest {
   void getLinks() {
     String href = "http://example.org";
     List<Link> value = Collections.singletonList(Link.builder().href(href).build());
-    LinkContainer model = new LinkContainer();
+    MenuEntry model = new MenuEntry();
     model.setLinks(value);
     assertEquals(value, model.getLinks());
-    assertEquals(model, LinkContainer.builder().links(value).build());
+    assertEquals(model, MenuEntry.builder().links(value).build());
     assertTrue(model.toBuilder().build().toString().contains(href));
   }
 }

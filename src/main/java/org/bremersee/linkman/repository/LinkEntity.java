@@ -31,6 +31,7 @@ import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.bremersee.linkman.model.Translation;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -52,7 +53,8 @@ public class LinkEntity implements Comparable<LinkEntity> {
   @Id
   private String id;
 
-  private AclEntity acl;
+  @Indexed
+  private Set<String> categoryIds = new LinkedHashSet<>();
 
   private int order;
 
@@ -116,7 +118,7 @@ public class LinkEntity implements Comparable<LinkEntity> {
       return id.equals(that.getId());
     }
     return order == that.order &&
-        Objects.equals(acl, that.acl) &&
+        Objects.equals(categoryIds, that.categoryIds) &&
         Objects.equals(href, that.href) &&
         Objects.equals(blank, that.blank) &&
         Objects.equals(text, that.text) &&
@@ -130,8 +132,8 @@ public class LinkEntity implements Comparable<LinkEntity> {
     if (StringUtils.hasText(id)) {
       return id.hashCode();
     }
-    return Objects.hash(
-        acl, order, href, blank, text, textTranslations, description, descriptionTranslations);
+    return Objects.hash(categoryIds, order, href, blank, text, textTranslations, description,
+        descriptionTranslations);
   }
 
   @Override
