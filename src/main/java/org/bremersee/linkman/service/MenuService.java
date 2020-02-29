@@ -22,20 +22,22 @@ import org.bremersee.linkman.model.MenuEntry;
 import reactor.core.publisher.Flux;
 
 /**
+ * The menu service.
+ *
  * @author Christian Bremer
  */
 public interface MenuService {
 
   /**
-   * Gets menu.
+   * Gets menu entries.
    *
    * @param language the language
    * @param userId the user id
    * @param roles the roles
    * @param groups the groups
-   * @return the menu
+   * @return the menu entries
    */
-  Flux<MenuEntry> getMenu(
+  Flux<MenuEntry> getMenuEntries(
       Locale language,
       String userId,
       Set<String> roles,

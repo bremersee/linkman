@@ -56,6 +56,13 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
   }
 
   @Override
+  public Mono<CategoryEntity> findPublicCategory() {
+    return mongoTemplate.findOne(
+        Query.query(Criteria.where("acl.read.guest").is(true)).limit(1),
+        CategoryEntity.class);
+  }
+
+  @Override
   public Flux<CategoryEntity> findReadableCategories(
       String userId,
       Set<String> roles,

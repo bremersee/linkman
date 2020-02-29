@@ -35,6 +35,13 @@ public interface CategoryRepositoryCustom {
   Mono<Long> countPublicCategories();
 
   /**
+   * Find public category.
+   *
+   * @return the public category
+   */
+  Mono<CategoryEntity> findPublicCategory();
+
+  /**
    * Find readable categories.
    *
    * @param userId the user id

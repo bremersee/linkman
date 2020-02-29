@@ -22,6 +22,8 @@ import reactor.core.publisher.Flux;
 
 /**
  * The keycloak client mock.
+ *
+ * @author Christian Bremer
  */
 public class KeycloakClientMock implements KeycloakClientApi {
 

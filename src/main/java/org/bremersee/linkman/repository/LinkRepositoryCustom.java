@@ -35,6 +35,13 @@ public interface LinkRepositoryCustom {
    */
   Flux<LinkEntity> findByCategoryId(String categoryId);
 
+  /**
+   * Find by category id.
+   *
+   * @param categoryId the category id
+   * @param sort the sort
+   * @return the category with the specified id
+   */
   Flux<LinkEntity> findByCategoryId(String categoryId, Sort sort);
 
   /**

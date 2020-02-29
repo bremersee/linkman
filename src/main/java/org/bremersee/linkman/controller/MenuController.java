@@ -44,6 +44,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
+ * The menu controller.
+ *
  * @author Christian Bremer
  */
 @Tag(name = "menu-controller", description = "The categorized links API.")
@@ -55,6 +57,12 @@ public class MenuController {
 
   private GroupWebfluxControllerApi groupService;
 
+  /**
+   * Instantiates a new menu controller.
+   *
+   * @param menuService the menu service
+   * @param groupService the group service
+   */
   public MenuController(
       MenuService menuService,
       GroupWebfluxControllerApi groupService) {
@@ -73,7 +81,7 @@ public class MenuController {
     return ReactiveSecurityContextHolder.getContext()
         .map(SecurityContext::getAuthentication)
         .filter(Authentication::isAuthenticated)
-        .zipWith(groupService.getMembershipIds())
+        .zipWhen(authentication -> groupService.getMembershipIds())
         .map(tuple -> new UserContext(
             tuple.getT1().getName(),
             toRoles(tuple.getT1()),
@@ -83,27 +91,27 @@ public class MenuController {
   }
 
   /**
-   * Get link containers.
+   * Get menu entries.
    *
    * @param language the language
-   * @return the link containers
+   * @return the menu entries
    */
   @Operation(
-      summary = "Get categorized links.",
-      description = "Get categorized links for displaying in a menu.",
+      summary = "Get menu entries.",
+      operationId = "getMenuEntries",
       tags = {"menu-controller"})
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200",
-          description = "The categorized links.",
+          description = "The menu entries.",
           content = @Content(
               array = @ArraySchema(schema = @Schema(implementation = MenuEntry.class))))
   })
   @GetMapping(path = "/api/menu", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Flux<MenuEntry> getLinkContainers(
+  public Flux<MenuEntry> getMenuEntries(
       @Parameter(hidden = true) final Locale language) {
 
-    return manyWithUserContext(userContext -> menuService.getMenu(
+    return manyWithUserContext(userContext -> menuService.getMenuEntries(
         language,
         userContext.getUserId(),
         userContext.getRoles(),

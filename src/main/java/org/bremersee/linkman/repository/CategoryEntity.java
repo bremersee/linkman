@@ -60,6 +60,11 @@ public class CategoryEntity implements Comparable<CategoryEntity> {
 
   private Set<Translation> translations = new LinkedHashSet<>();
 
+  /**
+   * Returns {@code true} if the category is public, otherwise {@code false}.
+   *
+   * @return {@code true} if the category is public, otherwise {@code false}
+   */
   @Transient
   public boolean isPublic() {
     return Optional.ofNullable(getAcl())

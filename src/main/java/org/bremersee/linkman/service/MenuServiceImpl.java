@@ -28,6 +28,8 @@ import reactor.core.publisher.Flux;
 import reactor.util.function.Tuples;
 
 /**
+ * The menu service implementation.
+ *
  * @author Christian Bremer
  */
 @Component
@@ -37,6 +39,12 @@ public class MenuServiceImpl implements MenuService {
 
   private LinkRepository linkRepository;
 
+  /**
+   * Instantiates a new menu service.
+   *
+   * @param categoryRepository the category repository
+   * @param linkRepository the link repository
+   */
   public MenuServiceImpl(CategoryRepository categoryRepository,
       LinkRepository linkRepository) {
     this.categoryRepository = categoryRepository;
@@ -44,10 +52,13 @@ public class MenuServiceImpl implements MenuService {
   }
 
   @Override
-  public Flux<MenuEntry> getMenu(Locale language, String userId, Set<String> roles,
+  public Flux<MenuEntry> getMenuEntries(
+      Locale language,
+      String userId,
+      Set<String> roles,
       Set<String> groups) {
 
-    return categoryRepository.findAll()
+    return categoryRepository.findReadableCategories(userId, roles, groups)
         .flatMap(category -> linkRepository.findByCategoryId(category.getId())
             .collectSortedList((o1, o2) -> o1.compareTo(o2, language))
             .map(links -> Tuples.of(category, links)))
@@ -64,6 +75,7 @@ public class MenuServiceImpl implements MenuService {
                     .description(linkEntity.getDescription(language))
                     .build())
                 .collect(Collectors.toList()))
-            .build());
+            .build())
+        .filter(menuEntry -> menuEntry.getLinks() != null && !menuEntry.getLinks().isEmpty());
   }
 }
