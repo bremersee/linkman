@@ -18,6 +18,7 @@ package org.bremersee.linkman.service;
 
 import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.model.LinkSpec;
+import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkEntity;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.modelmapper.ModelMapper;
@@ -38,18 +39,23 @@ public class LinkServiceImpl implements LinkService {
 
   private LinkRepository linkRepository;
 
+  private CategoryRepository categoryRepository;
+
   private ModelMapper modelMapper;
 
   /**
    * Instantiates a new link service.
    *
    * @param linkRepository the link repository
+   * @param categoryRepository the category repository
    * @param modelMapper the model mapper
    */
   public LinkServiceImpl(
       LinkRepository linkRepository,
+      CategoryRepository categoryRepository,
       ModelMapper modelMapper) {
     this.linkRepository = linkRepository;
+    this.categoryRepository = categoryRepository;
     this.modelMapper = modelMapper;
   }
 
@@ -64,9 +70,14 @@ public class LinkServiceImpl implements LinkService {
 
   @Override
   public Mono<LinkSpec> addLink(LinkSpec link) {
-    final LinkSpec model = link.toBuilder().id(null).build();
-    return linkRepository.save(modelMapper.map(model, LinkEntity.class))
-        .map(entity -> modelMapper.map(entity, LinkSpec.class));
+    return categoryRepository.validateCategoryIds(link.getCategoryIds())
+        .map(categoryIds -> link.toBuilder()
+            .id(null)
+            .categoryIds(categoryIds)
+            .build())
+        .flatMap(model -> linkRepository
+            .save(modelMapper.map(model, LinkEntity.class))
+            .map(entity -> modelMapper.map(entity, LinkSpec.class)));
   }
 
   @Override
@@ -80,10 +91,14 @@ public class LinkServiceImpl implements LinkService {
   public Mono<LinkSpec> updateLink(String id, LinkSpec link) {
     return linkRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Link", id)))
-        .flatMap(entity -> linkRepository
-            .save(modelMapper.map(
-                link.toBuilder().id(entity.getId()).build(),
-                LinkEntity.class)))
+        .flatMap(entity -> categoryRepository
+            .validateCategoryIds(link.getCategoryIds())
+            .map(categoryIds -> link.toBuilder()
+                .id(entity.getId())
+                .categoryIds(categoryIds)
+                .build()))
+        .flatMap(model -> linkRepository
+            .save(modelMapper.map(model, LinkEntity.class)))
         .map(entity -> modelMapper.map(entity, LinkSpec.class));
   }
 

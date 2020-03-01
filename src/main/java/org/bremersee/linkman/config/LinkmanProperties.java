@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.bremersee.security.core.AuthorityConstants;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +42,8 @@ import org.springframework.stereotype.Component;
 @ToString
 @EqualsAndHashCode
 public class LinkmanProperties {
+
+  private Set<String> adminRoles = new LinkedHashSet<>();
 
   private String groupmanBaseUri;
 
@@ -62,6 +65,9 @@ public class LinkmanProperties {
    * Instantiates new linkman properties.
    */
   public LinkmanProperties() {
+    adminRoles.add(AuthorityConstants.ADMIN_ROLE_NAME);
+    adminRoles.add("ROLE_LINK_ADMIN");
+
     availableLanguages.add(TwoLetterLanguageCode.BG);
     availableLanguages.add(TwoLetterLanguageCode.HR);
     availableLanguages.add(TwoLetterLanguageCode.CS);

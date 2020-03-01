@@ -16,14 +16,17 @@
 
 package org.bremersee.linkman.repository;
 
+import static org.springframework.data.mongodb.core.query.Query.query;
+
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,22 +46,31 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
    *
    * @param mongoTemplate the mongo template
    */
-  public CategoryRepositoryImpl(
-      ReactiveMongoTemplate mongoTemplate) {
+  public CategoryRepositoryImpl(ReactiveMongoTemplate mongoTemplate) {
     this.mongoTemplate = mongoTemplate;
+  }
+
+  @Override
+  public Mono<Set<String>> validateCategoryIds(Collection<String> categoryIds) {
+    if (categoryIds == null || categoryIds.isEmpty()) {
+      return Mono.just(Collections.emptySet());
+    }
+    return mongoTemplate.find(query(Criteria.where("id").in(categoryIds)), CategoryEntity.class)
+        .map(CategoryEntity::getId)
+        .collect(Collectors.toSet());
   }
 
   @Override
   public Mono<Long> countPublicCategories() {
     return mongoTemplate.count(
-        Query.query(Criteria.where("acl.read.guest").is(true)),
+        query(Criteria.where("acl.read.guest").is(true)),
         CategoryEntity.class);
   }
 
   @Override
   public Mono<CategoryEntity> findPublicCategory() {
     return mongoTemplate.findOne(
-        Query.query(Criteria.where("acl.read.guest").is(true)).limit(1),
+        query(Criteria.where("acl.read.guest").is(true)).limit(1),
         CategoryEntity.class);
   }
 
@@ -96,7 +108,7 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 
     final Criteria criteria = new Criteria()
         .orOperator(criteriaList.toArray(new Criteria[0]));
-    return mongoTemplate.find(Query.query(criteria), CategoryEntity.class);
+    return mongoTemplate.find(query(criteria), CategoryEntity.class);
   }
 
 }

@@ -18,6 +18,7 @@ package org.bremersee.linkman.service;
 
 import org.bremersee.linkman.model.GroupRepresentation;
 import org.bremersee.linkman.model.RoleRepresentation;
+import org.bremersee.security.core.AuthorityConstants;
 import reactor.core.publisher.Flux;
 
 /**
@@ -31,13 +32,16 @@ public class KeycloakClientMock implements KeycloakClientApi {
   public Flux<RoleRepresentation> getAllRoles(String realm) {
     return Flux.fromArray(new RoleRepresentation[]{
         RoleRepresentation.builder()
-            .name("ROLE_ADMIN")
+            .name(AuthorityConstants.ADMIN_ROLE_NAME)
             .build(),
         RoleRepresentation.builder()
-            .name("ROLE_USER")
+            .name(AuthorityConstants.USER_ROLE_NAME)
             .build(),
         RoleRepresentation.builder()
-            .name("ROLE_LOCAL_USER")
+            .name(AuthorityConstants.LOCAL_USER_ROLE_NAME)
+            .build(),
+        RoleRepresentation.builder()
+            .name("ROLE_LINK_ADMIN")
             .build()
     });
   }
@@ -49,7 +53,7 @@ public class KeycloakClientMock implements KeycloakClientApi {
             .name("developer")
             .build(),
         GroupRepresentation.builder()
-            .name("owncloud")
+            .name("Company Admins")
             .build()
     });
   }

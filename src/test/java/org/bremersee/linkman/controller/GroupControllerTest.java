@@ -17,9 +17,9 @@
 package org.bremersee.linkman.controller;
 
 import static org.bremersee.security.core.AuthorityConstants.ADMIN_ROLE_NAME;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.bremersee.linkman.model.CategorySpec;
 import org.bremersee.linkman.model.SelectOption;
 import org.bremersee.test.security.authentication.WithJwtAuthenticationToken;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,7 +42,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
     "bremersee.security.authentication.enable-jwt-support=true"
 })
 @ActiveProfiles({"default"})
-@TestInstance(Lifecycle.PER_CLASS) // allows us to use @BeforeAll with a non-static method
+@TestInstance(Lifecycle.PER_CLASS)
 class GroupControllerTest {
 
   /**
@@ -86,7 +86,7 @@ class GroupControllerTest {
         .value(list -> {
           assertFalse(list.isEmpty());
           assertTrue(list.stream().anyMatch(entry -> "developer".equals(entry.getValue())));
-          assertTrue(list.stream().anyMatch(entry -> "owncloud".equals(entry.getValue())));
+          assertTrue(list.stream().anyMatch(entry -> "Company Admins".equals(entry.getValue())));
         });
   }
 }

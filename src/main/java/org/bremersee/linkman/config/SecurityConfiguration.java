@@ -49,14 +49,6 @@ import org.springframework.security.web.server.util.matcher.NegatedServerWebExch
 public class SecurityConfiguration {
 
   /**
-   * The admin roles.
-   */
-  static final String[] ADMIN_ROLES = {
-      AuthorityConstants.ADMIN_ROLE_NAME,
-      "ROLE_LINK_ADMIN"
-  };
-
-  /**
    * The jwt login.
    */
   @ConditionalOnWebApplication
@@ -67,6 +59,8 @@ public class SecurityConfiguration {
   @Configuration
   static class JwtLogin {
 
+    private String[] adminRoles;
+
     private JsonPathReactiveJwtConverter jwtConverter;
 
     private PasswordFlowReactiveAuthenticationManager passwordFlowAuthenticationManager;
@@ -74,13 +68,16 @@ public class SecurityConfiguration {
     /**
      * Instantiates a new jwt login.
      *
+     * @param properties the properties
      * @param jwtConverter the jwt converter
      * @param passwordFlowAuthenticationManager the password flow authentication manager
      */
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public JwtLogin(
+        LinkmanProperties properties,
         JsonPathReactiveJwtConverter jwtConverter,
         PasswordFlowReactiveAuthenticationManager passwordFlowAuthenticationManager) {
+      this.adminRoles = properties.getAdminRoles().toArray(new String[0]);
       this.jwtConverter = jwtConverter;
       this.passwordFlowAuthenticationManager = passwordFlowAuthenticationManager;
     }
@@ -110,7 +107,7 @@ public class SecurityConfiguration {
           // .pathMatchers("/webjars/**").permitAll()
           .pathMatchers("/v3/**", "/swagger-ui.html", "/webjars/**").permitAll()
           .pathMatchers("/api/menu").permitAll()
-          .pathMatchers("/api/**").hasAnyAuthority(ADMIN_ROLES)
+          .pathMatchers("/api/**").hasAnyAuthority(adminRoles)
           .anyExchange().authenticated();
 
       return http.build();
@@ -158,13 +155,19 @@ public class SecurityConfiguration {
 
     private AuthenticationProperties properties;
 
+    private String[] adminRoles;
+
     /**
      * Instantiates a new basic auth login.
      *
-     * @param properties the properties
+     * @param authenticationProperties the authentication properties
+     * @param linkmanProperties the linkman properties
      */
-    public BasicAuthLogin(AuthenticationProperties properties) {
-      this.properties = properties;
+    public BasicAuthLogin(
+        AuthenticationProperties authenticationProperties,
+        LinkmanProperties linkmanProperties) {
+      this.properties = authenticationProperties;
+      this.adminRoles = linkmanProperties.getAdminRoles().toArray(new String[0]);
     }
 
     /**
@@ -197,7 +200,7 @@ public class SecurityConfiguration {
           // .pathMatchers("/webjars/**").permitAll()
           .pathMatchers("/v3/**", "/swagger-ui.html", "/webjars/**").permitAll()
           .pathMatchers("/api/menu").permitAll()
-          .pathMatchers("/api/**").hasAnyAuthority(ADMIN_ROLES)
+          .pathMatchers("/api/**").hasAnyAuthority(adminRoles)
           .anyExchange().authenticated()
           .and()
           .httpBasic()

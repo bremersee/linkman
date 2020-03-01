@@ -16,6 +16,7 @@
 
 package org.bremersee.linkman.repository;
 
+import java.util.Collection;
 import java.util.Set;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,6 +27,14 @@ import reactor.core.publisher.Mono;
  * @author Christian Bremer
  */
 public interface CategoryRepositoryCustom {
+
+  /**
+   * Validate category ids.
+   *
+   * @param categoryIds the category ids
+   * @return the existing category ids
+   */
+  Mono<Set<String>> validateCategoryIds(Collection<String> categoryIds);
 
   /**
    * Count public categories.
