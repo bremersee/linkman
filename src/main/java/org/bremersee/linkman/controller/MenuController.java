@@ -48,7 +48,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Christian Bremer
  */
-@Tag(name = "menu-controller", description = "The categorized links API.")
+@Tag(name = "menu-controller", description = "The menu API.")
 @RestController
 @Validated
 public class MenuController {

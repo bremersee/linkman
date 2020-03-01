@@ -30,8 +30,6 @@
     <common-base.version>2.0.0-SNAPSHOT</common-base.version>
     <comparator.version>2.1.0-SNAPSHOT</comparator.version>
     <modelmapper.version>2.3.0</modelmapper.version>
-
-    <springfox.version>3.0.0-SNAPSHOT</springfox.version>
   </properties>
 
   <scm>
@@ -165,18 +163,16 @@
       <artifactId>spring-cloud-starter-zipkin</artifactId>
     </dependency>
 
-    <!-- Uses io.github.classgraph with version 4.6.32 -->
+    <!--
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-webflux-core</artifactId>
     </dependency>
-    <!-- Uses io.github.classgraph with version 4.8.44 -->
-    <!--
+    -->
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-webflux-ui</artifactId>
     </dependency>
-    -->
 
     <dependency>
       <groupId>de.flapdoodle.embed</groupId>
