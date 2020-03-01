@@ -64,6 +64,7 @@ public class LinkController {
   /**
    * Gets links.
    *
+   * @param categoryId the category id
    * @return the links
    */
   @Operation(
@@ -207,7 +208,7 @@ public class LinkController {
    * Delete link.
    *
    * @param id the id
-   * @return void
+   * @return void mono
    */
   @Operation(
       summary = "Delete a link.",

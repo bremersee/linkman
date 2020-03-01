@@ -31,6 +31,7 @@ public interface LinkService {
   /**
    * Gets links.
    *
+   * @param categoryId the category id
    * @return the links
    */
   Flux<LinkSpec> getLinks(@Nullable String categoryId);
@@ -64,7 +65,7 @@ public interface LinkService {
    * Delete link.
    *
    * @param id the id
-   * @return void
+   * @return void mono
    */
   Mono<Void> deleteLink(String id);
 

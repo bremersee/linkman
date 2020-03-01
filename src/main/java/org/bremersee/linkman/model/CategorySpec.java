@@ -81,6 +81,7 @@ public class CategorySpec {
    * Instantiates a new category specification.
    *
    * @param id the id
+   * @param acl the acl
    * @param order the order
    * @param name the name
    * @param translations the translations
@@ -148,6 +149,11 @@ public class CategorySpec {
     return getName(TwoLetterLanguageCode.fromValue(language));
   }
 
+  /**
+   * Is public boolean.
+   *
+   * @return the boolean
+   */
   @Schema(hidden = true)
   @JsonIgnore
   public boolean isPublic() {
