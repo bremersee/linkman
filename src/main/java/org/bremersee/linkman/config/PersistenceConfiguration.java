@@ -26,7 +26,7 @@ public class PersistenceConfiguration {
    */
   @Primary
   @Bean
-  public CustomConversions customConversions() {
+  public MongoCustomConversions customConversions() {
     return new MongoCustomConversions(Arrays.asList(BaseCommonConversions.CONVERTERS));
   }
 
