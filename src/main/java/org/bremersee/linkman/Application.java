@@ -26,7 +26,6 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
  * @author Christian Bremer
  */
 @SpringBootApplication
-@EnableReactiveMongoRepositories
 public class Application {
 
   /**
