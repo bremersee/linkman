@@ -2,6 +2,7 @@
 docker service create \
   --replicas $3 \
   --name linkman \
+  --network proxy \
   --secret config-server-client-user \
   --secret config-server-client-user-password \
   --mount type=volume,source=common-log,target=/opt/log \
