@@ -20,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.security.authentication.AuthenticationProperties;
 import org.bremersee.security.authentication.JsonPathReactiveJwtConverter;
 import org.bremersee.security.authentication.PasswordFlowReactiveAuthenticationManager;
+import org.bremersee.security.authentication.RoleBasedAuthorizationManager;
+import org.bremersee.security.authentication.RoleOrIpBasedAuthorizationManager;
 import org.bremersee.security.core.AuthorityConstants;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.actuate.health.HealthEndpoint;
@@ -35,7 +37,9 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 /**
  * The security configuration.
@@ -57,9 +61,11 @@ public class SecurityConfiguration {
       name = "enable-jwt-support",
       havingValue = "true")
   @Configuration
+  @EnableConfigurationProperties(AuthenticationProperties.class)
+  @Slf4j
   static class JwtLogin {
 
-    private String[] adminRoles;
+    private AuthenticationProperties properties;
 
     private JsonPathReactiveJwtConverter jwtConverter;
 
@@ -68,81 +74,99 @@ public class SecurityConfiguration {
     /**
      * Instantiates a new jwt login.
      *
-     * @param properties the properties
+     * @param properties the authentication properties
      * @param jwtConverter the jwt converter
      * @param passwordFlowAuthenticationManager the password flow authentication manager
      */
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public JwtLogin(
-        LinkmanProperties properties,
+        AuthenticationProperties properties,
         JsonPathReactiveJwtConverter jwtConverter,
         PasswordFlowReactiveAuthenticationManager passwordFlowAuthenticationManager) {
-      this.adminRoles = properties.getAdminRoles().toArray(new String[0]);
       this.jwtConverter = jwtConverter;
       this.passwordFlowAuthenticationManager = passwordFlowAuthenticationManager;
+      this.properties = properties;
     }
 
     /**
-     * Builds the OAuth2 resource server filter chain.
+     * Builds resource server filter chain wth JWT.
      *
      * @param http the http
      * @return the security web filter chain
      */
     @Bean
     @Order(51)
-    public SecurityWebFilterChain oauth2ResourceServerFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain jwtResourceServerFilterChain(ServerHttpSecurity http) {
 
-      log.info("msg=[Creating resource server filter chain.]");
-      http
+      log.info("Creating resource server filter chain with JWT.");
+      return http
           .securityMatcher(new NegatedServerWebExchangeMatcher(EndpointRequest.toAnyEndpoint()))
-          .csrf().disable()
-          .oauth2ResourceServer()
-          .jwt()
-          .jwtAuthenticationConverter(jwtConverter);
-
-      http
           .authorizeExchange()
           .pathMatchers(HttpMethod.OPTIONS).permitAll()
-          // .pathMatchers("/swagger-ui.html").permitAll()
-          // .pathMatchers("/webjars/**").permitAll()
           .pathMatchers("/v3/**", "/swagger-ui.html", "/webjars/**").permitAll()
           .pathMatchers("/api/menu").permitAll()
-          .pathMatchers("/api/**").hasAnyAuthority(adminRoles)
-          .anyExchange().authenticated();
+          .pathMatchers("/api/**").hasAnyAuthority(adminRoles())
+          .anyExchange().authenticated()
+          .and()
+          .oauth2ResourceServer((rs) -> rs
+              .jwt()
+              .jwtAuthenticationConverter(jwtConverter)
+              .and())
+          .csrf().disable()
+          .build();
+    }
 
-      return http.build();
+    private String[] adminRoles() {
+      return properties.getApplication()
+          .adminRolesOrDefaults(AuthorityConstants.ADMIN_ROLE_NAME, "ROLE_LINK_ADMIN")
+          .stream()
+          .map(properties::ensureRolePrefix)
+          .toArray(String[]::new);
     }
 
     /**
-     * Builds the actuator filter chain.
+     * Builds the actuator filter chain with password flow and basic auth.
      *
      * @param http the http security configuration object
      * @return the security web filter chain
      */
     @Bean
     @Order(52)
+    @SuppressWarnings("DuplicatedCode")
     public SecurityWebFilterChain actuatorFilterChain(ServerHttpSecurity http) {
 
-      log.info("msg=[Creating actuator filter chain.]");
-      http
+      log.info("Creating actuator filter chain with password flow and basic auth.");
+      return http
           .securityMatcher(EndpointRequest.toAnyEndpoint())
-          .csrf().disable()
-          .httpBasic()
-          .authenticationManager(passwordFlowAuthenticationManager);
-
-      http
           .authorizeExchange()
           .pathMatchers(HttpMethod.OPTIONS).permitAll()
           .matchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
           .matchers(EndpointRequest.to(InfoEndpoint.class)).permitAll()
-          .anyExchange().hasAuthority(AuthorityConstants.ACTUATOR_ROLE_NAME);
-
-      return http.build();
+          .matchers(new AndServerWebExchangeMatcher(
+              EndpointRequest.toAnyEndpoint(),
+              ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/**")))
+          .access(new RoleOrIpBasedAuthorizationManager(
+              properties.getActuator().getRoles(),
+              properties.getRolePrefix(),
+              properties.getActuator().getIpAddresses()))
+          .matchers(EndpointRequest.toAnyEndpoint())
+          .access(new RoleBasedAuthorizationManager(
+              properties.getActuator().getAdminRoles(),
+              properties.getRolePrefix()))
+          .anyExchange().denyAll()
+          .and()
+          .httpBasic()
+          .authenticationManager(passwordFlowAuthenticationManager)
+          .and()
+          .formLogin().disable()
+          .csrf().disable()
+          .build();
     }
+
   }
 
   /**
-   * The basic auth login.
+   * The in-memory login.
    */
   @ConditionalOnWebApplication
   @ConditionalOnProperty(
@@ -151,29 +175,24 @@ public class SecurityConfiguration {
       havingValue = "false", matchIfMissing = true)
   @Configuration
   @EnableConfigurationProperties(AuthenticationProperties.class)
-  static class BasicAuthLogin {
+  static class InMemoryLogin {
 
     private AuthenticationProperties properties;
 
-    private String[] adminRoles;
-
     /**
-     * Instantiates a new basic auth login.
+     * Instantiates a new in-memory login.
      *
-     * @param authenticationProperties the authentication properties
-     * @param linkmanProperties the linkman properties
+     * @param properties the authentication properties
      */
-    public BasicAuthLogin(
-        AuthenticationProperties authenticationProperties,
-        LinkmanProperties linkmanProperties) {
-      this.properties = authenticationProperties;
-      this.adminRoles = linkmanProperties.getAdminRoles().toArray(new String[0]);
+    public InMemoryLogin(
+        AuthenticationProperties properties) {
+      this.properties = properties;
     }
 
     /**
-     * User details service map reactive user details service.
+     * User details service.
      *
-     * @return the map reactive user details service
+     * @return the user details service
      */
     @Bean
     public MapReactiveUserDetailsService userDetailsService() {
@@ -181,58 +200,78 @@ public class SecurityConfiguration {
     }
 
     /**
-     * Builds the basic auth resource server filter chain.
+     * Builds the resource server filter chain with in-memory users and basic auth.
      *
      * @param http the http
      * @return the security web filter chain
      */
     @Bean
     @Order(51)
-    public SecurityWebFilterChain oauth2ResourceServerFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain inMemoryResourceServerFilterChain(ServerHttpSecurity http) {
 
-      log.info("msg=[Creating resource server filter chain.]");
+      log.info("Creating resource server filter chain with in-memory user authentication.");
       return http
           .securityMatcher(new NegatedServerWebExchangeMatcher(EndpointRequest.toAnyEndpoint()))
-          .csrf().disable()
           .authorizeExchange()
           .pathMatchers(HttpMethod.OPTIONS).permitAll()
-          // .pathMatchers("/swagger-ui.html").permitAll()
-          // .pathMatchers("/webjars/**").permitAll()
           .pathMatchers("/v3/**", "/swagger-ui.html", "/webjars/**").permitAll()
           .pathMatchers("/api/menu").permitAll()
-          .pathMatchers("/api/**").hasAnyAuthority(adminRoles)
+          .pathMatchers("/api/**").hasAnyAuthority(adminRoles())
           .anyExchange().authenticated()
           .and()
           .httpBasic()
           .and()
           .formLogin().disable()
+          .csrf().disable()
           .build();
     }
 
+    private String[] adminRoles() {
+      return properties.getApplication()
+          .adminRolesOrDefaults(AuthorityConstants.ADMIN_ROLE_NAME, "ROLE_LINK_ADMIN")
+          .stream()
+          .map(properties::ensureRolePrefix)
+          .toArray(String[]::new);
+    }
+
     /**
-     * Builds the actuator filter chain.
+     * Builds the actuator filter chain with in-memory users and basic auth.
      *
      * @param http the http security configuration object
      * @return the security web filter chain
      */
     @Bean
     @Order(52)
+    @SuppressWarnings("DuplicatedCode")
     public SecurityWebFilterChain actuatorFilterChain(ServerHttpSecurity http) {
 
-      log.info("msg=[Creating actuator filter chain.]");
+      log.info("Creating actuator filter chain with in-memory users and basic auth.");
       return http
           .securityMatcher(EndpointRequest.toAnyEndpoint())
-          .csrf().disable()
           .authorizeExchange()
           .pathMatchers(HttpMethod.OPTIONS).permitAll()
           .matchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
           .matchers(EndpointRequest.to(InfoEndpoint.class)).permitAll()
-          .anyExchange().hasAuthority(AuthorityConstants.ACTUATOR_ROLE_NAME)
+          .matchers(new AndServerWebExchangeMatcher(
+              EndpointRequest.toAnyEndpoint(),
+              ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/**")))
+          .access(new RoleOrIpBasedAuthorizationManager(
+              properties.getActuator().getRoles(),
+              properties.getRolePrefix(),
+              properties.getActuator().getIpAddresses()))
+          .matchers(EndpointRequest.toAnyEndpoint())
+          .access(new RoleBasedAuthorizationManager(
+              properties.getActuator().getAdminRoles(),
+              properties.getRolePrefix()))
+          .anyExchange().denyAll()
           .and()
           .httpBasic()
           .and()
           .formLogin().disable()
+          .csrf().disable()
           .build();
     }
+
   }
+
 }

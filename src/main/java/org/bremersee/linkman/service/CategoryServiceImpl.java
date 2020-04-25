@@ -18,7 +18,6 @@ package org.bremersee.linkman.service;
 
 import static org.bremersee.linkman.model.Translation.toTranslations;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,6 +34,7 @@ import org.bremersee.linkman.repository.CategoryEntity;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.bremersee.security.access.PermissionConstants;
+import org.bremersee.security.authentication.AuthenticationProperties;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -53,7 +53,9 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
 
-  private LinkmanProperties properties;
+  private AuthenticationProperties authenticationProperties;
+
+  private LinkmanProperties linkmanProperties;
 
   private GroupService groupService;
 
@@ -68,7 +70,8 @@ public class CategoryServiceImpl implements CategoryService {
   /**
    * Instantiates a new category service.
    *
-   * @param properties the properties
+   * @param authenticationProperties the authentication properties
+   * @param linkmanProperties the properties
    * @param groupService the group service
    * @param roleService the role service
    * @param categoryRepository the category repository
@@ -76,13 +79,15 @@ public class CategoryServiceImpl implements CategoryService {
    * @param modelMapper the model mapper
    */
   public CategoryServiceImpl(
-      LinkmanProperties properties,
+      AuthenticationProperties authenticationProperties,
+      LinkmanProperties linkmanProperties,
       GroupService groupService,
       RoleService roleService,
       CategoryRepository categoryRepository,
       LinkRepository linkRepository,
       ModelMapper modelMapper) {
-    this.properties = properties;
+    this.authenticationProperties = authenticationProperties;
+    this.linkmanProperties = linkmanProperties;
     this.groupService = groupService;
     this.roleService = roleService;
     this.categoryRepository = categoryRepository;
@@ -103,8 +108,8 @@ public class CategoryServiceImpl implements CategoryService {
                 .build()))
             .build())
         .order(Integer.MIN_VALUE)
-        .name(properties.getPublicCategory().getName())
-        .translations(toTranslations(properties.getPublicCategory().getTranslations()))
+        .name(linkmanProperties.getPublicCategory().getName())
+        .translations(toTranslations(linkmanProperties.getPublicCategory().getTranslations()))
         .build();
     final CategorySpec savedPublicCategory = categoryRepository.countPublicCategories()
         .filter(size -> size == 0)
@@ -142,7 +147,6 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   public Mono<CategorySpec> updateCategory(String id, CategorySpec category) {
-    // final CategorySpec model = category.toBuilder().id(id).build();
     return categoryRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Category", id)))
         .flatMap(entity -> validateCategory(category, entity)
@@ -199,11 +203,12 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   private Mono<AccessControlEntry> validateReadPermission(AccessControlEntry ace) {
+
     if (ace == null) {
       return Mono.just(AccessControlEntry.builder()
           .permission(PermissionConstants.READ)
           .guest(false)
-          .roles(new ArrayList<>(properties.getAdminRoles()))
+          .roles(List.copyOf(authenticationProperties.getApplication().getAdminRoles()))
           .build());
     }
     return validateRoles(ace.getRoles())

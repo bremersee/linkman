@@ -25,6 +25,8 @@ import org.bremersee.web.reactive.function.client.AccessTokenAppender;
 import org.bremersee.web.reactive.function.client.DefaultWebClientErrorDecoder;
 import org.bremersee.web.reactive.function.client.proxy.InvocationFunctions;
 import org.bremersee.web.reactive.function.client.proxy.WebClientProxyBuilder;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.client.loadbalancer.reactive.ReactorLoadBalancerExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -56,8 +58,47 @@ public class GroupmanClientConfiguration {
    * @param parser the parser
    * @return the group webflux controller api
    */
-  @Bean
+  @ConditionalOnProperty(name = "eureka.client.enabled", havingValue = "false")
+  @Bean("groupService")
   public GroupWebfluxControllerApi groupService(RestApiExceptionParser parser) {
+
+    final String baseUri = properties.getGroupmanBaseUri();
+    if (!StringUtils.hasText(baseUri) || "false".equalsIgnoreCase(baseUri.trim())) {
+      return new GroupWebfluxControllerMock();
+    }
+
+    final WebClient webClient = WebClient.builder()
+        .baseUrl(baseUri)
+        .filter(new AccessTokenAppender(ReactiveAccessTokenProviders.fromAuthentication()))
+        .build();
+    return groupService(parser, webClient);
+  }
+
+  @ConditionalOnProperty(
+      name = "eureka.client.enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  @Bean("groupService")
+  public GroupWebfluxControllerApi loadBalancedGroupService(
+      RestApiExceptionParser parser,
+      ReactorLoadBalancerExchangeFilterFunction lbFunction) {
+
+    final String baseUri = properties.getGroupmanBaseUri();
+    if (!StringUtils.hasText(baseUri) || "false".equalsIgnoreCase(baseUri.trim())) {
+      return new GroupWebfluxControllerMock();
+    }
+
+    final WebClient webClient = WebClient.builder()
+        .baseUrl(baseUri)
+        .filter(new AccessTokenAppender(ReactiveAccessTokenProviders.fromAuthentication()))
+        .filter(lbFunction)
+        .build();
+    return groupService(parser, webClient);
+  }
+
+  private GroupWebfluxControllerApi groupService(
+      RestApiExceptionParser parser,
+      WebClient webClient) {
 
     final String baseUri = properties.getGroupmanBaseUri();
     if (!StringUtils.hasText(baseUri) || "false".equalsIgnoreCase(baseUri.trim())) {
@@ -65,10 +106,6 @@ public class GroupmanClientConfiguration {
       return new GroupWebfluxControllerMock();
     }
     log.info("Using groupman client with base uri {}", properties.getGroupmanBaseUri());
-    final WebClient webClient = WebClient.builder()
-        .baseUrl(properties.getGroupmanBaseUri())
-        .filter(new AccessTokenAppender(ReactiveAccessTokenProviders.fromAuthentication()))
-        .build();
     return WebClientProxyBuilder.defaultBuilder()
         .webClient(webClient)
         .commonFunctions(InvocationFunctions.builder()

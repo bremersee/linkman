@@ -5,6 +5,12 @@ pipeline {
     DOCKER_IMAGE='bremersee/linkman'
     DEV_TAG='snapshot'
     PROD_TAG='latest'
+    PUSH_SNAPSHOT=false
+    PUSH_RELEASE=true
+    DEPLOY_SNAPSHOT=false
+    DEPLOY_RELEASE=true
+    SNAPSHOT_SITE=false
+    RELEASE_SITE=true
   }
   stages {
     stage('Test') {
@@ -39,7 +45,10 @@ pipeline {
         label 'maven'
       }
       when {
-        branch 'develop'
+        allOf {
+          branch 'develop'
+          environment name: 'PUSH_SNAPSHOT', value: 'true'
+        }
       }
       tools {
         jdk 'jdk11'
@@ -58,7 +67,10 @@ pipeline {
         label 'maven'
       }
       when {
-        branch 'master'
+        allOf {
+          branch 'master'
+          environment name: 'PUSH_RELEASE', value: 'true'
+        }
       }
       tools {
         jdk 'jdk11'
@@ -77,7 +89,10 @@ pipeline {
         label 'dev-swarm'
       }
       when {
-        branch 'develop'
+        allOf {
+          branch 'develop'
+          environment name: 'DEPLOY_SNAPSHOT', value: 'true'
+        }
       }
       steps {
         sh '''
@@ -87,7 +102,30 @@ pipeline {
           else
             echo "Creating service ${SERVICE_NAME} with docker image ${DOCKER_IMAGE}:${DEV_TAG}."
             chmod 755 docker-swarm/service.sh
-            docker-swarm/service.sh "${DOCKER_IMAGE}:${DEV_TAG}" "default,mongodb,dev"
+            docker-swarm/service.sh "${DOCKER_IMAGE}:${DEV_TAG}" "swarm,dev,mongodb"
+          fi
+        '''
+      }
+    }
+    stage('Deploy on prod-swarm') {
+      agent {
+        label 'prod-swarm'
+      }
+      when {
+        allOf {
+          branch 'master'
+          environment name: 'DEPLOY_RELEASE', value: 'true'
+        }
+      }
+      steps {
+        sh '''
+          if docker service ls | grep -q ${SERVICE_NAME}; then
+            echo "Updating service ${SERVICE_NAME} with docker image ${DOCKER_IMAGE}:${PROD_TAG}."
+            docker service update --image ${DOCKER_IMAGE}:${PROD_TAG} ${SERVICE_NAME}
+          else
+            echo "Creating service ${SERVICE_NAME} with docker image ${DOCKER_IMAGE}:${PROD_TAG}."
+            chmod 755 docker-swarm/service.sh
+            docker-swarm/service.sh "${DOCKER_IMAGE}:${PROD_TAG}" "swarm,prod,mongodb" 2
           fi
         '''
       }
@@ -100,7 +138,10 @@ pipeline {
         CODECOV_TOKEN = credentials('linkman-codecov-token')
       }
       when {
-        branch 'develop'
+        allOf {
+          branch 'develop'
+          environment name: 'SNAPSHOT_SITE', value: 'true'
+        }
       }
       tools {
         jdk 'jdk11'
@@ -123,7 +164,10 @@ pipeline {
         CODECOV_TOKEN = credentials('linkman-codecov-token')
       }
       when {
-        branch 'master'
+        allOf {
+          branch 'master'
+          environment name: 'RELEASE_SITE', value: 'true'
+        }
       }
       tools {
         jdk 'jdk11'

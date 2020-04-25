@@ -19,6 +19,7 @@ package org.bremersee.linkman.service;
 import org.bremersee.linkman.config.LinkmanProperties;
 import org.bremersee.linkman.model.RoleRepresentation;
 import org.bremersee.linkman.model.SelectOption;
+import org.bremersee.security.authentication.AuthenticationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -31,42 +32,48 @@ import reactor.core.publisher.Flux;
 @Component
 public class RoleServiceImpl implements RoleService {
 
-  private LinkmanProperties properties;
+  private AuthenticationProperties authenticationProperties;
+
+  private LinkmanProperties linkmanProperties;
 
   private KeycloakClientApi keycloakClient;
 
   /**
    * Instantiates a new role service.
    *
-   * @param properties the properties
+   * @param authenticationProperties the authentication properties
+   * @param linkmanProperties the properties
    * @param keycloakClient the keycloak client
    */
   public RoleServiceImpl(
-      LinkmanProperties properties,
+      AuthenticationProperties authenticationProperties,
+      LinkmanProperties linkmanProperties,
       KeycloakClientApi keycloakClient) {
-    this.properties = properties;
+    this.authenticationProperties = authenticationProperties;
+    this.linkmanProperties = linkmanProperties;
     this.keycloakClient = keycloakClient;
   }
 
   @Override
   public Flux<SelectOption> getAllRoles() {
-    return keycloakClient.getAllRoles(properties.getKeycloakRealm())
+    return keycloakClient.getAllRoles(linkmanProperties.getKeycloakRealm())
         .filter(this::isValidRole)
         .map(role -> new SelectOption(getValue(role), getDisplayValue(role)));
   }
 
   private boolean isValidRole(RoleRepresentation role) {
     return StringUtils.hasText(role.getName())
-        && !properties.getExcludedRoles().contains(role.getName())
-        && !properties.getExcludedRoles().contains(properties.getRolePrefix() + role.getName());
+        && !linkmanProperties.getExcludedRoles().contains(role.getName())
+        && !linkmanProperties.getExcludedRoles().contains(
+        authenticationProperties.getRolePrefix() + role.getName());
   }
 
   private String getValue(RoleRepresentation role) {
-    if (StringUtils.hasText(properties.getRolePrefix())) {
-      if (role.getName().startsWith(properties.getRolePrefix())) {
+    if (StringUtils.hasText(authenticationProperties.getRolePrefix())) {
+      if (role.getName().startsWith(authenticationProperties.getRolePrefix())) {
         return role.getName();
       } else {
-        return properties.getRolePrefix() + role.getName();
+        return authenticationProperties.getRolePrefix() + role.getName();
       }
     }
     return role.getName();
