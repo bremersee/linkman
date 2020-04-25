@@ -5,11 +5,11 @@ pipeline {
     DOCKER_IMAGE='bremersee/linkman'
     DEV_TAG='snapshot'
     PROD_TAG='latest'
-    PUSH_SNAPSHOT=false
+    PUSH_SNAPSHOT=true
     PUSH_RELEASE=true
-    DEPLOY_SNAPSHOT=false
+    DEPLOY_SNAPSHOT=true
     DEPLOY_RELEASE=true
-    SNAPSHOT_SITE=false
+    SNAPSHOT_SITE=true
     RELEASE_SITE=true
   }
   stages {
@@ -102,7 +102,7 @@ pipeline {
           else
             echo "Creating service ${SERVICE_NAME} with docker image ${DOCKER_IMAGE}:${DEV_TAG}."
             chmod 755 docker-swarm/service.sh
-            docker-swarm/service.sh "${DOCKER_IMAGE}:${DEV_TAG}" "swarm,dev,mongodb"
+            docker-swarm/service.sh "${DOCKER_IMAGE}:${DEV_TAG}" "swarm,dev,mongodb" 1
           fi
         '''
       }

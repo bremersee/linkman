@@ -1,25 +1,21 @@
 #!/usr/bin/env sh
 docker service create \
-  --replicas 1 \
+  --replicas $3 \
   --name linkman \
-  --hostname linkman \
-  --network proxy \
-  --label com.df.notify=true \
-  --label com.df.servicePath=/linkman \
-  --label com.df.port=80 \
-  --label com.df.reqPathSearchReplace='/linkman/,/' \
-  --label com.df.setReqHeader='X-Forwarded-Prefix /linkman' \
+  --secret config-server-client-user \
   --secret config-server-client-user-password \
+  --mount type=volume,source=common-log,target=/opt/log \
   --restart-delay 10s \
   --restart-max-attempts 10 \
   --restart-window 60s \
   --update-delay 10s \
-  --constraint 'node.role == worker' \
+  --constraint 'node.role==worker' \
+  --constraint 'node.labels.primary==true' \
   -e APPLICATION_NAME='linkman' \
   -e ACTIVE_PROFILES=$2 \
   -e CONFIG_CLIENT_ENABLED='true' \
-  -e CONFIG_URI='https://config.dev.bremersee.org' \
-  -e CONFIG_USER='configclient' \
+  -e CONFIG_URI='http://config-server' \
+  -e CONFIG_USER_FILE='/run/secrets/config-server-client-user' \
   -e CONFIG_PASSWORD_FILE='/run/secrets/config-server-client-user-password' \
   -e CONFIG_CLIENT_FAIL_FAST='true' \
   -e CONFIG_RETRY_INIT_INTERVAL='3000' \
