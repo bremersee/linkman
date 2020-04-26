@@ -16,6 +16,7 @@
 
 package org.bremersee.linkman.config;
 
+import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.security.authentication.AuthenticationProperties;
 import org.bremersee.security.authentication.JsonPathReactiveJwtConverter;
@@ -40,6 +41,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.web.cors.CorsConfiguration;
 
 /**
  * The security configuration.
@@ -113,7 +115,16 @@ public class SecurityConfiguration {
               .jwtAuthenticationConverter(jwtConverter)
               .and())
           .csrf().disable()
-          .cors().disable()
+          .cors().configurationSource(exchange -> {
+            CorsConfiguration cc = new CorsConfiguration();
+            cc.setAllowCredentials(true);
+            cc.setAllowedHeaders(Collections.singletonList(CorsConfiguration.ALL));
+            cc.setAllowedMethods(Collections.singletonList(CorsConfiguration.ALL));
+            cc.setAllowedOrigins(Collections.singletonList(CorsConfiguration.ALL));
+            // cc.setExposedHeaders(Collections.singletonList(CorsConfiguration.ALL));
+            return cc;
+          })
+          .and()
           .build();
     }
 
