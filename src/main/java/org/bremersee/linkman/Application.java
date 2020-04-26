@@ -16,10 +16,9 @@
 
 package org.bremersee.linkman;
 
-import org.bremersee.web.CorsProperties.CorsConfiguration;
+import org.bremersee.web.reactive.CorsAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 /**
  * The main application.
@@ -27,7 +26,7 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
  * @author Christian Bremer
  */
 @SpringBootApplication(exclude = {
-    CorsConfiguration.class
+    CorsAutoConfiguration.class
 })
 public class Application {
 
