@@ -113,6 +113,7 @@ public class SecurityConfiguration {
               .jwtAuthenticationConverter(jwtConverter)
               .and())
           .csrf().disable()
+          .cors().disable()
           .build();
     }
 
@@ -162,7 +163,6 @@ public class SecurityConfiguration {
           .csrf().disable()
           .build();
     }
-
   }
 
   /**
@@ -271,7 +271,6 @@ public class SecurityConfiguration {
           .csrf().disable()
           .build();
     }
-
   }
 
 }

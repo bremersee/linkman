@@ -1,7 +1,10 @@
 bremersee:
   security:
     cors:
-      allow-all: true
+      allow-all: false
+      configs:
+        - path-pattern: "/**"
+          allow-credentials: true
     authentication:
       enable-jwt-support: ${JWT_SUPPORT:true}
       password-flow:
