@@ -17,8 +17,8 @@
 package org.bremersee.linkman.service;
 
 import java.util.Locale;
-import java.util.Set;
 import org.bremersee.linkman.model.MenuEntry;
+import org.bremersee.security.core.UserContext;
 import reactor.core.publisher.Flux;
 
 /**
@@ -31,16 +31,12 @@ public interface MenuService {
   /**
    * Gets menu entries.
    *
+   * @param userContext the user context
    * @param language the language
-   * @param userId the user id
-   * @param roles the roles
-   * @param groups the groups
    * @return the menu entries
    */
   Flux<MenuEntry> getMenuEntries(
-      Locale language,
-      String userId,
-      Set<String> roles,
-      Set<String> groups);
+      UserContext userContext,
+      Locale language);
 
 }

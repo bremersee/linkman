@@ -41,7 +41,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Slf4j
 public class GroupmanClientConfiguration {
 
-  private LinkmanProperties properties;
+  private final LinkmanProperties properties;
 
   /**
    * Instantiates a new groupman client configuration.

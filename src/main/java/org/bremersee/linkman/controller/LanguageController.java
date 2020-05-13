@@ -42,7 +42,7 @@ import reactor.core.publisher.Flux;
 @RestController
 public class LanguageController {
 
-  private LinkmanProperties properties;
+  private final LinkmanProperties properties;
 
   /**
    * Instantiates a new language controller.

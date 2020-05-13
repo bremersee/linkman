@@ -19,7 +19,7 @@ package org.bremersee.linkman.service;
 import org.bremersee.linkman.config.LinkmanProperties;
 import org.bremersee.linkman.model.RoleRepresentation;
 import org.bremersee.linkman.model.SelectOption;
-import org.bremersee.security.authentication.AuthenticationProperties;
+import org.bremersee.security.authentication.AuthProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -32,24 +32,24 @@ import reactor.core.publisher.Flux;
 @Component
 public class RoleServiceImpl implements RoleService {
 
-  private AuthenticationProperties authenticationProperties;
+  private final AuthProperties authProperties;
 
-  private LinkmanProperties linkmanProperties;
+  private final LinkmanProperties linkmanProperties;
 
-  private KeycloakClientApi keycloakClient;
+  private final KeycloakClientApi keycloakClient;
 
   /**
    * Instantiates a new role service.
    *
-   * @param authenticationProperties the authentication properties
+   * @param authProperties the authentication properties
    * @param linkmanProperties the properties
    * @param keycloakClient the keycloak client
    */
   public RoleServiceImpl(
-      AuthenticationProperties authenticationProperties,
+      AuthProperties authProperties,
       LinkmanProperties linkmanProperties,
       KeycloakClientApi keycloakClient) {
-    this.authenticationProperties = authenticationProperties;
+    this.authProperties = authProperties;
     this.linkmanProperties = linkmanProperties;
     this.keycloakClient = keycloakClient;
   }
@@ -65,15 +65,15 @@ public class RoleServiceImpl implements RoleService {
     return StringUtils.hasText(role.getName())
         && !linkmanProperties.getExcludedRoles().contains(role.getName())
         && !linkmanProperties.getExcludedRoles().contains(
-        authenticationProperties.getRolePrefix() + role.getName());
+        authProperties.getRolePrefix() + role.getName());
   }
 
   private String getValue(RoleRepresentation role) {
-    if (StringUtils.hasText(authenticationProperties.getRolePrefix())) {
-      if (role.getName().startsWith(authenticationProperties.getRolePrefix())) {
+    if (StringUtils.hasText(authProperties.getRolePrefix())) {
+      if (role.getName().startsWith(authProperties.getRolePrefix())) {
         return role.getName();
       } else {
-        return authenticationProperties.getRolePrefix() + role.getName();
+        return authProperties.getRolePrefix() + role.getName();
       }
     }
     return role.getName();

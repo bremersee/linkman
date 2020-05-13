@@ -39,7 +39,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * @author Christian Bremer
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-    "bremersee.security.authentication.enable-jwt-support=true"
+    "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwk"
 })
 @ActiveProfiles({"default"})
 @TestInstance(Lifecycle.PER_CLASS) // allows us to use @BeforeAll with a non-static method

@@ -39,7 +39,7 @@ import reactor.core.publisher.Flux;
 @RestController
 public class RoleController {
 
-  private RoleService roleService;
+  private final RoleService roleService;
 
   /**
    * Instantiates a new role controller.

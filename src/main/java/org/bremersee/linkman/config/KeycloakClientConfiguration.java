@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.RestApiExceptionParser;
 import org.bremersee.linkman.service.KeycloakClientApi;
 import org.bremersee.linkman.service.KeycloakClientMock;
-import org.bremersee.security.authentication.AuthenticationProperties;
+import org.bremersee.security.authentication.AuthProperties;
 import org.bremersee.security.authentication.ReactiveAccessTokenProviders;
 import org.bremersee.web.reactive.function.client.AccessTokenAppender;
 import org.bremersee.web.reactive.function.client.DefaultWebClientErrorDecoder;
@@ -40,20 +40,20 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Slf4j
 public class KeycloakClientConfiguration {
 
-  private AuthenticationProperties authenticationProperties;
+  private final AuthProperties AuthProperties;
 
-  private LinkmanProperties linkmanProperties;
+  private final LinkmanProperties linkmanProperties;
 
   /**
    * Instantiates a new keycloak client configuration.
    *
-   * @param authenticationProperties the authentication properties
+   * @param AuthProperties the authentication properties
    * @param linkmanProperties the linkman properties
    */
   public KeycloakClientConfiguration(
-      AuthenticationProperties authenticationProperties,
+      AuthProperties AuthProperties,
       LinkmanProperties linkmanProperties) {
-    this.authenticationProperties = authenticationProperties;
+    this.AuthProperties = AuthProperties;
     this.linkmanProperties = linkmanProperties;
   }
 
@@ -75,9 +75,7 @@ public class KeycloakClientConfiguration {
     final WebClient webClient = WebClient.builder()
         .baseUrl(linkmanProperties.getKeycloakBaseUri())
         .filter(new AccessTokenAppender(ReactiveAccessTokenProviders
-            .withAccessTokenRetriever(authenticationProperties
-                .getClientCredentialsFlow()
-                .toProperties())))
+            .withAccessTokenRetriever(AuthProperties.getClientCredentialsFlow())))
         .build();
     return WebClientProxyBuilder.defaultBuilder()
         .webClient(webClient)

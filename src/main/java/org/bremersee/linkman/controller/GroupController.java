@@ -39,7 +39,7 @@ import reactor.core.publisher.Flux;
 @RestController
 public class GroupController {
 
-  private GroupService groupService;
+  private final GroupService groupService;
 
   /**
    * Instantiates a new group controller.

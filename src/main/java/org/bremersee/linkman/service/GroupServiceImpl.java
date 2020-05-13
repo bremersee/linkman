@@ -30,9 +30,9 @@ import reactor.core.publisher.Flux;
 @Component
 public class GroupServiceImpl implements GroupService {
 
-  private LinkmanProperties properties;
+  private final LinkmanProperties properties;
 
-  private KeycloakClientApi keycloakClient;
+  private final KeycloakClientApi keycloakClient;
 
   /**
    * Instantiates a new group service.

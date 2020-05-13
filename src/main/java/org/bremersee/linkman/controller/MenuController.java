@@ -16,6 +16,9 @@
 
 package org.bremersee.linkman.controller;
 
+import static org.bremersee.security.core.ReactiveUserContextCaller.EMPTY_USER_CONTEXT_SUPPLIER;
+import static org.bremersee.security.core.ReactiveUserContextCaller.manyWithUserContext;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -25,23 +28,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Locale;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.bremersee.groupman.api.GroupWebfluxControllerApi;
 import org.bremersee.linkman.model.MenuEntry;
 import org.bremersee.linkman.service.MenuService;
-import org.reactivestreams.Publisher;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
  * The menu controller.
@@ -53,41 +49,22 @@ import reactor.core.publisher.Mono;
 @Validated
 public class MenuController {
 
-  private MenuService menuService;
+  private final MenuService menuService;
 
-  private GroupWebfluxControllerApi groupService;
+  private final GroupWebfluxControllerApi groupService;
 
   /**
    * Instantiates a new menu controller.
    *
    * @param menuService the menu service
-   * @param groupService the group service
+   * @param groupServiceProvider the group service
    */
   public MenuController(
       MenuService menuService,
-      GroupWebfluxControllerApi groupService) {
+      ObjectProvider<GroupWebfluxControllerApi> groupServiceProvider) {
     this.menuService = menuService;
-    this.groupService = groupService;
-  }
-
-  private Set<String> toRoles(Authentication authentication) {
-    return authentication.getAuthorities()
-        .stream()
-        .map(GrantedAuthority::getAuthority)
-        .collect(Collectors.toSet());
-  }
-
-  private <R> Flux<R> manyWithUserContext(Function<UserContext, ? extends Publisher<R>> function) {
-    return ReactiveSecurityContextHolder.getContext()
-        .map(SecurityContext::getAuthentication)
-        .filter(Authentication::isAuthenticated)
-        .zipWhen(authentication -> groupService.getMembershipIds())
-        .map(tuple -> new UserContext(
-            tuple.getT1().getName(),
-            toRoles(tuple.getT1()),
-            tuple.getT2()))
-        .switchIfEmpty(Mono.just(new UserContext()))
-        .flatMapMany(function);
+    this.groupService = groupServiceProvider.getIfAvailable();
+    Assert.notNull(this.groupService, "Group service must be present.");
   }
 
   /**
@@ -111,11 +88,10 @@ public class MenuController {
   public Flux<MenuEntry> getMenuEntries(
       @Parameter(hidden = true) final Locale language) {
 
-    return manyWithUserContext(userContext -> menuService.getMenuEntries(
-        language,
-        userContext.getUserId(),
-        userContext.getRoles(),
-        userContext.getGroups()));
+    return manyWithUserContext(
+        userContext -> menuService.getMenuEntries(userContext, language),
+        groupService::getMembershipIds,
+        EMPTY_USER_CONTEXT_SUPPLIER);
   }
 
 }

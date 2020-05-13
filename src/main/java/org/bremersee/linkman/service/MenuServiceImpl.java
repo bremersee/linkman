@@ -17,12 +17,12 @@
 package org.bremersee.linkman.service;
 
 import java.util.Locale;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.bremersee.common.model.Link;
 import org.bremersee.linkman.model.MenuEntry;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkRepository;
+import org.bremersee.security.core.UserContext;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.util.function.Tuples;
@@ -35,9 +35,9 @@ import reactor.util.function.Tuples;
 @Component
 public class MenuServiceImpl implements MenuService {
 
-  private CategoryRepository categoryRepository;
+  private final CategoryRepository categoryRepository;
 
-  private LinkRepository linkRepository;
+  private final LinkRepository linkRepository;
 
   /**
    * Instantiates a new menu service.
@@ -53,12 +53,14 @@ public class MenuServiceImpl implements MenuService {
 
   @Override
   public Flux<MenuEntry> getMenuEntries(
-      Locale language,
-      String userId,
-      Set<String> roles,
-      Set<String> groups) {
+      UserContext userContext,
+      Locale language) {
 
-    return categoryRepository.findReadableCategories(userId, roles, groups)
+    return categoryRepository
+        .findReadableCategories(
+            userContext.getUserId(),
+            userContext.getRoles(),
+            userContext.getGroups())
         .flatMap(category -> linkRepository.findByCategoryId(category.getId())
             .collectSortedList((o1, o2) -> o1.compareTo(o2, language))
             .map(links -> Tuples.of(category, links)))

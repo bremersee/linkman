@@ -18,6 +18,7 @@ package org.bremersee.linkman.service;
 
 import static org.bremersee.linkman.model.Translation.toTranslations;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,7 +35,8 @@ import org.bremersee.linkman.repository.CategoryEntity;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.bremersee.security.access.PermissionConstants;
-import org.bremersee.security.authentication.AuthenticationProperties;
+import org.bremersee.security.authentication.AuthProperties;
+import org.bremersee.security.core.AuthorityConstants;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -53,24 +55,24 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
 
-  private AuthenticationProperties authenticationProperties;
+  private final LinkmanProperties linkmanProperties;
 
-  private LinkmanProperties linkmanProperties;
+  private final GroupService groupService;
 
-  private GroupService groupService;
+  private final RoleService roleService;
 
-  private RoleService roleService;
+  private final CategoryRepository categoryRepository;
 
-  private CategoryRepository categoryRepository;
+  private final LinkRepository linkRepository;
 
-  private LinkRepository linkRepository;
+  private final ModelMapper modelMapper;
 
-  private ModelMapper modelMapper;
+  private final List<String> adminRoles;
 
   /**
    * Instantiates a new category service.
    *
-   * @param authenticationProperties the authentication properties
+   * @param authProperties the authentication and authorization properties
    * @param linkmanProperties the properties
    * @param groupService the group service
    * @param roleService the role service
@@ -79,20 +81,22 @@ public class CategoryServiceImpl implements CategoryService {
    * @param modelMapper the model mapper
    */
   public CategoryServiceImpl(
-      AuthenticationProperties authenticationProperties,
+      AuthProperties authProperties,
       LinkmanProperties linkmanProperties,
       GroupService groupService,
       RoleService roleService,
       CategoryRepository categoryRepository,
       LinkRepository linkRepository,
       ModelMapper modelMapper) {
-    this.authenticationProperties = authenticationProperties;
     this.linkmanProperties = linkmanProperties;
     this.groupService = groupService;
     this.roleService = roleService;
     this.categoryRepository = categoryRepository;
     this.linkRepository = linkRepository;
     this.modelMapper = modelMapper;
+    this.adminRoles = List.copyOf(authProperties.getRoleDefinitions().getOrDefault(
+        "admin",
+        Arrays.asList(AuthorityConstants.ADMIN_ROLE_NAME, "ROLE_LINK_ADMIN")));
   }
 
   /**
@@ -208,7 +212,7 @@ public class CategoryServiceImpl implements CategoryService {
       return Mono.just(AccessControlEntry.builder()
           .permission(PermissionConstants.READ)
           .guest(false)
-          .roles(List.copyOf(authenticationProperties.getApplication().getAdminRoles()))
+          .roles(adminRoles)
           .build());
     }
     return validateRoles(ace.getRoles())

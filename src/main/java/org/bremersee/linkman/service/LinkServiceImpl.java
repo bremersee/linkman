@@ -37,11 +37,11 @@ import reactor.core.publisher.Mono;
 @Component
 public class LinkServiceImpl implements LinkService {
 
-  private LinkRepository linkRepository;
+  private final LinkRepository linkRepository;
 
-  private CategoryRepository categoryRepository;
+  private final CategoryRepository categoryRepository;
 
-  private ModelMapper modelMapper;
+  private final ModelMapper modelMapper;
 
   /**
    * Instantiates a new link service.
