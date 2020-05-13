@@ -30,3 +30,20 @@ vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers
 x-content-type-options: nosniff
 x-frame-options: DENY
 x-xss-protection: 1 ; mode=block
+
+METHOD: OPTIONS
+URL https://api.dev.bremersee.org/linkman/api/menu
+HEADERS
+accept: */*
+accept-encoding: gzip, deflate, br
+accept-language: de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7
+access-control-request-headers: authorization
+access-control-request-method: GET
+connection: keep-alive
+host: api.dev.bremersee.org
+origin: http://localhost:4200
+referer: http://localhost:4200/
+sec-fetch-dest: empty
+sec-fetch-mode: cors
+sec-fetch-site: cross-site
+user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36
