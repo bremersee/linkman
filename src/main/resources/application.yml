@@ -22,7 +22,8 @@ bremersee:
       enable: auto
       enable-cors: false
   cors:
-    enable: false
+    enable: true
+    allow-all: true
   auth:
     role-definitions:
       admin: &adminRoles
