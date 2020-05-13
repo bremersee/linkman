@@ -23,7 +23,7 @@ bremersee:
       enable-cors: true
 
   cors:
-    enable: true
+    enable: false
     allow-all: true
   auth:
     role-definitions:
