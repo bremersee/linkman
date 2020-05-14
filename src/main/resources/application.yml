@@ -1,0 +1,119 @@
+bremersee:
+  linkman:
+    groupman-base-uri: ${GROUPMAN_BASE_URI:false}
+    keycloak-base-uri: ${KEYCLOAK_BASE_URI:false}
+    keycloak-realm: ${KEYCLOAK_REALM:master}
+  exception-mapping:
+    api-paths:
+      - /api/**
+    default-exception-mapping-config:
+      include-stack-trace: true
+      include-cause: true
+      include-application-name: true
+      include-exception-class-name: true
+      include-handler: true
+      include-path: true
+  acl:
+    switch-admin-access: false
+    default-permissions:
+      - "read"
+  actuator:
+    auth:
+      enable: auto
+      enable-cors: true
+  cors:
+    enable: true
+    allow-all: true
+  auth:
+    role-definitions:
+      admin: &adminRoles
+        - "ROLE_ADMIN"
+        - "ROLE_LINK_ADMIN"
+    resource-server: auto
+    path-matchers:
+      - ant-pattern: "/v3/**"
+        access-mode: permit_all
+      - ant-pattern: "/webjars/**"
+        access-mode: permit_all
+      - ant-pattern: "/swagger-ui.html"
+        access-mode: permit_all
+      - ant-pattern: "/api/menu"
+        access-mode: permit_all
+      - ant-pattern: "/api/**"
+        roles: *adminRoles
+
+eureka:
+  client:
+    enabled: false
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/test}
+      auto-index-creation: true
+  sleuth:
+    enabled: ${SLEUTH_ENABLED:false}
+    sampler:
+      probability: ${SLEUTH_PROBABILITY:1.0}
+  zipkin:
+    enabled: ${ZIPKIN_ENABLED:false}
+    base-url: ${ZIPKIN_BASE_URL:http://localhost:9411/}
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-headers: "*"
+        allowed-methods: "*"
+        allowed-origins: "*"
+        allow-credentials: true
+  endpoint:
+    health:
+      show-details: when_authorized
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    ROOT: info
+    com.netflix.eureka.registry: warn
+    com.netflix.discovery.shared.resolver: warn
+    org.springframework.cloud.configclient: warn
+
+---
+
+spring:
+  profiles: in-memory
+
+bremersee:
+  auth:
+    in-memory-users:
+      - name: "admin"
+        password: "admin"
+        authorities:
+          - "ROLE_USER"
+          - "ROLE_ADMIN"
+      - name: "actuator"
+        password: "actuator"
+        authorities:
+          - "ROLE_ACTUATOR"
+          - "ROLE_ACTUATOR_ADMIN"
+      - name: "user"
+        password: "user"
+        authorities:
+          - "ROLE_USER"
+
+---
+
+spring:
+  profiles: mongodb
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
