@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MenuController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.controller</a> &gt; <span class="el_source">MenuController.java</span></div><h1>MenuController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.controller;
+
+import static org.bremersee.security.core.ReactiveUserContextCaller.EMPTY_USER_CONTEXT_SUPPLIER;
+import static org.bremersee.security.core.ReactiveUserContextCaller.manyWithUserContext;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Locale;
+import org.bremersee.groupman.api.GroupWebfluxControllerApi;
+import org.bremersee.linkman.model.MenuEntry;
+import org.bremersee.linkman.service.MenuService;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.http.MediaType;
+import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+
+/**
+ * The menu controller.
+ *
+ * @author Christian Bremer
+ */
+@Tag(name = &quot;menu-controller&quot;, description = &quot;The menu API.&quot;)
+@RestController
+@Validated
+public class MenuController {
+
+  private final MenuService menuService;
+
+  private final GroupWebfluxControllerApi groupService;
+
+  /**
+   * Instantiates a new menu controller.
+   *
+   * @param menuService the menu service
+   * @param groupServiceProvider the group service
+   */
+  public MenuController(
+      MenuService menuService,
+<span class="fc" id="L64">      ObjectProvider&lt;GroupWebfluxControllerApi&gt; groupServiceProvider) {</span>
+<span class="fc" id="L65">    this.menuService = menuService;</span>
+<span class="fc" id="L66">    this.groupService = groupServiceProvider.getIfAvailable();</span>
+<span class="fc" id="L67">    Assert.notNull(this.groupService, &quot;Group service must be present.&quot;);</span>
+<span class="fc" id="L68">  }</span>
+
+  /**
+   * Get menu entries.
+   *
+   * @param language the language
+   * @return the menu entries
+   */
+  @Operation(
+      summary = &quot;Get menu entries.&quot;,
+      operationId = &quot;getMenuEntries&quot;,
+      tags = {&quot;menu-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The menu entries.&quot;,
+          content = @Content(
+              array = @ArraySchema(schema = @Schema(implementation = MenuEntry.class))))
+  })
+  @GetMapping(path = &quot;/api/menu&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Flux&lt;MenuEntry&gt; getMenuEntries(
+      @Parameter(hidden = true) final Locale language) {
+
+<span class="fc" id="L91">    return manyWithUserContext(</span>
+<span class="fc" id="L92">        userContext -&gt; menuService.getMenuEntries(userContext, language),</span>
+<span class="fc" id="L93">        groupService::getMembershipIds,</span>
+        EMPTY_USER_CONTEXT_SUPPLIER);
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

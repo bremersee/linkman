@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategorySpec.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.model</a> &gt; <span class="el_source">CategorySpec.java</span></div><h1>CategorySpec.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import java.util.LinkedHashSet;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.bremersee.common.model.AccessControlList;
+import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.bremersee.security.access.PermissionConstants;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The category specification.
+ *
+ * @author Christian Bremer
+ */
+@Schema(description = &quot;The specification of a category.&quot;)
+@Getter
+<span class="fc" id="L48">@Setter</span>
+<span class="fc" id="L49">@ToString</span>
+<span class="pc bpc" id="L50" title="20 of 40 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L51">@NoArgsConstructor</span>
+@Validated
+public class CategorySpec {
+
+  @Schema(description = &quot;Unique identifier of the category.&quot;, accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(&quot;id&quot;)
+<span class="fc" id="L57">  private String id;</span>
+
+  @Schema(
+      description = &quot;The access control list that specifies who can see the category.&quot;,
+      required = true)
+  @JsonProperty(value = &quot;acl&quot;, required = true)
+  @NotNull
+<span class="fc" id="L64">  private AccessControlList acl;</span>
+
+  @Schema(description = &quot;The sort order value.&quot;, required = true, example = &quot;134&quot;)
+  @JsonProperty(value = &quot;order&quot;, required = true)
+<span class="fc" id="L68">  private int order;</span>
+
+  @Schema(description = &quot;The default name.&quot;, required = true, example = &quot;Administration&quot;)
+  @JsonProperty(value = &quot;name&quot;, required = true)
+  @NotBlank
+  @Size(min = 1, max = 75)
+<span class="fc" id="L74">  private String name;</span>
+
+<span class="fc" id="L76">  @Schema(description = &quot;The translations of the name.&quot;)</span>
+  @JsonProperty(&quot;translations&quot;)
+<span class="fc" id="L78">  private Set&lt;Translation&gt; translations = new LinkedHashSet&lt;&gt;();</span>
+
+  /**
+   * Instantiates a new category specification.
+   *
+   * @param id the id
+   * @param acl the acl
+   * @param order the order
+   * @param name the name
+   * @param translations the translations
+   */
+<span class="pc" id="L89">  @Builder(toBuilder = true)</span>
+  @SuppressWarnings(&quot;unused&quot;)
+  public CategorySpec(
+      String id,
+      AccessControlList acl,
+      int order,
+      String name,
+<span class="fc" id="L96">      Set&lt;Translation&gt; translations) {</span>
+<span class="fc" id="L97">    this.id = id;</span>
+<span class="fc" id="L98">    this.acl = acl;</span>
+<span class="fc" id="L99">    this.order = order;</span>
+<span class="fc" id="L100">    this.name = name;</span>
+<span class="fc" id="L101">    setTranslations(translations);</span>
+<span class="fc" id="L102">  }</span>
+
+  /**
+   * Sets translations.
+   *
+   * @param translations the translations
+   */
+  public void setTranslations(Set&lt;Translation&gt; translations) {
+<span class="fc" id="L110">    this.translations.clear();</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">    if (translations != null) {</span>
+<span class="fc" id="L112">      this.translations.addAll(translations);</span>
+    }
+<span class="fc" id="L114">  }</span>
+
+  /**
+   * Gets name.
+   *
+   * @param language the language
+   * @return the name
+   */
+  public String getName(TwoLetterLanguageCode language) {
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">    if (language == null) {</span>
+<span class="nc" id="L124">      return name;</span>
+    }
+<span class="fc" id="L126">    return Optional.ofNullable(translations)</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
+<span class="fc" id="L128">        .map(Translation::getValue)</span>
+<span class="fc" id="L129">        .orElse(name);</span>
+  }
+
+  /**
+   * Gets name.
+   *
+   * @param language the language
+   * @return the name
+   */
+  public String getName(Locale language) {
+<span class="fc" id="L139">    return getName(TwoLetterLanguageCode.fromLocale(language));</span>
+  }
+
+  /**
+   * Gets name.
+   *
+   * @param language the language
+   * @return the name
+   */
+  public String getName(String language) {
+<span class="fc" id="L149">    return getName(TwoLetterLanguageCode.fromValue(language));</span>
+  }
+
+  /**
+   * Is public boolean.
+   *
+   * @return the boolean
+   */
+  @Schema(hidden = true)
+  @JsonIgnore
+  public boolean isPublic() {
+<span class="fc" id="L160">    return Optional.ofNullable(getAcl())</span>
+<span class="fc" id="L161">        .map(AccessControlList::getEntries)</span>
+<span class="fc" id="L162">        .flatMap(accessControlEntries -&gt; accessControlEntries.stream()</span>
+<span class="fc" id="L163">            .filter(ace -&gt; PermissionConstants.READ.equals(ace.getPermission()))</span>
+<span class="fc" id="L164">            .findAny()</span>
+<span class="fc" id="L165">            .map(ace -&gt; Boolean.TRUE.equals(ace.getGuest())))</span>
+<span class="fc" id="L166">        .orElse(false);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

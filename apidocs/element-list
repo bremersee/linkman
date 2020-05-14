@@ -1,0 +1,6 @@
+org.bremersee.linkman
+org.bremersee.linkman.config
+org.bremersee.linkman.controller
+org.bremersee.linkman.model
+org.bremersee.linkman.repository
+org.bremersee.linkman.service

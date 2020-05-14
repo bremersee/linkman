@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinkController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.controller</a> &gt; <span class="el_source">LinkController.java</span></div><h1>LinkController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.validation.Valid;
+import org.bremersee.linkman.model.LinkSpec;
+import org.bremersee.linkman.service.LinkService;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/**
+ * The link controller.
+ *
+ * @author Christian Bremer
+ */
+@Tag(name = &quot;link-controller&quot;, description = &quot;The link API.&quot;)
+@RestController
+@Validated
+public class LinkController {
+
+  private final LinkService linkService;
+
+  /**
+   * Instantiates a new link controller.
+   *
+   * @param linkService the link service
+   */
+<span class="fc" id="L60">  public LinkController(LinkService linkService) {</span>
+<span class="fc" id="L61">    this.linkService = linkService;</span>
+<span class="fc" id="L62">  }</span>
+
+  /**
+   * Gets links.
+   *
+   * @param categoryId the category id
+   * @return the links
+   */
+  @Operation(
+      summary = &quot;Get all links.&quot;,
+      operationId = &quot;getLinks&quot;,
+      tags = {&quot;link-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The links.&quot;,
+          content = @Content(
+              array = @ArraySchema(
+                  schema = @Schema(implementation = LinkSpec.class)))),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @GetMapping(path = &quot;/api/links&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Flux&lt;LinkSpec&gt; getLinks(
+      @Parameter(name = &quot;categoryId&quot;, description = &quot;The category ID.&quot;)
+      @RequestParam(name = &quot;categoryId&quot;, required = false) String categoryId) {
+<span class="fc" id="L89">    return linkService.getLinks(categoryId);</span>
+  }
+
+  /**
+   * Add link.
+   *
+   * @param link the link
+   * @return the added link
+   */
+  @Operation(
+      summary = &quot;Add a link.&quot;,
+      operationId = &quot;addLink&quot;,
+      tags = {&quot;link-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The added link.&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = LinkSpec.class))),
+      @ApiResponse(
+          responseCode = &quot;400&quot;,
+          description = &quot;Bad Request&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @PostMapping(path = &quot;/api/links&quot;,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;LinkSpec&gt; addLink(
+      @Parameter(description = &quot;The new link.&quot;, required = true) @Valid @RequestBody
+          LinkSpec link) {
+
+<span class="fc" id="L126">    return linkService.addLink(link);</span>
+  }
+
+  /**
+   * Gets link.
+   *
+   * @param id the id
+   * @return the link
+   */
+  @Operation(
+      summary = &quot;Get a link.&quot;,
+      operationId = &quot;getLink&quot;,
+      tags = {&quot;link-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The link.&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = LinkSpec.class))),
+      @ApiResponse(
+          responseCode = &quot;404&quot;,
+          description = &quot;Not Found&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @GetMapping(path = &quot;/api/links/{id}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;LinkSpec&gt; getLink(
+      @Parameter(description = &quot;The link ID.&quot;, required = true) @PathVariable(&quot;id&quot;) String id) {
+<span class="fc" id="L159">    return linkService.getLink(id);</span>
+  }
+
+  /**
+   * Update link.
+   *
+   * @param id the id
+   * @param link the link
+   * @return the updated link
+   */
+  @Operation(
+      summary = &quot;Update a link.&quot;,
+      operationId = &quot;updateLink&quot;,
+      tags = {&quot;link-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The updated link.&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = LinkSpec.class))),
+      @ApiResponse(
+          responseCode = &quot;400&quot;,
+          description = &quot;Bad Request&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;404&quot;,
+          description = &quot;Not Found&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @PutMapping(path = &quot;/api/links/{id}&quot;,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;LinkSpec&gt; updateLink(
+      @Parameter(description = &quot;The link ID.&quot;, required = true) @PathVariable(&quot;id&quot;) String id,
+      @Parameter(description = &quot;The new link specification.&quot;, required = true) @Valid @RequestBody
+          LinkSpec link) {
+
+<span class="fc" id="L204">    return linkService.updateLink(id, link);</span>
+  }
+
+  /**
+   * Delete link.
+   *
+   * @param id the id
+   * @return void mono
+   */
+  @Operation(
+      summary = &quot;Delete a link.&quot;,
+      operationId = &quot;deleteLink&quot;,
+      tags = {&quot;link-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;OK&quot;),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @DeleteMapping(path = &quot;/api/links/{id}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;Void&gt; deleteLink(
+      @Parameter(description = &quot;The link ID.&quot;, required = true) @PathVariable(&quot;id&quot;) String id) {
+
+<span class="fc" id="L229">    return linkService.deleteLink(id);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

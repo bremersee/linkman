@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinkSpec.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.model</a> &gt; <span class="el_source">LinkSpec.java</span></div><h1>LinkSpec.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import java.util.LinkedHashSet;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * @author Christian Bremer
+ */
+@Schema(description = &quot;The specification of a link.&quot;)
+@Getter
+<span class="fc" id="L42">@Setter</span>
+<span class="fc" id="L43">@ToString</span>
+<span class="pc bpc" id="L44" title="42 of 72 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L45">@NoArgsConstructor</span>
+@Validated
+public class LinkSpec {
+
+  @Schema(description = &quot;Unique identifier of the link.&quot;, accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(&quot;id&quot;)
+<span class="fc" id="L51">  private String id;</span>
+
+<span class="fc" id="L53">  @Schema(description = &quot;The category IDs.&quot;)</span>
+  @JsonProperty(&quot;categoryIds&quot;)
+<span class="fc" id="L55">  private Set&lt;String&gt; categoryIds = new LinkedHashSet&lt;&gt;();</span>
+
+  @Schema(description = &quot;The sort order.&quot;, required = true, example = &quot;100&quot;)
+  @JsonProperty(value = &quot;order&quot;, required = true)
+<span class="fc" id="L59">  private int order;</span>
+
+  @Schema(description = &quot;The linked resource.&quot;, required = true, example = &quot;http://example.org&quot;)
+  @JsonProperty(value = &quot;href&quot;, required = true)
+  @NotBlank
+<span class="fc" id="L64">  private String href;</span>
+
+<span class="fc" id="L66">  @Schema(</span>
+      description = &quot;Specified whether to open the link in a blank target (default is false).&quot;,
+      defaultValue = &quot;false&quot;)
+  @JsonProperty(&quot;blank&quot;)
+<span class="fc" id="L70">  private Boolean blank = Boolean.FALSE;</span>
+
+  @Schema(
+      description = &quot;The text that is displayed instead of the link.&quot;,
+      required = true,
+      example = &quot;The example page&quot;)
+  @JsonProperty(value = &quot;text&quot;, required = true)
+  @NotBlank
+  @Size(min = 3, max = 75)
+<span class="fc" id="L79">  private String text;</span>
+
+<span class="fc" id="L81">  @Schema(description = &quot;The translations of the text.&quot;)</span>
+  @JsonProperty(&quot;textTranslations&quot;)
+<span class="fc" id="L83">  private Set&lt;Translation&gt; textTranslations = new LinkedHashSet&lt;&gt;();</span>
+
+  @Schema(
+      description = &quot;The description of the link.&quot;,
+      example = &quot;On the example page you can view some examples.&quot;)
+  @JsonProperty(&quot;description&quot;)
+  @Size(max = 255)
+<span class="fc" id="L90">  private String description;</span>
+
+<span class="fc" id="L92">  @Schema(description = &quot;The translations of the description.&quot;)</span>
+  @JsonProperty(&quot;descriptionTranslations&quot;)
+<span class="fc" id="L94">  private Set&lt;Translation&gt; descriptionTranslations = new LinkedHashSet&lt;&gt;();</span>
+
+  /**
+   * Instantiates a new link specification.
+   *
+   * @param id the id
+   * @param categoryIds the category IDs
+   * @param order the sort order
+   * @param href the linked resource (href)
+   * @param blank specified whether to open the link in a blank target (default is false)
+   * @param text the text that is displayed instead of the link
+   * @param textTranslations the text translations
+   * @param description the description
+   * @param descriptionTranslations the description translations
+   */
+<span class="pc" id="L109">  @Builder(toBuilder = true)</span>
+  @SuppressWarnings(&quot;unused&quot;)
+  public LinkSpec(
+      String id,
+      Set&lt;String&gt; categoryIds,
+      int order,
+      String href,
+      Boolean blank,
+      String text,
+      Set&lt;Translation&gt; textTranslations,
+      String description,
+<span class="fc" id="L120">      Set&lt;Translation&gt; descriptionTranslations) {</span>
+<span class="fc" id="L121">    this.id = id;</span>
+<span class="fc" id="L122">    setCategoryIds(categoryIds);</span>
+<span class="fc" id="L123">    this.order = order;</span>
+<span class="fc" id="L124">    this.href = href;</span>
+<span class="fc" id="L125">    setBlank(blank);</span>
+<span class="fc" id="L126">    this.text = text;</span>
+<span class="fc" id="L127">    setTextTranslations(textTranslations);</span>
+<span class="fc" id="L128">    this.description = description;</span>
+<span class="fc" id="L129">    setDescriptionTranslations(descriptionTranslations);</span>
+<span class="fc" id="L130">  }</span>
+
+  public void setCategoryIds(Set&lt;String&gt; categoryIds) {
+<span class="fc" id="L133">    this.categoryIds.clear();</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">    if (categoryIds != null) {</span>
+<span class="fc" id="L135">      this.categoryIds.addAll(categoryIds);</span>
+    }
+<span class="fc" id="L137">  }</span>
+
+  /**
+   * Sets blank.
+   *
+   * @param blank the blank
+   */
+  public void setBlank(Boolean blank) {
+<span class="fc" id="L145">    this.blank = Boolean.TRUE.equals(blank);</span>
+<span class="fc" id="L146">  }</span>
+
+  /**
+   * Sets text translations.
+   *
+   * @param textTranslations the text translations
+   */
+  public void setTextTranslations(Set&lt;Translation&gt; textTranslations) {
+<span class="fc" id="L154">    this.textTranslations.clear();</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">    if (textTranslations != null) {</span>
+<span class="fc" id="L156">      this.textTranslations.addAll(textTranslations);</span>
+    }
+<span class="fc" id="L158">  }</span>
+
+  /**
+   * Sets description translations.
+   *
+   * @param descriptionTranslations the description translations
+   */
+  public void setDescriptionTranslations(
+      Set&lt;Translation&gt; descriptionTranslations) {
+<span class="fc" id="L167">    this.descriptionTranslations.clear();</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">    if (descriptionTranslations != null) {</span>
+<span class="fc" id="L169">      this.descriptionTranslations.addAll(descriptionTranslations);</span>
+    }
+<span class="fc" id="L171">  }</span>
+
+  /**
+   * Gets text.
+   *
+   * @param language the language
+   * @return the text
+   */
+  public String getText(TwoLetterLanguageCode language) {
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">    if (language == null) {</span>
+<span class="nc" id="L181">      return text;</span>
+    }
+<span class="fc" id="L183">    return Optional.ofNullable(textTranslations)</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
+<span class="fc" id="L185">        .map(Translation::getValue)</span>
+<span class="fc" id="L186">        .orElse(text);</span>
+  }
+
+  /**
+   * Gets text.
+   *
+   * @param language the language
+   * @return the text
+   */
+  public String getText(Locale language) {
+<span class="fc" id="L196">    return getText(TwoLetterLanguageCode.fromLocale(language));</span>
+  }
+
+  /**
+   * Gets text.
+   *
+   * @param language the language
+   * @return the text
+   */
+  public String getText(String language) {
+<span class="fc" id="L206">    return getText(TwoLetterLanguageCode.fromValue(language));</span>
+  }
+
+  /**
+   * Gets description.
+   *
+   * @param language the language
+   * @return the description
+   */
+  public String getDescription(TwoLetterLanguageCode language) {
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">    if (language == null) {</span>
+<span class="nc" id="L217">      return description;</span>
+    }
+<span class="fc" id="L219">    return Optional.ofNullable(descriptionTranslations)</span>
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
+<span class="fc" id="L221">        .map(Translation::getValue)</span>
+<span class="fc" id="L222">        .orElse(description);</span>
+  }
+
+  /**
+   * Gets description.
+   *
+   * @param language the language
+   * @return the description
+   */
+  public String getDescription(Locale language) {
+<span class="fc" id="L232">    return getDescription(TwoLetterLanguageCode.fromLocale(language));</span>
+  }
+
+  /**
+   * Gets description.
+   *
+   * @param language the language
+   * @return the description
+   */
+  public String getDescription(String language) {
+<span class="fc" id="L242">    return getDescription(TwoLetterLanguageCode.fromValue(language));</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

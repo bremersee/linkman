@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MenuEntry.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.model</a> &gt; <span class="el_source">MenuEntry.java</span></div><h1>MenuEntry.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.bremersee.common.model.Link;
+
+/**
+ * The menu entry is a category with it's links.
+ *
+ * @author Christian Bremer
+ */
+@Schema(description = &quot;The category and it's links.&quot;)
+@Getter
+<span class="fc" id="L37">@Setter</span>
+<span class="fc" id="L38">@ToString</span>
+<span class="pc bpc" id="L39" title="12 of 26 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L40">@NoArgsConstructor</span>
+public class MenuEntry {
+
+  @Schema(description = &quot;The name of the category.&quot;, required = true)
+  @JsonProperty(value = &quot;category&quot;, required = true)
+<span class="fc" id="L45">  private String category;</span>
+
+  @Schema(description = &quot;Specifies whether the links of this category can be seen without &quot;
+      + &quot;authentication. Default is false.&quot;, required = true)
+  @JsonProperty(value = &quot;pub&quot;, required = true)
+<span class="fc" id="L50">  private boolean pub;</span>
+
+  @Schema(description = &quot;The links of the category.&quot;)
+  @JsonProperty(&quot;links&quot;)
+<span class="fc" id="L54">  private List&lt;Link&gt; links;</span>
+
+  /**
+   * Instantiates a new link container.
+   *
+   * @param category the category
+   * @param pub specifies whether the category is public or not
+   * @param links the links
+   */
+<span class="pc" id="L63">  @Builder(toBuilder = true)</span>
+  @SuppressWarnings(&quot;unused&quot;)
+  public MenuEntry(
+      String category,
+      boolean pub,
+<span class="fc" id="L68">      List&lt;Link&gt; links) {</span>
+<span class="fc" id="L69">    this.category = category;</span>
+<span class="fc" id="L70">    this.pub = pub;</span>
+<span class="fc" id="L71">    this.links = links;</span>
+<span class="fc" id="L72">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

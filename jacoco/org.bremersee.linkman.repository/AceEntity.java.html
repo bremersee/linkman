@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AceEntity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.repository</a> &gt; <span class="el_source">AceEntity.java</span></div><h1>AceEntity.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.repository;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.bremersee.security.access.Ace;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.index.Indexed;
+
+/**
+ * The access control entry entity.
+ *
+ * @author Christian Bremer
+ */
+@Getter
+<span class="nc" id="L39">@Setter</span>
+<span class="nc" id="L40">@ToString</span>
+<span class="fc" id="L41">@NoArgsConstructor</span>
+@TypeAlias(&quot;ace&quot;)
+public class AceEntity implements Ace {
+
+  @Indexed
+<span class="fc" id="L46">  private boolean guest;</span>
+
+<span class="fc" id="L48">  @Indexed</span>
+<span class="fc" id="L49">  private Set&lt;String&gt; users = new LinkedHashSet&lt;&gt;();</span>
+
+<span class="fc" id="L51">  @Indexed</span>
+<span class="fc" id="L52">  private Set&lt;String&gt; roles = new LinkedHashSet&lt;&gt;();</span>
+
+<span class="fc" id="L54">  @Indexed</span>
+<span class="fc" id="L55">  private Set&lt;String&gt; groups = new LinkedHashSet&lt;&gt;();</span>
+
+  /**
+   * Instantiates a new access control entry entity.
+   *
+   * @param ace the ace
+   */
+<span class="fc" id="L62">  AceEntity(final Ace ace) {</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">    if (ace != null) {</span>
+<span class="fc" id="L64">      this.guest = ace.isGuest();</span>
+<span class="fc" id="L65">      this.users.addAll(treeSet(ace.getUsers()));</span>
+<span class="fc" id="L66">      this.roles.addAll(treeSet(ace.getRoles()));</span>
+<span class="fc" id="L67">      this.groups.addAll(treeSet(ace.getGroups()));</span>
+    }
+<span class="fc" id="L69">  }</span>
+
+  /**
+   * Unmodifiable ace entity.
+   *
+   * @return the ace entity
+   */
+  AceEntity unmodifiable() {
+<span class="fc" id="L77">    final AceEntity ace = new AceEntity();</span>
+<span class="fc" id="L78">    ace.guest = this.guest;</span>
+<span class="fc" id="L79">    ace.users = Collections.unmodifiableSet(this.users);</span>
+<span class="fc" id="L80">    ace.roles = Collections.unmodifiableSet(this.roles);</span>
+<span class="fc" id="L81">    ace.groups = Collections.unmodifiableSet(this.groups);</span>
+<span class="fc" id="L82">    return ace;</span>
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">    if (this == o) {</span>
+<span class="nc" id="L88">      return true;</span>
+    }
+<span class="nc bnc" id="L90" title="All 2 branches missed.">    if (!(o instanceof Ace)) {</span>
+<span class="nc" id="L91">      return false;</span>
+    }
+<span class="nc" id="L93">    Ace ace = (Ace) o;</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">    return guest == ace.isGuest() &amp;&amp;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        treeSet(groups).equals(treeSet(ace.getGroups())) &amp;&amp;</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        treeSet(roles).equals(treeSet(ace.getRoles())) &amp;&amp;</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        treeSet(users).equals(treeSet(ace.getUsers()));</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L102">    return Objects.hash(guest, treeSet(users), treeSet(roles), treeSet(groups));</span>
+  }
+
+  private TreeSet&lt;String&gt; treeSet(Collection&lt;String&gt; collection) {
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">    if (collection == null) {</span>
+<span class="nc" id="L107">      return new TreeSet&lt;&gt;();</span>
+    }
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">    if (collection instanceof TreeSet) {</span>
+<span class="fc" id="L110">      return (TreeSet&lt;String&gt;) collection;</span>
+    }
+<span class="nc" id="L112">    return new TreeSet&lt;&gt;(collection);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

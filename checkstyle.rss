@@ -1,0 +1,754 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<rss version="0.91">
+  <channel>
+    <title>linkman - Checkstyle report</title>
+    <link>https://github.com/bremersee/linkman</link>
+    <description>linkman - Checkstyle report</description>
+    <language>en-us</language>
+    <copyright>&#169;2020 bremersee.org</copyright>
+    <item>
+      <title>File: 50,
+             Errors: 0,
+             Warnings: 17,
+             Infos: 0
+      </title>
+            <link>https://github.com/bremersee/linkman/checkstyle.html</link>
+      <description>
+        <p>Click <a href="https://github.com/bremersee/linkman/checkstyle.html">here</a> for the full Checkstyle report.</p>
+
+        <table summary="Files" boder="1">
+          <thead>
+            <tr>
+              <th>Files</th>
+              <th style="width:30px;"><abbr title="Info">I</abbr></th>
+              <th style="width:30px;"><abbr title="Warning">W</abbr></th>
+              <th style="width:30px;"><abbr title="Error">E</abbr></th>
+            </tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.RoleControllerTest.java">org/bremersee/linkman/controller/RoleControllerTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.config.GroupmanClientConfiguration.java">org/bremersee/linkman/config/GroupmanClientConfiguration.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.LinkSpecTest.java">org/bremersee/linkman/model/LinkSpecTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.CategorySpecTest.java">org/bremersee/linkman/model/CategorySpecTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.config.KeycloakClientConfiguration.java">org/bremersee/linkman/config/KeycloakClientConfiguration.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.Translation.java">org/bremersee/linkman/model/Translation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.CategoryRepositoryImpl.java">org/bremersee/linkman/repository/CategoryRepositoryImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.RoleService.java">org/bremersee/linkman/service/RoleService.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.LanguageController.java">org/bremersee/linkman/controller/LanguageController.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.LinkRepositoryImpl.java">org/bremersee/linkman/repository/LinkRepositoryImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.KeycloakClientApi.java">org/bremersee/linkman/service/KeycloakClientApi.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.RoleController.java">org/bremersee/linkman/controller/RoleController.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.MenuControllerTest.java">org/bremersee/linkman/controller/MenuControllerTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.CategoryControllerTest.java">org/bremersee/linkman/controller/CategoryControllerTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.config.LinkmanProperties.java">org/bremersee/linkman/config/LinkmanProperties.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.AclEntity.java">org/bremersee/linkman/repository/AclEntity.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.GroupServiceImpl.java">org/bremersee/linkman/service/GroupServiceImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.LinkServiceImpl.java">org/bremersee/linkman/service/LinkServiceImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.MenuServiceImpl.java">org/bremersee/linkman/service/MenuServiceImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.AceEntity.java">org/bremersee/linkman/repository/AceEntity.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  3
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.Application.java">org/bremersee/linkman/Application.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.GroupService.java">org/bremersee/linkman/service/GroupService.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.CategorySpec.java">org/bremersee/linkman/model/CategorySpec.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.RoleRepresentation.java">org/bremersee/linkman/model/RoleRepresentation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.config.PersistenceConfiguration.java">org/bremersee/linkman/config/PersistenceConfiguration.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.CategoryController.java">org/bremersee/linkman/controller/CategoryController.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.CategoryRepository.java">org/bremersee/linkman/repository/CategoryRepository.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.LinkService.java">org/bremersee/linkman/service/LinkService.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.LinkRepositoryCustom.java">org/bremersee/linkman/repository/LinkRepositoryCustom.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.LinkControllerTest.java">org/bremersee/linkman/controller/LinkControllerTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.KeycloakClientMock.java">org/bremersee/linkman/service/KeycloakClientMock.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.RoleServiceImpl.java">org/bremersee/linkman/service/RoleServiceImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.MenuEntry.java">org/bremersee/linkman/model/MenuEntry.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.GroupRepresentation.java">org/bremersee/linkman/model/GroupRepresentation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.MenuEntryTest.java">org/bremersee/linkman/model/MenuEntryTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.LinkSpec.java">org/bremersee/linkman/model/LinkSpec.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.LinkEntity.java">org/bremersee/linkman/repository/LinkEntity.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.LinkRepository.java">org/bremersee/linkman/repository/LinkRepository.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.GroupControllerTest.java">org/bremersee/linkman/controller/GroupControllerTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.CategoryEntity.java">org/bremersee/linkman/repository/CategoryEntity.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.MenuController.java">org/bremersee/linkman/controller/MenuController.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.CategoryServiceImpl.java">org/bremersee/linkman/service/CategoryServiceImpl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.MenuService.java">org/bremersee/linkman/service/MenuService.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.CategoryRepositoryCustom.java">org/bremersee/linkman/repository/CategoryRepositoryCustom.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.LinkController.java">org/bremersee/linkman/controller/LinkController.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.SelectOption.java">org/bremersee/linkman/model/SelectOption.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.config.AclConfiguration.java">org/bremersee/linkman/config/AclConfiguration.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.CategoryService.java">org/bremersee/linkman/service/CategoryService.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.LanguageControllerTest.java">org/bremersee/linkman/controller/LanguageControllerTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.GroupController.java">org/bremersee/linkman/controller/GroupController.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+        
+      </description>
+    </item>
+  </channel>
+</rss>
+

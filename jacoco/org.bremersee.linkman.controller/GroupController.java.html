@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.controller</a> &gt; <span class="el_source">GroupController.java</span></div><h1>GroupController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.bremersee.linkman.model.SelectOption;
+import org.bremersee.linkman.service.GroupService;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+
+/**
+ * The group controller.
+ *
+ * @author Christian Bremer
+ */
+@Tag(name = &quot;group-controller&quot;, description = &quot;The available groups API.&quot;)
+@RestController
+public class GroupController {
+
+  private final GroupService groupService;
+
+  /**
+   * Instantiates a new group controller.
+   *
+   * @param groupService the group service
+   */
+<span class="fc" id="L49">  public GroupController(GroupService groupService) {</span>
+<span class="fc" id="L50">    this.groupService = groupService;</span>
+<span class="fc" id="L51">  }</span>
+
+  /**
+   * Gets available groups.
+   *
+   * @return the available groups
+   */
+  @Operation(
+      summary = &quot;Get available groups.&quot;,
+      operationId = &quot;getAvailableGroups&quot;,
+      tags = {&quot;group-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The available groups.&quot;,
+          content = @Content(
+              array = @ArraySchema(
+                  schema = @Schema(implementation = SelectOption.class))))
+  })
+  @GetMapping(path = &quot;/api/groups&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Flux&lt;SelectOption&gt; getAvailableGroups() {
+<span class="fc" id="L72">    return groupService.getAllGroups();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

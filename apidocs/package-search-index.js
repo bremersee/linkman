@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"org.bremersee.linkman"},{"l":"org.bremersee.linkman.config"},{"l":"org.bremersee.linkman.controller"},{"l":"org.bremersee.linkman.model"},{"l":"org.bremersee.linkman.repository"},{"l":"org.bremersee.linkman.service"}]

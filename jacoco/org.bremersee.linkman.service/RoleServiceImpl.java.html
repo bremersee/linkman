@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RoleServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.service</a> &gt; <span class="el_source">RoleServiceImpl.java</span></div><h1>RoleServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.service;
+
+import org.bremersee.linkman.config.LinkmanProperties;
+import org.bremersee.linkman.model.RoleRepresentation;
+import org.bremersee.linkman.model.SelectOption;
+import org.bremersee.security.authentication.AuthProperties;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
+
+/**
+ * The role service implementation.
+ *
+ * @author Christian Bremer
+ */
+@Component
+public class RoleServiceImpl implements RoleService {
+
+  private final AuthProperties authProperties;
+
+  private final LinkmanProperties linkmanProperties;
+
+  private final KeycloakClientApi keycloakClient;
+
+  /**
+   * Instantiates a new role service.
+   *
+   * @param authProperties the authentication properties
+   * @param linkmanProperties the properties
+   * @param keycloakClient the keycloak client
+   */
+  public RoleServiceImpl(
+      AuthProperties authProperties,
+      LinkmanProperties linkmanProperties,
+<span class="fc" id="L51">      KeycloakClientApi keycloakClient) {</span>
+<span class="fc" id="L52">    this.authProperties = authProperties;</span>
+<span class="fc" id="L53">    this.linkmanProperties = linkmanProperties;</span>
+<span class="fc" id="L54">    this.keycloakClient = keycloakClient;</span>
+<span class="fc" id="L55">  }</span>
+
+  @Override
+  public Flux&lt;SelectOption&gt; getAllRoles() {
+<span class="fc" id="L59">    return keycloakClient.getAllRoles(linkmanProperties.getKeycloakRealm())</span>
+<span class="fc" id="L60">        .filter(this::isValidRole)</span>
+<span class="fc" id="L61">        .map(role -&gt; new SelectOption(getValue(role), getDisplayValue(role)));</span>
+  }
+
+  private boolean isValidRole(RoleRepresentation role) {
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">    return StringUtils.hasText(role.getName())</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        &amp;&amp; !linkmanProperties.getExcludedRoles().contains(role.getName())</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        &amp;&amp; !linkmanProperties.getExcludedRoles().contains(</span>
+<span class="fc" id="L68">        authProperties.getRolePrefix() + role.getName());</span>
+  }
+
+  private String getValue(RoleRepresentation role) {
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">    if (StringUtils.hasText(authProperties.getRolePrefix())) {</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">      if (role.getName().startsWith(authProperties.getRolePrefix())) {</span>
+<span class="fc" id="L74">        return role.getName();</span>
+      } else {
+<span class="nc" id="L76">        return authProperties.getRolePrefix() + role.getName();</span>
+      }
+    }
+<span class="nc" id="L79">    return role.getName();</span>
+  }
+
+  private String getDisplayValue(RoleRepresentation role) {
+<span class="fc" id="L83">    return role.getName();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

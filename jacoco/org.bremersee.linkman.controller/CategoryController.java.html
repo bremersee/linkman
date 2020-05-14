@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.controller</a> &gt; <span class="el_source">CategoryController.java</span></div><h1>CategoryController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.validation.Valid;
+import org.bremersee.linkman.model.CategorySpec;
+import org.bremersee.linkman.service.CategoryService;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/**
+ * The category controller.
+ *
+ * @author Christian Bremer
+ */
+@Tag(name = &quot;category-controller&quot;, description = &quot;The category API.&quot;)
+@RestController
+@Validated
+public class CategoryController {
+
+  private final CategoryService categoryService;
+
+  /**
+   * Instantiates a new category controller.
+   *
+   * @param categoryService the category service
+   */
+<span class="fc" id="L59">  public CategoryController(CategoryService categoryService) {</span>
+<span class="fc" id="L60">    this.categoryService = categoryService;</span>
+<span class="fc" id="L61">  }</span>
+
+  /**
+   * Gets categories.
+   *
+   * @return the categories
+   */
+  @Operation(
+      summary = &quot;Get all categories.&quot;,
+      operationId = &quot;getCategories&quot;,
+      tags = {&quot;category-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The categories.&quot;,
+          content = @Content(
+              array = @ArraySchema(
+                  schema = @Schema(implementation = CategorySpec.class)))),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @GetMapping(path = &quot;/api/categories&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Flux&lt;CategorySpec&gt; getCategories() {
+<span class="fc" id="L85">    return categoryService.getCategories();</span>
+  }
+
+  /**
+   * Add category.
+   *
+   * @param category the category
+   * @return the added category
+   */
+  @Operation(
+      summary = &quot;Add a category.&quot;,
+      operationId = &quot;addCategory&quot;,
+      tags = {&quot;category-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The added category.&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = CategorySpec.class))),
+      @ApiResponse(
+          responseCode = &quot;400&quot;,
+          description = &quot;Bad Request&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @PostMapping(path = &quot;/api/categories&quot;,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;CategorySpec&gt; addCategory(
+      @Parameter(description = &quot;The new category.&quot;, required = true) @Valid @RequestBody
+          CategorySpec category) {
+
+<span class="fc" id="L122">    return categoryService.addCategory(category);</span>
+  }
+
+  /**
+   * Gets category.
+   *
+   * @param id the id
+   * @return the category
+   */
+  @Operation(
+      summary = &quot;Get a category.&quot;,
+      operationId = &quot;getCategory&quot;,
+      tags = {&quot;category-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The category.&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = CategorySpec.class))),
+      @ApiResponse(
+          responseCode = &quot;404&quot;,
+          description = &quot;Not Found&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @GetMapping(path = &quot;/api/categories/{id}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;CategorySpec&gt; getCategory(
+      @Parameter(description = &quot;The category ID.&quot;, required = true) @PathVariable(&quot;id&quot;) String id) {
+<span class="fc" id="L155">    return categoryService.getCategory(id);</span>
+  }
+
+  /**
+   * Update category.
+   *
+   * @param id the id
+   * @param category the category
+   * @return the the updated category
+   */
+  @Operation(
+      summary = &quot;Update a category.&quot;,
+      operationId = &quot;updateCategory&quot;,
+      tags = {&quot;category-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The updated category.&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = CategorySpec.class))),
+      @ApiResponse(
+          responseCode = &quot;400&quot;,
+          description = &quot;Bad Request&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;404&quot;,
+          description = &quot;Not Found&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @PutMapping(path = &quot;/api/categories/{id}&quot;,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;CategorySpec&gt; updateCategory(
+      @Parameter(description = &quot;The category ID.&quot;, required = true) @PathVariable(&quot;id&quot;) String id,
+      @Parameter(description = &quot;The new category specification.&quot;, required = true)
+      @Valid @RequestBody CategorySpec category) {
+
+<span class="fc" id="L200">    return categoryService.updateCategory(id, category);</span>
+  }
+
+  /**
+   * Delete category.
+   *
+   * @param id the id
+   * @return void
+   */
+  @Operation(
+      summary = &quot;Delete a category.&quot;,
+      operationId = &quot;deleteCategory&quot;,
+      tags = {&quot;category-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;OK&quot;),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @DeleteMapping(path = &quot;/api/categories/{id}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;Void&gt; deleteCategory(
+      @Parameter(description = &quot;The category ID.&quot;, required = true) @PathVariable(&quot;id&quot;) String id) {
+
+<span class="fc" id="L225">    return categoryService.deleteCategory(id);</span>
+  }
+
+  @Operation(
+      summary = &quot;Checks whether a public category exists.&quot;,
+      operationId = &quot;publicCategoryExists&quot;,
+      tags = {&quot;category-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;'true' if a public category exists, otherwise 'false'.&quot;),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @GetMapping(
+      path = &quot;/api/categories/f/public-exists&quot;,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;Boolean&gt; publicCategoryExists() {
+<span class="fc" id="L244">    return categoryService.publicCategoryExists();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

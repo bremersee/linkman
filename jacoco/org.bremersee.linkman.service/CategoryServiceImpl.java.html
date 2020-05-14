@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoryServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.service</a> &gt; <span class="el_source">CategoryServiceImpl.java</span></div><h1>CategoryServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.service;
+
+import static org.bremersee.linkman.model.Translation.toTranslations;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.common.model.AccessControlEntry;
+import org.bremersee.common.model.AccessControlList;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.linkman.config.LinkmanProperties;
+import org.bremersee.linkman.model.CategorySpec;
+import org.bremersee.linkman.model.SelectOption;
+import org.bremersee.linkman.repository.CategoryEntity;
+import org.bremersee.linkman.repository.CategoryRepository;
+import org.bremersee.linkman.repository.LinkRepository;
+import org.bremersee.security.access.PermissionConstants;
+import org.bremersee.security.authentication.AuthProperties;
+import org.bremersee.security.core.AuthorityConstants;
+import org.modelmapper.ModelMapper;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/**
+ * The category service implementation.
+ *
+ * @author Christian Bremer
+ */
+@Component
+<span class="fc" id="L55">@Slf4j</span>
+public class CategoryServiceImpl implements CategoryService {
+
+  private final LinkmanProperties linkmanProperties;
+
+  private final GroupService groupService;
+
+  private final RoleService roleService;
+
+  private final CategoryRepository categoryRepository;
+
+  private final LinkRepository linkRepository;
+
+  private final ModelMapper modelMapper;
+
+  private final List&lt;String&gt; adminRoles;
+
+  /**
+   * Instantiates a new category service.
+   *
+   * @param authProperties the authentication and authorization properties
+   * @param linkmanProperties the properties
+   * @param groupService the group service
+   * @param roleService the role service
+   * @param categoryRepository the category repository
+   * @param linkRepository the link repository
+   * @param modelMapper the model mapper
+   */
+  public CategoryServiceImpl(
+      AuthProperties authProperties,
+      LinkmanProperties linkmanProperties,
+      GroupService groupService,
+      RoleService roleService,
+      CategoryRepository categoryRepository,
+      LinkRepository linkRepository,
+<span class="fc" id="L90">      ModelMapper modelMapper) {</span>
+<span class="fc" id="L91">    this.linkmanProperties = linkmanProperties;</span>
+<span class="fc" id="L92">    this.groupService = groupService;</span>
+<span class="fc" id="L93">    this.roleService = roleService;</span>
+<span class="fc" id="L94">    this.categoryRepository = categoryRepository;</span>
+<span class="fc" id="L95">    this.linkRepository = linkRepository;</span>
+<span class="fc" id="L96">    this.modelMapper = modelMapper;</span>
+<span class="fc" id="L97">    this.adminRoles = List.copyOf(authProperties.getRoleDefinitions().getOrDefault(</span>
+        &quot;admin&quot;,
+<span class="fc" id="L99">        Arrays.asList(AuthorityConstants.ADMIN_ROLE_NAME, &quot;ROLE_LINK_ADMIN&quot;)));</span>
+<span class="fc" id="L100">  }</span>
+
+  /**
+   * Init.
+   */
+  @EventListener(ApplicationReadyEvent.class)
+  public void init() {
+<span class="fc" id="L107">    final CategorySpec publicCategory = CategorySpec.builder()</span>
+<span class="fc" id="L108">        .acl(AccessControlList.builder()</span>
+<span class="fc" id="L109">            .entries(Collections.singletonList(AccessControlEntry.builder()</span>
+<span class="fc" id="L110">                .permission(PermissionConstants.READ)</span>
+<span class="fc" id="L111">                .guest(true)</span>
+<span class="fc" id="L112">                .build()))</span>
+<span class="fc" id="L113">            .build())</span>
+<span class="fc" id="L114">        .order(Integer.MIN_VALUE)</span>
+<span class="fc" id="L115">        .name(linkmanProperties.getPublicCategory().getName())</span>
+<span class="fc" id="L116">        .translations(toTranslations(linkmanProperties.getPublicCategory().getTranslations()))</span>
+<span class="fc" id="L117">        .build();</span>
+<span class="fc" id="L118">    final CategorySpec savedPublicCategory = categoryRepository.countPublicCategories()</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        .filter(size -&gt; size == 0)</span>
+<span class="fc" id="L120">        .flatMap(size -&gt; addCategory(publicCategory))</span>
+<span class="fc" id="L121">        .block();</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">    if (savedPublicCategory != null) {</span>
+<span class="fc" id="L123">      log.info(&quot;Public category created: {}&quot;, savedPublicCategory);</span>
+    }
+<span class="fc" id="L125">  }</span>
+
+  @Override
+  public Flux&lt;CategorySpec&gt; getCategories() {
+<span class="fc" id="L129">    return categoryRepository.findAll(Sort.by(Order.asc(&quot;order&quot;), Order.asc(&quot;name&quot;)))</span>
+<span class="fc" id="L130">        .map(entity -&gt; modelMapper.map(entity, CategorySpec.class));</span>
+  }
+
+  @Override
+  public Mono&lt;CategorySpec&gt; addCategory(CategorySpec category) {
+<span class="fc" id="L135">    return validateCategory(category)</span>
+<span class="fc" id="L136">        .flatMap(model -&gt; categoryRepository.countPublicCategories()</span>
+<span class="fc bfc" id="L137" title="All 4 branches covered.">            .flatMap(size -&gt; size &gt; 0 &amp;&amp; model.isPublic()</span>
+<span class="fc" id="L138">                ? Mono.error(ServiceException.badRequest(</span>
+                &quot;There is already a public category.&quot;,
+                &quot;ONLY_ONE_PUBLIC_CATEGORY_IS_ALLOWED&quot;))
+<span class="fc" id="L141">                : categoryRepository.save(modelMapper.map(model, CategoryEntity.class)))</span>
+<span class="fc" id="L142">            .map(entity -&gt; modelMapper.map(entity, CategorySpec.class)));</span>
+  }
+
+  @Override
+  public Mono&lt;CategorySpec&gt; getCategory(String id) {
+<span class="fc" id="L147">    return categoryRepository.findById(id)</span>
+<span class="fc" id="L148">        .switchIfEmpty(Mono.error(() -&gt; ServiceException.notFound(&quot;Category&quot;, id)))</span>
+<span class="fc" id="L149">        .map(entity -&gt; modelMapper.map(entity, CategorySpec.class));</span>
+  }
+
+  @Override
+  public Mono&lt;CategorySpec&gt; updateCategory(String id, CategorySpec category) {
+<span class="fc" id="L154">    return categoryRepository.findById(id)</span>
+<span class="pc" id="L155">        .switchIfEmpty(Mono.error(() -&gt; ServiceException.notFound(&quot;Category&quot;, id)))</span>
+<span class="fc" id="L156">        .flatMap(entity -&gt; validateCategory(category, entity)</span>
+<span class="fc" id="L157">            .flatMap(model -&gt; {</span>
+<span class="pc bpc" id="L158" title="1 of 4 branches missed.">              if (model.isPublic() &amp;&amp; !entity.isPublic()) {</span>
+<span class="fc" id="L159">                return categoryRepository.countPublicCategories()</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">                    .flatMap(size -&gt; size &gt; 0</span>
+<span class="fc" id="L161">                        ? Mono.error(ServiceException.badRequest(</span>
+                        &quot;There is already a public category.&quot;,
+                        &quot;ONLY_ONE_PUBLIC_CATEGORY_IS_ALLOWED&quot;))
+<span class="nc" id="L164">                        : categoryRepository.save(modelMapper.map(model, CategoryEntity.class)));</span>
+              } else {
+<span class="fc" id="L166">                return categoryRepository.save(modelMapper.map(model, CategoryEntity.class));</span>
+              }
+            })
+        )
+<span class="fc" id="L170">        .map(entity -&gt; modelMapper.map(entity, CategorySpec.class));</span>
+  }
+
+  @Override
+  public Mono&lt;Void&gt; deleteCategory(String id) {
+<span class="fc" id="L175">    return categoryRepository.deleteById(id)</span>
+<span class="fc" id="L176">        .then(linkRepository.removeCategoryReferences(id));</span>
+  }
+
+  @Override
+  public Mono&lt;Boolean&gt; publicCategoryExists() {
+<span class="fc" id="L181">    return categoryRepository.countPublicCategories()</span>
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">        .map(size -&gt; size &gt; 0L);</span>
+  }
+
+  private Mono&lt;CategorySpec&gt; validateCategory(CategorySpec category) {
+<span class="fc" id="L186">    return validateCategory(category, null);</span>
+  }
+
+  private Mono&lt;CategorySpec&gt; validateCategory(CategorySpec category, CategoryEntity entity) {
+<span class="fc" id="L190">    return validateAccessControlList(category.getAcl())</span>
+<span class="fc" id="L191">        .map(acl -&gt; category.toBuilder()</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">            .id(entity != null ? entity.getId() : null)</span>
+<span class="fc" id="L193">            .acl(acl)</span>
+<span class="fc" id="L194">            .build());</span>
+  }
+
+  private Mono&lt;AccessControlList&gt; validateAccessControlList(AccessControlList acl) {
+<span class="fc" id="L198">    final AccessControlEntry readAce = acl.getEntries().stream()</span>
+<span class="fc" id="L199">        .filter(ace -&gt; PermissionConstants.READ.equalsIgnoreCase(ace.getPermission()))</span>
+<span class="fc" id="L200">        .findAny()</span>
+<span class="fc" id="L201">        .orElse(null);</span>
+<span class="fc" id="L202">    return validateReadPermission(readAce)</span>
+<span class="fc" id="L203">        .map(ace -&gt; AccessControlList.builder()</span>
+<span class="fc" id="L204">            .owner(null)</span>
+<span class="fc" id="L205">            .entries(Collections.singletonList(ace))</span>
+<span class="fc" id="L206">            .build());</span>
+  }
+
+  private Mono&lt;AccessControlEntry&gt; validateReadPermission(AccessControlEntry ace) {
+
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">    if (ace == null) {</span>
+<span class="nc" id="L212">      return Mono.just(AccessControlEntry.builder()</span>
+<span class="nc" id="L213">          .permission(PermissionConstants.READ)</span>
+<span class="nc" id="L214">          .guest(false)</span>
+<span class="nc" id="L215">          .roles(adminRoles)</span>
+<span class="nc" id="L216">          .build());</span>
+    }
+<span class="fc" id="L218">    return validateRoles(ace.getRoles())</span>
+<span class="fc" id="L219">        .zipWith(validateGroups(ace.getGroups()))</span>
+<span class="fc" id="L220">        .map(rolesAndGroups -&gt; AccessControlEntry.builder()</span>
+<span class="fc" id="L221">            .permission(PermissionConstants.READ)</span>
+<span class="fc" id="L222">            .guest(Boolean.TRUE.equals(ace.getGuest()))</span>
+<span class="fc" id="L223">            .users(ace.getUsers())</span>
+<span class="fc" id="L224">            .roles(rolesAndGroups.getT1())</span>
+<span class="fc" id="L225">            .groups(rolesAndGroups.getT2())</span>
+<span class="fc" id="L226">            .build());</span>
+  }
+
+  private Mono&lt;List&lt;String&gt;&gt; validateRoles(Collection&lt;String&gt; roles) {
+<span class="fc bfc" id="L230" title="All 4 branches covered.">    if (roles == null || roles.isEmpty()) {</span>
+<span class="fc" id="L231">      return Mono.just(Collections.emptyList());</span>
+    }
+<span class="fc" id="L233">    final Set&lt;String&gt; roleSet = new HashSet&lt;&gt;(roles);</span>
+<span class="fc" id="L234">    return roleService.getAllRoles()</span>
+<span class="fc" id="L235">        .map(SelectOption::getValue)</span>
+<span class="fc" id="L236">        .filter(roleSet::contains)</span>
+<span class="fc" id="L237">        .collectList();</span>
+  }
+
+  private Mono&lt;List&lt;String&gt;&gt; validateGroups(Collection&lt;String&gt; groups) {
+<span class="fc bfc" id="L241" title="All 4 branches covered.">    if (groups == null || groups.isEmpty()) {</span>
+<span class="fc" id="L242">      return Mono.just(Collections.emptyList());</span>
+    }
+<span class="fc" id="L244">    final Set&lt;String&gt; groupSet = new HashSet&lt;&gt;(groups);</span>
+<span class="fc" id="L245">    return groupService.getAllGroups()</span>
+<span class="fc" id="L246">        .map(SelectOption::getValue)</span>
+<span class="fc" id="L247">        .filter(groupSet::contains)</span>
+<span class="fc" id="L248">        .collectList();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
