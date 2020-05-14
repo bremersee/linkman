@@ -21,7 +21,6 @@ bremersee:
     auth:
       enable: auto
       enable-cors: true
-
   cors:
     enable: true
     allow-all: true

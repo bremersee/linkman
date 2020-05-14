@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>linkman</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
 
   <name>linkman</name>
@@ -25,9 +25,9 @@
 
     <start-class>org.bremersee.linkman.Application</start-class>
 
-    <groupman-api-spring-reactive.version>2.0.0-SNAPSHOT</groupman-api-spring-reactive.version>
+    <groupman-api-spring-reactive.version>2.0.0</groupman-api-spring-reactive.version>
     <common-model.version>2.0.0</common-model.version>
-    <common-base.version>2.1.0-SNAPSHOT</common-base.version>
+    <common-base.version>2.1.0</common-base.version>
     <comparator.version>2.1.0</comparator.version>
   </properties>
 
