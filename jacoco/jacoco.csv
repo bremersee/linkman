@@ -11,13 +11,13 @@ linkman,org.bremersee.linkman.service,LinkServiceImpl,4,173,0,2,0,33,1,17,1,16
 linkman,org.bremersee.linkman.service,RoleServiceImpl,11,78,5,5,2,16,5,6,0,6
 linkman,org.bremersee.linkman.service,GroupServiceImpl,1,43,2,2,0,8,2,4,0,4
 linkman,org.bremersee.linkman.service,MenuServiceImpl,6,111,2,2,0,27,3,8,1,8
-linkman,org.bremersee.linkman.model,LinkSpec,168,421,45,41,2,57,34,45,1,35
+linkman,org.bremersee.linkman.model,LinkSpec,169,420,46,40,2,57,35,44,1,35
 linkman,org.bremersee.linkman.model,RoleRepresentation,122,16,22,0,5,6,20,3,9,3
 linkman,org.bremersee.linkman.model,GroupRepresentation,122,16,22,0,5,6,20,3,9,3
 linkman,org.bremersee.linkman.model,LinkSpec.LinkSpecBuilder,20,70,0,0,0,1,1,11,1,11
 linkman,org.bremersee.linkman.model,SelectOption.SelectOptionBuilder,27,0,0,0,1,0,5,0,5,0
 linkman,org.bremersee.linkman.model,CategorySpec.CategorySpecBuilder,12,42,0,0,0,1,1,7,1,7
-linkman,org.bremersee.linkman.model,CategorySpec,90,261,21,25,1,36,17,33,1,26
+linkman,org.bremersee.linkman.model,CategorySpec,91,260,22,24,1,36,18,32,1,26
 linkman,org.bremersee.linkman.model,RoleRepresentation.RoleRepresentationBuilder,11,16,0,0,0,1,2,3,2,3
 linkman,org.bremersee.linkman.model,Translation,21,130,7,7,0,25,7,16,1,15
 linkman,org.bremersee.linkman.model,SelectOption,112,26,22,0,3,8,17,6,6,6
