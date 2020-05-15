@@ -1,6 +1,6 @@
 # Linkman
 
-[![codecov](https://codecov.io/gh/bremersee/linkman/branch/develop/graph/badge.svg)](https://codecov.io/gh/bremersee/linkman)
+[![codecov](https://codecov.io/gh/bremersee/linkman/branch/master/graph/badge.svg)](https://codecov.io/gh/bremersee/linkman)
 
 A link management service.
 
