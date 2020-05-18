@@ -41,6 +41,8 @@ bremersee:
         access-mode: permit_all
       - ant-pattern: "/api/**"
         roles: *adminRoles
+  redis:
+    embedded: true
 
 eureka:
   client:
