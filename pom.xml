@@ -25,7 +25,7 @@
 
     <start-class>org.bremersee.linkman.Application</start-class>
 
-    <groupman-api-spring-reactive.version>2.0.1</groupman-api-spring-reactive.version>
+    <groupman-api-spring-reactive.version>2.0.2</groupman-api-spring-reactive.version>
     <common-model.version>2.0.1</common-model.version>
     <common-base.version>2.1.4</common-base.version>
     <comparator.version>2.1.1</comparator.version>
@@ -129,7 +129,6 @@
     <dependency>
       <groupId>org.modelmapper</groupId>
       <artifactId>modelmapper</artifactId>
-      <version>${modelmapper.version}</version>
     </dependency>
 
     <!-- Config client -->
@@ -179,7 +178,6 @@
     <dependency>
       <groupId>it.ozimov</groupId>
       <artifactId>embedded-redis</artifactId>
-      <version>0.7.2</version>
     </dependency>
 
     <!-- OpenAPI -->
