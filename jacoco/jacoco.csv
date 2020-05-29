@@ -27,7 +27,7 @@ linkman,org.bremersee.linkman.model,MenuEntry.MenuEntryBuilder,8,28,0,0,0,1,1,5,
 linkman,org.bremersee.linkman.model,MenuEntry,55,116,12,14,0,13,10,17,1,13
 linkman,org.bremersee.linkman.config,GroupmanClientConfiguration,88,26,10,2,25,7,8,3,2,3
 linkman,org.bremersee.linkman.config,AclConfiguration,0,5,0,0,0,2,0,2,0,2
-linkman,org.bremersee.linkman.config,KeycloakClientConfiguration,36,32,2,2,12,9,2,3,0,3
+linkman,org.bremersee.linkman.config,KeycloakClientConfiguration,40,32,2,2,14,9,2,3,0,3
 linkman,org.bremersee.linkman.config,PersistenceConfiguration,0,9,0,0,0,2,0,2,0,2
 linkman,org.bremersee.linkman.config,LinkmanProperties.Category,102,18,22,0,2,4,16,4,5,4
 linkman,org.bremersee.linkman.config,LinkmanProperties,279,190,62,0,2,37,39,11,8,11
