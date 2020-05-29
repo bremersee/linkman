@@ -340,7 +340,7 @@ class MenuControllerTest {
       preferredUsername = "leopold",
       roles = {USER_ROLE_NAME})
   @Test
-  void getLinksFoLeopold() {
+  void getLinksForLeopold() {
     when(groupService.getMembershipIds()).thenReturn(Mono.just(Collections.emptySet()));
 
     webTestClient

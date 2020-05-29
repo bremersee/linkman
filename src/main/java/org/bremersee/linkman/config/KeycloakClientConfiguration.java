@@ -22,10 +22,12 @@ import org.bremersee.linkman.service.KeycloakClientApi;
 import org.bremersee.linkman.service.KeycloakClientMock;
 import org.bremersee.security.authentication.AuthProperties;
 import org.bremersee.security.authentication.ReactiveAccessTokenProviders;
+import org.bremersee.security.authentication.WebClientAccessTokenRetriever;
 import org.bremersee.web.reactive.function.client.AccessTokenAppender;
 import org.bremersee.web.reactive.function.client.DefaultWebClientErrorDecoder;
 import org.bremersee.web.reactive.function.client.proxy.InvocationFunctions;
 import org.bremersee.web.reactive.function.client.proxy.WebClientProxyBuilder;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -61,10 +63,13 @@ public class KeycloakClientConfiguration {
    * Creates keycloak client api bean.
    *
    * @param parser the rest api exception parser
+   * @param tokenRetriever the token retriever
    * @return the keycloak client api
    */
   @Bean
-  public KeycloakClientApi keycloakClientApi(RestApiExceptionParser parser) {
+  public KeycloakClientApi keycloakClientApi(
+      RestApiExceptionParser parser,
+      ObjectProvider<WebClientAccessTokenRetriever> tokenRetriever) {
 
     final String baseUri = linkmanProperties.getKeycloakBaseUri();
     if (!StringUtils.hasText(baseUri) || "false".equalsIgnoreCase(baseUri.trim())) {
@@ -75,7 +80,9 @@ public class KeycloakClientConfiguration {
     final WebClient webClient = WebClient.builder()
         .baseUrl(linkmanProperties.getKeycloakBaseUri())
         .filter(new AccessTokenAppender(ReactiveAccessTokenProviders
-            .withAccessTokenRetriever(AuthProperties.getClientCredentialsFlow())))
+            .withAccessTokenRetriever(
+                tokenRetriever.getIfAvailable(WebClientAccessTokenRetriever::new),
+                AuthProperties.getClientCredentialsFlow())))
         .build();
     return WebClientProxyBuilder.defaultBuilder()
         .webClient(webClient)
