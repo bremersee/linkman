@@ -95,6 +95,10 @@ public class LinkSpec {
   @JsonProperty("descriptionTranslations")
   private Set<Translation> descriptionTranslations = new LinkedHashSet<>();
 
+  // private String cardImageUrl;
+
+  // private String menuImageUrl;
+
   /**
    * Instantiates a new link specification.
    *

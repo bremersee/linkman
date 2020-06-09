@@ -62,6 +62,8 @@ public interface LinkService {
    */
   Mono<LinkSpec> updateLink(String id, LinkSpec link);
 
+  Mono<LinkSpec> updateLinkImages(String id, FilePart cardImage, FilePart menuImage);
+
   //Mono<LinkSpec> saveCardImage(String id, FilePart cardImage, FilePart menuImage);
 
   //Mono<LinkSpec> saveMenuImage(String id, FilePart menuImage);

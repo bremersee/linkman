@@ -16,8 +16,6 @@
 
 package org.bremersee.linkman.service;
 
-import java.io.IOException;
-import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.data.minio.MinioOperations;
 import org.bremersee.exception.ServiceException;
@@ -28,6 +26,7 @@ import org.bremersee.linkman.repository.LinkEntity;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
@@ -119,8 +118,7 @@ public class LinkServiceImpl implements LinkService {
         .map(entity -> modelMapper.map(entity, LinkSpec.class));
   }
 
-  public Mono<LinkSpec> saveCardImage(String id, FilePart cardImage, FilePart menuImage) {
-    // TODO
+  public Mono<LinkSpec> updateLinkImages(String id, FilePart cardImage, FilePart menuImage) {
     log.info("Saving card image {} and menu image {}", cardImage.filename(), menuImage.filename());
     return linkRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Link", id)))
@@ -128,8 +126,9 @@ public class LinkServiceImpl implements LinkService {
           if (minioOperations == null) {
             return Mono.just(entity);
           }
-          return DataBufferUtils.join(cardImage.content())
-              .map(dataBuffer -> dataBuffer.asInputStream())
+          return Mono.justOrEmpty(cardImage)
+              .flatMap(ci -> DataBufferUtils.join(ci.content()))
+              .map(DataBuffer::asInputStream)
               .map(inputStream -> {
                 String name = entity.getId() + "_card_" + cardImage.filename();
                 if (StringUtils.hasText(entity.getCardImage())
@@ -141,8 +140,9 @@ public class LinkServiceImpl implements LinkService {
                 entity.setCardImage(name);
                 return entity;
               })
-              .then(DataBufferUtils.join(menuImage.content()))
-              .map(dataBuffer -> dataBuffer.asInputStream())
+              .then(Mono.justOrEmpty(menuImage))
+              .flatMap(mi -> DataBufferUtils.join(mi.content()))
+              .map(DataBuffer::asInputStream)
               .map(inputStream -> {
                 String name = entity.getId() + "_menu_" + menuImage.filename();
                 if (StringUtils.hasText(entity.getMenuImage())
@@ -153,34 +153,10 @@ public class LinkServiceImpl implements LinkService {
                     .putObject(properties.getBucketName(), name, inputStream, null);
                 entity.setMenuImage(name);
                 return entity;
-              });
+              })
+              .then(linkRepository.save(entity));
         })
-        .flatMap(entity -> linkRepository.save(entity))
-        /*
-        .zipWith(DataBufferUtils.join(cardImage.content()))
-        .flatMap(tuple -> {
-          LinkEntity entity = tuple.getT1();
-          try (InputStream in = tuple.getT2().asInputStream()) {
-            if (minioOperations != null) {
-              String name = entity.getId() + "_card_" + cardImage.filename();
-              if (StringUtils.hasText(entity.getCardImage())
-                  && !name.equals(entity.getCardImage())) {
-                minioOperations.removeObject(properties.getBucketName(), entity.getCardImage());
-              }
-              minioOperations
-                  .putObject(properties.getBucketName(), entity.getCardImage(), in, null);
-              entity.setCardImage(name);
-            }
-
-          } catch (IOException e) {
-            ServiceException se = ServiceException
-                .internalServerError("Reading image " + cardImage.filename() + " failed.", e);
-            log.error("Saving card image failed.", se);
-            return Mono.error(se);
-          }
-          return linkRepository.save(entity);
-        })
-        */
+//        .flatMap(linkRepository::save)
         .map(entity -> modelMapper.map(entity, LinkSpec.class));
   }
 

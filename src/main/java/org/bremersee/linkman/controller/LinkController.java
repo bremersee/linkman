@@ -217,16 +217,23 @@ public class LinkController {
   @PostMapping(path = "/api/links/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public Mono<LinkSpec> updateLinkImages(
       @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
-      @RequestPart(name = "cardImage", required = false) Flux<FilePart> cardImage,
-      @RequestPart(name = "menuImage", required = false) Flux<FilePart> menuImage) {
+      // @RequestPart(name = "cardImage", required = false) Flux<FilePart> cardImage,
+      // @RequestPart(name = "menuImage", required = false) Flux<FilePart> menuImage,
+      ServerRequest request) {
 
     // TODO
-    log.info("Updating link images (link id = {}, card image present? {}, menu image present? {}",
-        id, cardImage != null, menuImage != null);
+    log.info("Updating link images (link id = {}", id);
 
-    return cardImage.flatMap(it -> it.transferTo(Paths.get("/opt/log/" + it.filename())))
-        .then(menuImage.flatMap(it -> it.transferTo(Paths.get("/opt/log/" + it.filename())))
-            .then(getLink(id)));
+    return request.multipartData()
+        .flatMap(multiPartData -> linkService
+            .updateLinkImages(
+                id,
+                (FilePart) multiPartData.getFirst("cardImage"),
+                (FilePart) multiPartData.getFirst("menuImage")));
+
+//    return cardImage.flatMap(it -> it.transferTo(Paths.get("/opt/log/" + it.filename())))
+//        .then(menuImage.flatMap(it -> it.transferTo(Paths.get("/opt/log/" + it.filename())))
+//            .then(getLink(id)));
   }
 
   /**
