@@ -25,9 +25,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
 import org.springframework.http.MediaType;
@@ -218,13 +220,11 @@ public class LinkController {
   @PostMapping(path = "/api/links/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public Mono<LinkSpec> updateLinkImages(
       @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
-      // @RequestPart(name = "cardImage", required = false) Flux<FilePart> cardImage,
-      // @RequestPart(name = "menuImage", required = false) Flux<FilePart> menuImage,
+      @RequestPart(name = "cardImage", required = false) Flux<FilePart> cardImage,
+      @RequestPart(name = "menuImage", required = false) Flux<FilePart> menuImage,
       ServerWebExchange webExchange) {
 
-    // TODO
     log.info("Updating link images (link id = {}", id);
-
     return webExchange.getMultipartData()
         .flatMap(multiPartData -> linkService
             .updateLinkImages(

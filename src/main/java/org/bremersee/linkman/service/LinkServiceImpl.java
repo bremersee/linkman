@@ -16,7 +16,13 @@
 
 package org.bremersee.linkman.service;
 
+import io.minio.PutObjectOptions;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.bremersee.data.minio.MinioOperations;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.config.LinkmanProperties;
@@ -126,37 +132,36 @@ public class LinkServiceImpl implements LinkService {
           if (minioOperations == null) {
             return Mono.just(entity);
           }
-          return Mono.justOrEmpty(cardImage)
-              .flatMap(ci -> DataBufferUtils.join(ci.content()))
-              .map(DataBuffer::asInputStream)
-              .map(inputStream -> {
-                String name = entity.getId() + "_card_" + cardImage.filename();
-                if (StringUtils.hasText(entity.getCardImage())
-                    && !name.equals(entity.getCardImage())) {
-                  minioOperations.removeObject(properties.getBucketName(), entity.getCardImage());
-                }
-                minioOperations
-                    .putObject(properties.getBucketName(), name, inputStream, null);
-                entity.setCardImage(name);
-                return entity;
-              })
-              .then(Mono.justOrEmpty(menuImage))
-              .flatMap(mi -> DataBufferUtils.join(mi.content()))
-              .map(DataBuffer::asInputStream)
-              .map(inputStream -> {
-                String name = entity.getId() + "_menu_" + menuImage.filename();
-                if (StringUtils.hasText(entity.getMenuImage())
-                    && !name.equals(entity.getMenuImage())) {
-                  minioOperations.removeObject(properties.getBucketName(), entity.getMenuImage());
-                }
-                minioOperations
-                    .putObject(properties.getBucketName(), name, inputStream, null);
-                entity.setMenuImage(name);
-                return entity;
-              })
-              .then(linkRepository.save(entity));
+          if (cardImage != null) {
+            log.info("Card image content length = {}", cardImage.headers().getContentLength());
+            log.info("Card image content type = {}", cardImage.headers().getContentType());
+            String name = entity.getId() + "_card_" + cardImage.filename();
+            if (StringUtils.hasText(entity.getCardImage())
+                && !name.equals(entity.getCardImage())) {
+              minioOperations.removeObject(properties.getBucketName(), entity.getCardImage());
+            }
+            Path path = Paths.get(System.getProperty("java.io.tmpdir"), name);
+            cardImage.transferTo(path);
+            // minioOperations.putObject(properties.getBucketName(), name, null, null);
+            path.toFile().delete();
+            entity.setCardImage(name);
+          }
+          if (menuImage != null) {
+            log.info("Card image content length = {}", menuImage.headers().getContentLength());
+            log.info("Card image content type = {}", menuImage.headers().getContentType());
+            String name = entity.getId() + "_menu_" + menuImage.filename();
+            if (StringUtils.hasText(entity.getMenuImage())
+                && !name.equals(entity.getMenuImage())) {
+              minioOperations.removeObject(properties.getBucketName(), entity.getMenuImage());
+            }
+            Path path = Paths.get(System.getProperty("java.io.tmpdir"), name);
+            menuImage.transferTo(path);
+            // minioOperations.putObject(properties.getBucketName(), name, null, null);
+            path.toFile().delete();
+            entity.setMenuImage(name);
+          }
+          return linkRepository.save(entity);
         })
-//        .flatMap(linkRepository::save)
         .map(entity -> modelMapper.map(entity, LinkSpec.class));
   }
 
