@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.File;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.linkman.model.LinkSpec;
@@ -222,7 +223,9 @@ public class LinkController {
     log.info("Updating link images (link id = {}, card image present? {}, menu image present? {}",
         id, cardImage != null, menuImage != null);
 
-    return getLink(id);
+    return cardImage.last().flatMap(filePart -> filePart.transferTo(new File("/opt/log/card.data")))
+        .then(menuImage.last().flatMap(filePart -> filePart.transferTo(new File("/opt/log/menu.data"))))
+        .then(getLink(id));
   }
 
   /**
