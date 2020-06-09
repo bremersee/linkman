@@ -21,13 +21,14 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.validation.constraints.NotEmpty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The linkman properties.
@@ -35,12 +36,15 @@ import org.springframework.stereotype.Component;
  * @author Christian Bremer
  */
 @ConfigurationProperties(prefix = "bremersee.linkman")
-@Component
+@Validated
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
 public class LinkmanProperties {
+
+  @NotEmpty
+  private String bucketName = "linkman";
 
   private String groupmanBaseUri;
 

@@ -17,6 +17,7 @@
 package org.bremersee.linkman.service;
 
 import org.bremersee.linkman.model.LinkSpec;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -60,6 +61,10 @@ public interface LinkService {
    * @return the updated link
    */
   Mono<LinkSpec> updateLink(String id, LinkSpec link);
+
+  //Mono<LinkSpec> saveCardImage(String id, FilePart cardImage, FilePart menuImage);
+
+  //Mono<LinkSpec> saveMenuImage(String id, FilePart menuImage);
 
   /**
    * Delete link.

@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.bremersee</groupId>
     <artifactId>common-service-parent</artifactId>
-    <version>2.0.3</version>
+    <version>2.0.4-SNAPSHOT</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -27,7 +27,7 @@
 
     <groupman-api-spring-reactive.version>2.0.2</groupman-api-spring-reactive.version>
     <common-model.version>2.0.1</common-model.version>
-    <common-base.version>2.1.4</common-base.version>
+    <common-base.version>2.1.5-SNAPSHOT</common-base.version>
     <comparator.version>2.1.1</comparator.version>
   </properties>
 
@@ -109,6 +109,11 @@
     <dependency>
       <groupId>org.bremersee</groupId>
       <artifactId>common-base-security-starter</artifactId>
+      <version>${common-base.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>common-base-minio-starter</artifactId>
       <version>${common-base.version}</version>
     </dependency>
     <dependency>

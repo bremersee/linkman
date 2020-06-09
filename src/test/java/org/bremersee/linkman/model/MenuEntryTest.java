@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import org.bremersee.common.model.Link;
 import org.junit.jupiter.api.Test;
 
 /**

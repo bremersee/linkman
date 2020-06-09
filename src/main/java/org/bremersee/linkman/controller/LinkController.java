@@ -25,9 +25,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,9 +38,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.BodyExtractors;
+import org.springframework.web.reactive.function.server.ServerRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 /**
  * The link controller.
@@ -48,6 +55,7 @@ import reactor.core.publisher.Mono;
 @Tag(name = "link-controller", description = "The link API.")
 @RestController
 @Validated
+@Slf4j
 public class LinkController {
 
   private final LinkService linkService;
@@ -202,6 +210,19 @@ public class LinkController {
           LinkSpec link) {
 
     return linkService.updateLink(id, link);
+  }
+
+  @PostMapping(path = "/api/links/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public Mono<LinkSpec> updateLinkImages(
+      @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
+      @RequestPart(name = "cardImage", required = false) Flux<FilePart> cardImage,
+      @RequestPart(name = "menuImage", required = false) Flux<FilePart> menuImage) {
+
+    // TODO
+    log.info("Updating link images (link id = {}, card image present? {}, menu image present? {}",
+        id, cardImage != null, menuImage != null);
+
+    return getLink(id);
   }
 
   /**

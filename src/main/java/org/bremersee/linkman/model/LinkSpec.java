@@ -35,6 +35,8 @@ import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.springframework.validation.annotation.Validated;
 
 /**
+ * The link specification.
+ *
  * @author Christian Bremer
  */
 @Schema(description = "The specification of a link.")
@@ -129,6 +131,11 @@ public class LinkSpec {
     setDescriptionTranslations(descriptionTranslations);
   }
 
+  /**
+   * Sets category ids.
+   *
+   * @param categoryIds the category ids
+   */
   public void setCategoryIds(Set<String> categoryIds) {
     this.categoryIds.clear();
     if (categoryIds != null) {

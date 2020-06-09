@@ -75,6 +75,10 @@ public class LinkEntity implements Comparable<LinkEntity> {
 
   private Set<Translation> descriptionTranslations = new LinkedHashSet<>();
 
+  private String cardImage;
+
+  private String menuImage;
+
   /**
    * Gets text.
    *

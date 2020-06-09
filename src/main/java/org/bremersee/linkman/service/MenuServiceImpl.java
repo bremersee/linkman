@@ -16,13 +16,20 @@
 
 package org.bremersee.linkman.service;
 
+import io.minio.http.Method;
+import java.time.Duration;
 import java.util.Locale;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.bremersee.common.model.Link;
+import org.bremersee.data.minio.MinioOperations;
+import org.bremersee.data.minio.PresignedUrlProvider;
+import org.bremersee.linkman.config.LinkmanProperties;
+import org.bremersee.linkman.model.Link;
 import org.bremersee.linkman.model.MenuEntry;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.bremersee.security.core.UserContext;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.util.function.Tuples;
@@ -39,16 +46,30 @@ public class MenuServiceImpl implements MenuService {
 
   private final LinkRepository linkRepository;
 
+  private final Function<String, String> presignedUrlProvider;
+
   /**
    * Instantiates a new menu service.
    *
+   * @param properties the properties
    * @param categoryRepository the category repository
    * @param linkRepository the link repository
+   * @param minioOperationsProvider the minio operations provider
    */
-  public MenuServiceImpl(CategoryRepository categoryRepository,
-      LinkRepository linkRepository) {
+  public MenuServiceImpl(
+      LinkmanProperties properties,
+      CategoryRepository categoryRepository,
+      LinkRepository linkRepository,
+      ObjectProvider<MinioOperations> minioOperationsProvider) {
+
     this.categoryRepository = categoryRepository;
     this.linkRepository = linkRepository;
+    this.presignedUrlProvider = PresignedUrlProvider.newInstance(
+        minioOperationsProvider.getIfAvailable(),
+        Method.GET,
+        properties.getBucketName(),
+        Duration.ofDays(1L),
+        null);
   }
 
   @Override
@@ -75,9 +96,13 @@ public class MenuServiceImpl implements MenuService {
                     .blank(linkEntity.getBlank())
                     .text(linkEntity.getText(language))
                     .description(linkEntity.getDescription(language))
+                    .cardImageUrl(presignedUrlProvider.apply(linkEntity.getCardImage()))
+                    .menuImageUrl(presignedUrlProvider.apply(linkEntity.getMenuImage()))
                     .build())
                 .collect(Collectors.toList()))
             .build())
         .filter(menuEntry -> menuEntry.getLinks() != null && !menuEntry.getLinks().isEmpty());
   }
+
+
 }
