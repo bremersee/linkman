@@ -24,12 +24,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
 import org.springframework.http.MediaType;
@@ -42,15 +38,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.BodyExtractors;
-import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
-import reactor.util.function.Tuples;
 
 /**
  * The link controller.
@@ -217,11 +208,16 @@ public class LinkController {
     return linkService.updateLink(id, link);
   }
 
+  /**
+   * Update link images mono.
+   *
+   * @param id the id
+   * @param webExchange the web exchange
+   * @return the mono
+   */
   @PostMapping(path = "/api/links/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public Mono<LinkSpec> updateLinkImages(
       @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
-      @RequestPart(name = "cardImage", required = false) Flux<FilePart> cardImage,
-      @RequestPart(name = "menuImage", required = false) Flux<FilePart> menuImage,
       ServerWebExchange webExchange) {
 
     log.info("Updating link images (link id = {}", id);
@@ -231,10 +227,6 @@ public class LinkController {
                 id,
                 (FilePart) multiPartData.getFirst("cardImage"),
                 (FilePart) multiPartData.getFirst("menuImage")));
-
-//    return cardImage.flatMap(it -> it.transferTo(Paths.get("/opt/log/" + it.filename())))
-//        .then(menuImage.flatMap(it -> it.transferTo(Paths.get("/opt/log/" + it.filename())))
-//            .then(getLink(id)));
   }
 
   /**

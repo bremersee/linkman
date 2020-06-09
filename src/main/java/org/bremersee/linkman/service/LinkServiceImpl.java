@@ -17,12 +17,9 @@
 package org.bremersee.linkman.service;
 
 import io.minio.PutObjectOptions;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.bremersee.data.minio.MinioOperations;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.config.LinkmanProperties;
@@ -32,10 +29,9 @@ import org.bremersee.linkman.repository.LinkEntity;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -129,40 +125,36 @@ public class LinkServiceImpl implements LinkService {
     return linkRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Link", id)))
         .flatMap(entity -> {
-          if (minioOperations == null) {
-            return Mono.just(entity);
-          }
-          if (cardImage != null) {
-            log.info("Card image content length = {}", cardImage.headers().getContentLength());
-            log.info("Card image content type = {}", cardImage.headers().getContentType());
-            String name = entity.getId() + "_card_" + cardImage.filename();
-            if (StringUtils.hasText(entity.getCardImage())
-                && !name.equals(entity.getCardImage())) {
-              minioOperations.removeObject(properties.getBucketName(), entity.getCardImage());
+          if (minioOperations != null) {
+            if (cardImage != null) {
+              String name = entity.getId() + "_card_image"; // + cardImage.filename();
+              uploadImage(cardImage, name);
+              entity.setCardImage(name);
             }
-            Path path = Paths.get(System.getProperty("java.io.tmpdir"), name);
-            cardImage.transferTo(path);
-            // minioOperations.putObject(properties.getBucketName(), name, null, null);
-            path.toFile().delete();
-            entity.setCardImage(name);
-          }
-          if (menuImage != null) {
-            log.info("Card image content length = {}", menuImage.headers().getContentLength());
-            log.info("Card image content type = {}", menuImage.headers().getContentType());
-            String name = entity.getId() + "_menu_" + menuImage.filename();
-            if (StringUtils.hasText(entity.getMenuImage())
-                && !name.equals(entity.getMenuImage())) {
-              minioOperations.removeObject(properties.getBucketName(), entity.getMenuImage());
+            if (menuImage != null) {
+              String name = entity.getId() + "_menu_image"; // + menuImage.filename();
+              uploadImage(menuImage, name);
+              entity.setMenuImage(name);
             }
-            Path path = Paths.get(System.getProperty("java.io.tmpdir"), name);
-            menuImage.transferTo(path);
-            // minioOperations.putObject(properties.getBucketName(), name, null, null);
-            path.toFile().delete();
-            entity.setMenuImage(name);
           }
           return linkRepository.save(entity);
         })
-        .map(entity -> modelMapper.map(entity, LinkSpec.class));
+        .map(entity -> modelMapper.map(entity, LinkSpec.class)); // TODO map presigned url
+  }
+
+  private void uploadImage(FilePart file, String name) {
+
+    Path path = Paths.get(System.getProperty("java.io.tmpdir"), name);
+    file.transferTo(path);
+    PutObjectOptions options = new PutObjectOptions(path.toFile().length(), -1);
+    MediaType contentType = file.headers().getContentType();
+    if (contentType != null) {
+      options.setContentType(contentType.toString());
+    }
+    minioOperations.putObject(properties.getBucketName(), name, path, options);
+    if (!path.toFile().delete()) {
+      log.warn("Uploaded tmp file [{}] was not deleted.", path);
+    }
   }
 
   @Override
