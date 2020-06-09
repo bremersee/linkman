@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -219,12 +220,12 @@ public class LinkController {
       @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
       // @RequestPart(name = "cardImage", required = false) Flux<FilePart> cardImage,
       // @RequestPart(name = "menuImage", required = false) Flux<FilePart> menuImage,
-      ServerRequest request) {
+      ServerWebExchange webExchange) {
 
     // TODO
     log.info("Updating link images (link id = {}", id);
 
-    return request.multipartData()
+    return webExchange.getMultipartData()
         .flatMap(multiPartData -> linkService
             .updateLinkImages(
                 id,
