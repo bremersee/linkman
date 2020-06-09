@@ -118,8 +118,8 @@ public class LinkServiceImpl implements LinkService {
         .map(entity -> modelMapper.map(entity, LinkSpec.class));
   }
 
+  @Override
   public Mono<LinkSpec> updateLinkImages(String id, FilePart cardImage, FilePart menuImage) {
-    log.info("Saving card image {} and menu image {}", cardImage.filename(), menuImage.filename());
     return linkRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Link", id)))
         .flatMap(entity -> {
