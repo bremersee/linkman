@@ -17,6 +17,9 @@
 package org.bremersee.linkman.service;
 
 import io.minio.PutObjectOptions;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import lombok.extern.slf4j.Slf4j;
@@ -126,15 +129,13 @@ public class LinkServiceImpl implements LinkService {
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Link", id)))
         .flatMap(entity -> {
           if (minioOperations != null) {
-            if (cardImage != null) {
-              String name = entity.getId() + "_card_image"; // + cardImage.filename();
-              uploadImage(cardImage, name);
-              entity.setCardImage(name);
+            String cardImageName = entity.getId() + "_card_image";
+            if (cardImage != null && uploadImage(cardImage, cardImageName)) {
+              entity.setCardImage(cardImageName);
             }
-            if (menuImage != null) {
-              String name = entity.getId() + "_menu_image"; // + menuImage.filename();
-              uploadImage(menuImage, name);
-              entity.setMenuImage(name);
+            String menuImageName = entity.getId() + "_menu_image";
+            if (menuImage != null && uploadImage(menuImage, menuImageName)) {
+              entity.setMenuImage(menuImageName);
             }
           }
           return linkRepository.save(entity);
@@ -142,18 +143,34 @@ public class LinkServiceImpl implements LinkService {
         .map(entity -> modelMapper.map(entity, LinkSpec.class)); // TODO map presigned url
   }
 
-  private void uploadImage(FilePart file, String name) {
+  private boolean uploadImage(FilePart file, String name) {
 
-    Path path = Paths.get(System.getProperty("java.io.tmpdir"), name);
-    file.transferTo(path);
-    PutObjectOptions options = new PutObjectOptions(path.toFile().length(), -1);
-    MediaType contentType = file.headers().getContentType();
-    if (contentType != null) {
-      options.setContentType(contentType.toString());
-    }
-    minioOperations.putObject(properties.getBucketName(), name, path, options);
-    if (!path.toFile().delete()) {
-      log.warn("Uploaded tmp file [{}] was not deleted.", path);
+    Path path = null;
+    try {
+      path = Files
+          .createTempFile(Paths.get(System.getProperty("java.io.tmpdir")), "linkman", "image");
+      file.transferTo(path);
+      long length = path.toFile().length();
+      if (length > 0) {
+        PutObjectOptions options = new PutObjectOptions(length, -1);
+        MediaType contentType = file.headers().getContentType();
+        if (contentType != null) {
+          options.setContentType(contentType.toString());
+        }
+        minioOperations.putObject(properties.getBucketName(), name, path, options);
+      }
+      return length > 0;
+
+    } catch (IOException e) {
+      throw ServiceException.internalServerError("Creating tmp file of uploaded image failed.", e);
+
+    } finally {
+      if (path != null) {
+        File f = path.toFile();
+        if (f.exists() && !path.toFile().delete()) {
+          log.warn("Uploaded tmp file [{}] was not deleted.", path);
+        }
+      }
     }
   }
 
