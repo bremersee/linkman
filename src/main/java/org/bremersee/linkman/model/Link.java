@@ -19,6 +19,7 @@ package org.bremersee.linkman.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -42,24 +43,38 @@ import org.springframework.validation.annotation.Validated;
 @NoArgsConstructor
 public class Link {
 
+  @Schema(description = "Unique identifier of the link.", accessMode = AccessMode.READ_ONLY)
   @JsonProperty("id")
   private String id;
 
+  @Schema(description = "The linked resource.", required = true, example = "http://example.org")
   @JsonProperty(value = "href", required = true)
   private String href;
 
+  @Schema(
+      description = "Specified whether to open the link in a blank target (default is false).",
+      defaultValue = "false")
   @JsonProperty("blank")
   private Boolean blank = Boolean.FALSE;
 
+  @Schema(
+      description = "The text that is displayed instead of the link.",
+      required = true,
+      example = "The example page")
   @JsonProperty("text")
   private String text;
 
+  @Schema(
+      description = "The description of the link.",
+      example = "On the example page you can view some examples.")
   @JsonProperty("description")
   private String description;
 
+  @Schema(description = "The image URL of the card.")
   @JsonProperty("cardImageUrl")
   private String cardImageUrl;
 
+  @Schema(description = "The image URL of the menu entry.")
   @JsonProperty("menuImageUrl")
   private String menuImageUrl;
 

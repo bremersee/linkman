@@ -95,9 +95,13 @@ public class LinkSpec {
   @JsonProperty("descriptionTranslations")
   private Set<Translation> descriptionTranslations = new LinkedHashSet<>();
 
-  // private String cardImageUrl;
+  @Schema(description = "The image URL of the card.")
+  @JsonProperty("cardImageUrl")
+  private String cardImageUrl;
 
-  // private String menuImageUrl;
+  @Schema(description = "The image URL of the menu entry.")
+  @JsonProperty("menuImageUrl")
+  private String menuImageUrl;
 
   /**
    * Instantiates a new link specification.
@@ -111,6 +115,8 @@ public class LinkSpec {
    * @param textTranslations the text translations
    * @param description the description
    * @param descriptionTranslations the description translations
+   * @param cardImageUrl the card image url
+   * @param menuImageUrl the menu image url
    */
   @Builder(toBuilder = true)
   @SuppressWarnings("unused")
@@ -123,7 +129,9 @@ public class LinkSpec {
       String text,
       Set<Translation> textTranslations,
       String description,
-      Set<Translation> descriptionTranslations) {
+      Set<Translation> descriptionTranslations,
+      String cardImageUrl,
+      String menuImageUrl) {
     this.id = id;
     setCategoryIds(categoryIds);
     this.order = order;
@@ -133,6 +141,8 @@ public class LinkSpec {
     setTextTranslations(textTranslations);
     this.description = description;
     setDescriptionTranslations(descriptionTranslations);
+    this.cardImageUrl = cardImageUrl;
+    this.menuImageUrl = menuImageUrl;
   }
 
   /**

@@ -28,6 +28,7 @@ import org.bremersee.web.reactive.function.client.DefaultWebClientErrorDecoder;
 import org.bremersee.web.reactive.function.client.proxy.InvocationFunctions;
 import org.bremersee.web.reactive.function.client.proxy.WebClientProxyBuilder;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +41,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Christian Bremer
  */
 @Configuration
+@ConditionalOnWebApplication
 @EnableConfigurationProperties(LinkmanProperties.class)
 @Slf4j
 public class KeycloakClientConfiguration {

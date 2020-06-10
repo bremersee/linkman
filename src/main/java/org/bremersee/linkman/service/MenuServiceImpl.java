@@ -16,20 +16,15 @@
 
 package org.bremersee.linkman.service;
 
-import io.minio.http.Method;
-import java.time.Duration;
 import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.bremersee.data.minio.MinioOperations;
 import org.bremersee.data.minio.PresignedUrlProvider;
-import org.bremersee.linkman.config.LinkmanProperties;
 import org.bremersee.linkman.model.Link;
 import org.bremersee.linkman.model.MenuEntry;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.bremersee.security.core.UserContext;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.util.function.Tuples;
@@ -51,25 +46,18 @@ public class MenuServiceImpl implements MenuService {
   /**
    * Instantiates a new menu service.
    *
-   * @param properties the properties
    * @param categoryRepository the category repository
    * @param linkRepository the link repository
-   * @param minioOperationsProvider the minio operations provider
+   * @param presignedUrlProvider the presigned url provider
    */
   public MenuServiceImpl(
-      LinkmanProperties properties,
       CategoryRepository categoryRepository,
       LinkRepository linkRepository,
-      ObjectProvider<MinioOperations> minioOperationsProvider) {
+      PresignedUrlProvider presignedUrlProvider) {
 
     this.categoryRepository = categoryRepository;
     this.linkRepository = linkRepository;
-    this.presignedUrlProvider = PresignedUrlProvider.newInstance(
-        minioOperationsProvider.getIfAvailable(),
-        Method.GET,
-        properties.getBucketName(),
-        Duration.ofDays(1L),
-        null);
+    this.presignedUrlProvider = presignedUrlProvider;
   }
 
   @Override
@@ -103,6 +91,5 @@ public class MenuServiceImpl implements MenuService {
             .build())
         .filter(menuEntry -> menuEntry.getLinks() != null && !menuEntry.getLinks().isEmpty());
   }
-
 
 }

@@ -117,9 +117,14 @@ public class LinkServiceImpl implements LinkService {
             .map(categoryIds -> link.toBuilder()
                 .id(entity.getId())
                 .categoryIds(categoryIds)
-                .build()))
-        .flatMap(model -> linkRepository
-            .save(modelMapper.map(model, LinkEntity.class)))
+                .build())
+            .map(model -> {
+              LinkEntity e;
+              modelMapper.map(model, entity);
+              return entity;
+            })
+        )
+        .flatMap(linkRepository::save)
         .map(entity -> modelMapper.map(entity, LinkSpec.class));
   }
 
@@ -140,7 +145,7 @@ public class LinkServiceImpl implements LinkService {
           }
           return linkRepository.save(entity);
         })
-        .map(entity -> modelMapper.map(entity, LinkSpec.class)); // TODO map presigned url
+        .map(entity -> modelMapper.map(entity, LinkSpec.class));
   }
 
   private boolean uploadImage(FilePart file, String name) {
