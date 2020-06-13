@@ -30,6 +30,9 @@ import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.FormFieldPart;
+import org.springframework.http.codec.multipart.Part;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -222,11 +225,40 @@ public class LinkController {
 
     log.info("Updating link images (link id = {}", id);
     return webExchange.getMultipartData()
-        .flatMap(multiPartData -> linkService
-            .updateLinkImages(
-                id,
-                (FilePart) multiPartData.getFirst("cardImage"),
-                (FilePart) multiPartData.getFirst("menuImage")));
+        .flatMap(multiPartData -> {
+          Part cardImagePart = multiPartData.getFirst("cardImage");
+          MediaType cardContentType = cardImagePart instanceof FilePart
+              ? getMediaType(cardImagePart)
+              : getMediaType(multiPartData.getFirst("cardImageType"));
+          Part menuImagePart = multiPartData.getFirst("menuImage");
+          MediaType menuContentType = menuImagePart instanceof FilePart
+              ? getMediaType(menuImagePart)
+              : getMediaType(multiPartData.getFirst("menuImageType"));
+          return linkService
+              .updateLinkImages(
+                  id,
+                  cardImagePart,
+                  cardContentType,
+                  menuImagePart,
+                  menuContentType);
+        });
+  }
+
+  private MediaType getMediaType(Part part) {
+    MediaType mediaType = null;
+    if (part instanceof FilePart) {
+      mediaType = part.headers().getContentType();
+    } else if (part instanceof FormFieldPart) {
+      String value = ((FormFieldPart) part).value();
+      if (StringUtils.hasText(value)) {
+        try {
+          mediaType = MediaType.parseMediaType(value);
+        } catch (Exception ignored) {
+          // ignored
+        }
+      }
+    }
+    return mediaType;
   }
 
   /**

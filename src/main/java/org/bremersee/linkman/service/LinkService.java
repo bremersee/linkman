@@ -17,7 +17,8 @@
 package org.bremersee.linkman.service;
 
 import org.bremersee.linkman.model.LinkSpec;
-import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -62,11 +63,22 @@ public interface LinkService {
    */
   Mono<LinkSpec> updateLink(String id, LinkSpec link);
 
-  Mono<LinkSpec> updateLinkImages(String id, FilePart cardImage, FilePart menuImage);
-
-  //Mono<LinkSpec> saveCardImage(String id, FilePart cardImage, FilePart menuImage);
-
-  //Mono<LinkSpec> saveMenuImage(String id, FilePart menuImage);
+  /**
+   * Update link images mono.
+   *
+   * @param id the id
+   * @param cardImage the card image
+   * @param cardImageType the card image type
+   * @param menuImage the menu image
+   * @param menuImageType the menu image type
+   * @return the mono
+   */
+  Mono<LinkSpec> updateLinkImages(
+      String id,
+      Part cardImage,
+      MediaType cardImageType,
+      Part menuImage,
+      MediaType menuImageType);
 
   /**
    * Delete link.
