@@ -16,6 +16,8 @@
 
 package org.bremersee.linkman.controller;
 
+import static org.bremersee.data.minio.http.ReactivePutObjectBuilder.getPutObject;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -26,13 +28,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.data.minio.http.MultipartNames;
+import org.bremersee.data.minio.http.ReactivePutObjectBuilder;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
 import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.http.codec.multipart.FormFieldPart;
-import org.springframework.http.codec.multipart.Part;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,13 +59,18 @@ public class LinkController {
 
   private final LinkService linkService;
 
+  private final ReactivePutObjectBuilder putObjectBuilder;
+
   /**
    * Instantiates a new link controller.
    *
    * @param linkService the link service
    */
-  public LinkController(LinkService linkService) {
+  public LinkController(
+      LinkService linkService,
+      ReactivePutObjectBuilder putObjectBuilder) {
     this.linkService = linkService;
+    this.putObjectBuilder = putObjectBuilder;
   }
 
   /**
@@ -225,40 +230,14 @@ public class LinkController {
 
     log.info("Updating link images (link id = {}", id);
     return webExchange.getMultipartData()
-        .flatMap(multiPartData -> {
-          Part cardImagePart = multiPartData.getFirst("cardImage");
-          MediaType cardContentType = cardImagePart instanceof FilePart
-              ? getMediaType(cardImagePart)
-              : getMediaType(multiPartData.getFirst("cardImageType"));
-          Part menuImagePart = multiPartData.getFirst("menuImage");
-          MediaType menuContentType = menuImagePart instanceof FilePart
-              ? getMediaType(menuImagePart)
-              : getMediaType(multiPartData.getFirst("menuImageType"));
-          return linkService
-              .updateLinkImages(
-                  id,
-                  cardImagePart,
-                  cardContentType,
-                  menuImagePart,
-                  menuContentType);
-        });
-  }
-
-  private MediaType getMediaType(Part part) {
-    MediaType mediaType = null;
-    if (part instanceof FilePart) {
-      mediaType = part.headers().getContentType();
-    } else if (part instanceof FormFieldPart) {
-      String value = ((FormFieldPart) part).value();
-      if (StringUtils.hasText(value)) {
-        try {
-          mediaType = MediaType.parseMediaType(value);
-        } catch (Exception ignored) {
-          // ignored
-        }
-      }
-    }
-    return mediaType;
+        .flatMap(multiPartData -> putObjectBuilder.buildList(
+            multiPartData,
+            new MultipartNames("cardImage", "cardImageType", null),
+            new MultipartNames("menuImage", "menuImageType", null)))
+        .flatMap(putObjects -> linkService.updateLinkImages(
+            id,
+            getPutObject(putObjects, 0),
+            getPutObject(putObjects, 1)));
   }
 
   /**

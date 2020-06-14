@@ -16,16 +16,9 @@
 
 package org.bremersee.linkman.service;
 
-import io.minio.PutObjectOptions;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.data.minio.MinioOperations;
+import org.bremersee.data.minio.PutObject;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.config.LinkmanProperties;
 import org.bremersee.linkman.model.LinkSpec;
@@ -36,10 +29,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
-import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.http.codec.multipart.FormFieldPart;
-import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -134,90 +123,48 @@ public class LinkServiceImpl implements LinkService {
   @Override
   public Mono<LinkSpec> updateLinkImages(
       String id,
-      Part cardImage,
-      MediaType cardImageType,
-      Part menuImage,
-      MediaType menuImageType) {
+      PutObject<?> cardImage,
+      PutObject<?> menuImage) {
 
     return linkRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Link", id)))
         .flatMap(entity -> {
-          if (minioOperations != null) {
-            String cardImageName = entity.getId() + "_card_image";
-            if ((cardImage instanceof FilePart
-                && uploadImage((FilePart) cardImage, cardImageType, cardImageName))
-                || (cardImage instanceof FormFieldPart
-                && uploadImage((FormFieldPart) cardImage, cardImageType, cardImageName))) {
-              entity.setCardImage(cardImageName);
-            }
-            String menuImageName = entity.getId() + "_menu_image";
-            if ((menuImage instanceof FilePart
-                && uploadImage((FilePart) menuImage, menuImageType, menuImageName))
-                || (menuImage instanceof FormFieldPart
-                && uploadImage((FormFieldPart) menuImage, menuImageType, menuImageName))) {
-              entity.setMenuImage(menuImageName);
-            }
+          String cardImageName = entity.getId() + "_card_image";
+          if (cardImage.upload(minioOperations, properties.getBucketName(), cardImageName, true)) {
+            entity.setCardImage(cardImageName);
+          }
+          String menuImageName = entity.getId() + "_menu_image";
+          if (menuImage.upload(minioOperations, properties.getBucketName(), menuImageName, true)) {
+            entity.setMenuImage(menuImageName);
           }
           return linkRepository.save(entity);
         })
         .map(entity -> modelMapper.map(entity, LinkSpec.class));
   }
 
-  private boolean uploadImage(
-      FilePart file,
-      MediaType contentType,
-      String name) {
-
-    Path path = null;
-    try {
-      path = Files
-          .createTempFile(Paths.get(System.getProperty("java.io.tmpdir")), "linkman", "image");
-      file.transferTo(path);
-      long length = path.toFile().length();
-      if (length > 0) {
-        PutObjectOptions options = new PutObjectOptions(length, -1);
-        if (contentType != null) {
-          options.setContentType(contentType.toString());
-        }
-        minioOperations.putObject(properties.getBucketName(), name, path, options);
-      }
-      return length > 0;
-
-    } catch (IOException e) {
-      throw ServiceException.internalServerError("Creating tmp file of uploaded image failed.", e);
-
-    } finally {
-      if (path != null) {
-        File f = path.toFile();
-        if (f.exists() && !path.toFile().delete()) {
-          log.warn("Uploaded tmp file [{}] was not deleted.", path);
-        }
-      }
-    }
-  }
-
-  private boolean uploadImage(
-      FormFieldPart imagePart,
-      MediaType contentType,
-      String name) {
-
-    if (imagePart == null || !StringUtils.hasText(imagePart.value())) {
-      return false;
-    }
-    log.debug("Image part is {}", imagePart.value());
-    byte[] imagesBytes = Base64.getDecoder().decode(imagePart.value());
-    PutObjectOptions options = new PutObjectOptions(imagesBytes.length, -1);
-    if (contentType != null) {
-      options.setContentType(contentType.toString());
-    }
-    minioOperations.putObject(
-        properties.getBucketName(), name, new ByteArrayInputStream(imagesBytes), options);
-    return true;
-  }
-
   @Override
   public Mono<Void> deleteLink(String id) {
-    return linkRepository.deleteById(id);
+
+    return linkRepository.findById(id)
+        .flatMap(entity -> {
+          if (minioOperations != null) {
+            if (StringUtils.hasText(entity.getCardImage())) {
+              try {
+                minioOperations.removeObject(properties.getBucketName(), entity.getCardImage());
+              } catch (RuntimeException e) {
+                log.error("Removing card image " + entity.getCardImage() + " failed.");
+              }
+            }
+            if (StringUtils.hasText(entity.getMenuImage())) {
+              try {
+                minioOperations.removeObject(properties.getBucketName(), entity.getMenuImage());
+              } catch (RuntimeException e) {
+                log.error("Removing menu image " + entity.getMenuImage() + " failed.");
+              }
+            }
+          }
+          return linkRepository.delete(entity);
+        });
   }
 
 }

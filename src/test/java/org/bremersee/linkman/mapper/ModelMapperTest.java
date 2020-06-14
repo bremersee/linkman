@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 import java.util.Set;
 import java.util.UUID;
 import org.bremersee.common.model.TwoLetterLanguageCode;
+import org.bremersee.data.minio.UrlSigner;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.model.Translation;
 import org.bremersee.linkman.repository.LinkEntity;
@@ -34,7 +35,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,16 +59,18 @@ public class ModelMapperTest {
   @Autowired
   private ModelMapper modelMapper;
 
-  @MockBean(name = "presignedUrlConverter")
-  private Converter<String, String> presignedUrlConverter;
+  @MockBean
+  private UrlSigner urlSigner;
 
   /**
    * Sets up.
    */
   @BeforeEach
   void setUp() {
-    when(presignedUrlConverter.convert(Mockito.any()))
-        .thenAnswer((Answer<String>) invocationOnMock -> IMAGE_URL);
+    when(urlSigner.apply(Mockito.any()))
+        .thenAnswer((Answer<String>) invocation -> invocation.getArgument(0) == null
+            ? null
+            : IMAGE_URL);
   }
 
   /**

@@ -22,7 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import org.bremersee.converter.ModelMapperConfigurerAdapter;
 import org.bremersee.data.minio.MinioOperations;
-import org.bremersee.data.minio.PresignedUrlProvider;
+import org.bremersee.data.minio.UrlSigner;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.repository.LinkEntity;
 import org.modelmapper.Converter;
@@ -48,12 +48,12 @@ public class ModelMapperConfiguration {
    * @param minioOperationsProvider the minio operations provider
    * @return the presigned url provider
    */
-  @Bean(name = "presignedUrlProvider")
-  public PresignedUrlProvider presignedUrlProvider(
+  @Bean
+  public UrlSigner urlSigner(
       LinkmanProperties properties,
       ObjectProvider<MinioOperations> minioOperationsProvider) {
 
-    return PresignedUrlProvider.newInstance(
+    return UrlSigner.defaultSigner(
         minioOperationsProvider.getIfAvailable(),
         Method.GET,
         properties.getBucketName(),
@@ -62,14 +62,14 @@ public class ModelMapperConfiguration {
   }
 
   /**
-   * Creates (internal) presigned url converter of the model mapper.
+   * Creates (internal) url sign converter of the model mapper.
    *
-   * @param psu the presigned url provider
+   * @param urlSigner the url signer
    * @return the converter
    */
-  @Bean(name = "presignedUrlConverter")
-  public Converter<String, String> presignedUrlConverter(PresignedUrlProvider psu) {
-    return mappingContext -> psu.apply(mappingContext.getSource());
+  @Bean(name = "urlSignConverter")
+  public Converter<String, String> urlSignConverter(UrlSigner urlSigner) {
+    return mappingContext -> urlSigner.apply(mappingContext.getSource());
   }
 
   /**
@@ -78,16 +78,16 @@ public class ModelMapperConfiguration {
   @Configuration
   static class LinkSpecMapperConfiguration implements ModelMapperConfigurerAdapter {
 
-    private final Converter<String, String> presignedUrlConverter;
+    private final Converter<String, String> urlSignConverter;
 
     /**
      * Instantiates a new Link spec mapper configuration.
      *
-     * @param presignedUrlConverter the presigned url converter
+     * @param urlSignConverter the presigned url converter
      */
     public LinkSpecMapperConfiguration(
-        @Qualifier("presignedUrlConverter") Converter<String, String> presignedUrlConverter) {
-      this.presignedUrlConverter = presignedUrlConverter;
+        @Qualifier("urlSignConverter") Converter<String, String> urlSignConverter) {
+      this.urlSignConverter = urlSignConverter;
     }
 
     @Override
@@ -103,8 +103,10 @@ public class ModelMapperConfiguration {
               .map(LinkEntity::getDescriptionTranslations, LinkSpec::setDescriptionTranslations))
           .addMappings(mapper -> mapper.with(linkedHashSetProvider)
               .map(LinkEntity::getTextTranslations, LinkSpec::setTextTranslations))
-          .addMappings(mapper -> mapper.using(presignedUrlConverter)
-              .map(LinkEntity::getCardImage, LinkSpec::setCardImageUrl));
+          .addMappings(mapper -> mapper.using(urlSignConverter)
+              .map(LinkEntity::getCardImage, LinkSpec::setCardImageUrl))
+          .addMappings(mapper -> mapper.using(urlSignConverter)
+              .map(LinkEntity::getMenuImage, LinkSpec::setMenuImageUrl));
 
       modelMapper
           .createTypeMap(LinkSpec.class, LinkEntity.class)

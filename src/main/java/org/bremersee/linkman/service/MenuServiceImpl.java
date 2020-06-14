@@ -19,7 +19,7 @@ package org.bremersee.linkman.service;
 import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.bremersee.data.minio.PresignedUrlProvider;
+import org.bremersee.data.minio.UrlSigner;
 import org.bremersee.linkman.model.Link;
 import org.bremersee.linkman.model.MenuEntry;
 import org.bremersee.linkman.repository.CategoryRepository;
@@ -41,23 +41,23 @@ public class MenuServiceImpl implements MenuService {
 
   private final LinkRepository linkRepository;
 
-  private final Function<String, String> presignedUrlProvider;
+  private final Function<String, String> urlSigner;
 
   /**
    * Instantiates a new menu service.
    *
    * @param categoryRepository the category repository
    * @param linkRepository the link repository
-   * @param presignedUrlProvider the presigned url provider
+   * @param urlSigner the url signer
    */
   public MenuServiceImpl(
       CategoryRepository categoryRepository,
       LinkRepository linkRepository,
-      PresignedUrlProvider presignedUrlProvider) {
+      UrlSigner urlSigner) {
 
     this.categoryRepository = categoryRepository;
     this.linkRepository = linkRepository;
-    this.presignedUrlProvider = presignedUrlProvider;
+    this.urlSigner = urlSigner;
   }
 
   @Override
@@ -84,8 +84,8 @@ public class MenuServiceImpl implements MenuService {
                     .blank(linkEntity.getBlank())
                     .text(linkEntity.getText(language))
                     .description(linkEntity.getDescription(language))
-                    .cardImageUrl(presignedUrlProvider.apply(linkEntity.getCardImage()))
-                    .menuImageUrl(presignedUrlProvider.apply(linkEntity.getMenuImage()))
+                    .cardImageUrl(urlSigner.apply(linkEntity.getCardImage()))
+                    .menuImageUrl(urlSigner.apply(linkEntity.getMenuImage()))
                     .build())
                 .collect(Collectors.toList()))
             .build())
