@@ -230,7 +230,7 @@ public class LinkController {
 
     log.info("Updating link images (link id = {}", id);
     return webExchange.getMultipartData()
-        .flatMap(multiPartData -> putObjectBuilder.buildList(
+        .flatMap(multiPartData -> putObjectBuilder.buildFromFirstParameterValue(
             multiPartData,
             new MultipartNames("cardImage", "cardImageType", null),
             new MultipartNames("menuImage", "menuImageType", null)))
