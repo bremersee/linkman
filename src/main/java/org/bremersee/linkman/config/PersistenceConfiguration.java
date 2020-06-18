@@ -18,6 +18,8 @@ import org.springframework.util.StringUtils;
 
 /**
  * The persistence configuration.
+ *
+ * @author Christian Bremer
  */
 @Configuration
 @EnableReactiveMongoRepositories(basePackageClasses = {
