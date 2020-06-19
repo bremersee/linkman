@@ -28,8 +28,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.data.minio.http.MultipartNames;
 import org.bremersee.data.minio.http.ReactivePutObjectBuilder;
+import org.bremersee.data.minio.http.ReqParam;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
 import org.springframework.http.MediaType;
@@ -232,8 +232,8 @@ public class LinkController {
     return webExchange.getMultipartData()
         .flatMap(multiPartData -> putObjectBuilder.buildFromFirstParameterValue(
             multiPartData,
-            new MultipartNames("cardImage", "cardImageType", null),
-            new MultipartNames("menuImage", "menuImageType", null)))
+            new ReqParam("cardImage", false),
+            new ReqParam("menuImage", false)))
         .flatMap(putObjects -> linkService.updateLinkImages(
             id,
             getPutObject(putObjects, 0),
