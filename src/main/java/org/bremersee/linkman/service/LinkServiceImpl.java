@@ -16,15 +16,17 @@
 
 package org.bremersee.linkman.service;
 
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.data.minio.MinioOperations;
-import org.bremersee.data.minio.PutObject;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.config.LinkmanProperties;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkEntity;
 import org.bremersee.linkman.repository.LinkRepository;
+import org.bremersee.web.UploadedItem;
+import org.bremersee.web.UploadedItem.DeleteMode;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.Sort;
@@ -123,22 +125,26 @@ public class LinkServiceImpl implements LinkService {
   @Override
   public Mono<LinkSpec> updateLinkImages(
       String id,
-      PutObject<?> cardImage,
-      PutObject<?> menuImage) {
+      UploadedItem<?> cardImage,
+      UploadedItem<?> menuImage) {
 
     return linkRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Link", id)))
-        .flatMap(entity -> {
-          String cardImageName = entity.getId() + "_card_image";
-          if (cardImage.upload(minioOperations, properties.getBucketName(), cardImageName, true)) {
-            entity.setCardImage(cardImageName);
-          }
-          String menuImageName = entity.getId() + "_menu_image";
-          if (menuImage.upload(minioOperations, properties.getBucketName(), menuImageName, true)) {
-            entity.setMenuImage(menuImageName);
-          }
-          return linkRepository.save(entity);
-        })
+        .flatMap(entity -> Optional.ofNullable(minioOperations)
+            .map(minio -> {
+              String bucket = properties.getBucketName();
+              DeleteMode deleteMode = DeleteMode.ALWAYS;
+              String cardImageName = entity.getId() + "_card_image";
+              if (minio.putObject(bucket, cardImageName, cardImage, deleteMode)) {
+                entity.setCardImage(cardImageName);
+              }
+              String menuImageName = entity.getId() + "_menu_image";
+              if (minio.putObject(bucket, menuImageName, menuImage, deleteMode)) {
+                entity.setMenuImage(menuImageName);
+              }
+              return linkRepository.save(entity);
+            })
+            .orElseGet(() -> Mono.just(entity)))
         .map(entity -> modelMapper.map(entity, LinkSpec.class));
   }
 

@@ -16,8 +16,8 @@
 
 package org.bremersee.linkman.service;
 
-import org.bremersee.data.minio.PutObject;
 import org.bremersee.linkman.model.LinkSpec;
+import org.bremersee.web.UploadedItem;
 import org.springframework.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -72,8 +72,8 @@ public interface LinkService {
    */
   Mono<LinkSpec> updateLinkImages(
       String id,
-      PutObject<?> cardImage,
-      PutObject<?> menuImage);
+      UploadedItem<?> cardImage,
+      UploadedItem<?> menuImage);
 
   /**
    * Delete link.

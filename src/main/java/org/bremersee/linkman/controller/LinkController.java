@@ -16,7 +16,7 @@
 
 package org.bremersee.linkman.controller;
 
-import static org.bremersee.data.minio.http.ReactivePutObjectBuilder.getPutObject;
+import static org.bremersee.web.reactive.UploadedItemBuilder.getUploadedItem;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,10 +28,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.data.minio.http.ReactivePutObjectBuilder;
-import org.bremersee.data.minio.http.ReqParam;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
+import org.bremersee.web.ReqParam;
+import org.bremersee.web.reactive.UploadedItemBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -59,7 +59,7 @@ public class LinkController {
 
   private final LinkService linkService;
 
-  private final ReactivePutObjectBuilder putObjectBuilder;
+  private final UploadedItemBuilder putObjectBuilder;
 
   /**
    * Instantiates a new link controller.
@@ -68,7 +68,7 @@ public class LinkController {
    */
   public LinkController(
       LinkService linkService,
-      ReactivePutObjectBuilder putObjectBuilder) {
+      UploadedItemBuilder putObjectBuilder) {
     this.linkService = linkService;
     this.putObjectBuilder = putObjectBuilder;
   }
@@ -236,8 +236,8 @@ public class LinkController {
             new ReqParam("menuImage", false)))
         .flatMap(putObjects -> linkService.updateLinkImages(
             id,
-            getPutObject(putObjects, 0),
-            getPutObject(putObjects, 1)));
+            getUploadedItem(putObjects, 0),
+            getUploadedItem(putObjects, 1)));
   }
 
   /**
