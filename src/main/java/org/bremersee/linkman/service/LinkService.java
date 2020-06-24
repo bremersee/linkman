@@ -16,9 +16,12 @@
 
 package org.bremersee.linkman.service;
 
+import java.util.List;
+import javax.validation.constraints.NotNull;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.web.UploadedItem;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,6 +30,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Christian Bremer
  */
+@Validated
 public interface LinkService {
 
   /**
@@ -48,7 +52,7 @@ public interface LinkService {
   /**
    * Gets link.
    *
-   * @param id the id
+   * @param id the link id
    * @return the link
    */
   Mono<LinkSpec> getLink(String id);
@@ -56,7 +60,7 @@ public interface LinkService {
   /**
    * Update link.
    *
-   * @param id the id
+   * @param id the link id
    * @param link the link
    * @return the updated link
    */
@@ -68,7 +72,7 @@ public interface LinkService {
    * @param id the id
    * @param cardImage the card image
    * @param menuImage the menu image
-   * @return the mono
+   * @return the link
    */
   Mono<LinkSpec> updateLinkImages(
       String id,
@@ -76,10 +80,19 @@ public interface LinkService {
       UploadedItem<?> menuImage);
 
   /**
+   * Delete link images.
+   *
+   * @param id the link id
+   * @param names the image names ({@code cardImage} and/or {@code menuImage})
+   * @return the link
+   */
+  Mono<LinkSpec> deleteLinkImages(@NotNull String id, @NotNull List<String> names);
+
+  /**
    * Delete link.
    *
-   * @param id the id
-   * @return void mono
+   * @param id the link id
+   * @return void
    */
   Mono<Void> deleteLink(String id);
 

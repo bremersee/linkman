@@ -48,6 +48,16 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class LinkSpec {
 
+  /**
+   * The constant CARD_IMAGE_NAME.
+   */
+  public static final String CARD_IMAGE_NAME = "cardImage";
+
+  /**
+   * The constant MENU_IMAGE_NAME.
+   */
+  public static final String MENU_IMAGE_NAME = "cardImage";
+
   @Schema(description = "Unique identifier of the link.", accessMode = AccessMode.READ_ONLY)
   @JsonProperty("id")
   private String id;

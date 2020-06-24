@@ -16,6 +16,10 @@
 
 package org.bremersee.linkman.service;
 
+import static org.bremersee.linkman.model.LinkSpec.CARD_IMAGE_NAME;
+import static org.bremersee.linkman.model.LinkSpec.MENU_IMAGE_NAME;
+
+import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.data.minio.MinioOperations;
@@ -58,8 +62,10 @@ public class LinkServiceImpl implements LinkService {
   /**
    * Instantiates a new link service.
    *
+   * @param properties the properties
    * @param linkRepository the link repository
    * @param categoryRepository the category repository
+   * @param minioOperationsProvider the minio operations provider
    * @param modelMapper the model mapper
    */
   public LinkServiceImpl(
@@ -146,6 +152,26 @@ public class LinkServiceImpl implements LinkService {
             })
             .orElseGet(() -> Mono.just(entity)))
         .map(entity -> modelMapper.map(entity, LinkSpec.class));
+  }
+
+  @Override
+  public Mono<LinkSpec> deleteLinkImages(String id, List<String> names) {
+    return linkRepository.findById(id)
+        .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Link", id)))
+        .flatMap(entity -> Optional.ofNullable(minioOperations)
+            .map(minio -> {
+              if (StringUtils.hasText(entity.getCardImage()) && names.contains(CARD_IMAGE_NAME)) {
+                minio.removeObject(properties.getBucketName(), entity.getCardImage());
+                entity.setCardImage(null);
+              }
+              if (StringUtils.hasText(entity.getMenuImage()) && names.contains(MENU_IMAGE_NAME)) {
+                minio.removeObject(properties.getBucketName(), entity.getMenuImage());
+                entity.setMenuImage(null);
+              }
+              return linkRepository.save(entity);
+            })
+            .orElseGet(() -> Mono.just(entity)))
+        .map(linkEntity -> modelMapper.map(linkEntity, LinkSpec.class));
   }
 
   @Override
