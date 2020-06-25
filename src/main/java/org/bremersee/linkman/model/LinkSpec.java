@@ -94,6 +94,10 @@ public class LinkSpec {
   @JsonProperty("textTranslations")
   private Set<Translation> textTranslations = new LinkedHashSet<>();
 
+  @Schema(description = "Specifies whether the text should be displayed or not.")
+  @JsonProperty("displayText")
+  private Boolean displayText = Boolean.TRUE;
+
   @Schema(
       description = "The description of the link.",
       example = "On the example page you can view some examples.")
@@ -123,6 +127,7 @@ public class LinkSpec {
    * @param blank specified whether to open the link in a blank target (default is false)
    * @param text the text that is displayed instead of the link
    * @param textTranslations the text translations
+   * @param displayText the display text
    * @param description the description
    * @param descriptionTranslations the description translations
    * @param cardImageUrl the card image url
@@ -138,6 +143,7 @@ public class LinkSpec {
       Boolean blank,
       String text,
       Set<Translation> textTranslations,
+      Boolean displayText,
       String description,
       Set<Translation> descriptionTranslations,
       String cardImageUrl,
@@ -149,6 +155,7 @@ public class LinkSpec {
     setBlank(blank);
     this.text = text;
     setTextTranslations(textTranslations);
+    setDisplayText(displayText);
     this.description = description;
     setDescriptionTranslations(descriptionTranslations);
     this.cardImageUrl = cardImageUrl;
@@ -186,6 +193,15 @@ public class LinkSpec {
     if (textTranslations != null) {
       this.textTranslations.addAll(textTranslations);
     }
+  }
+
+  /**
+   * Sets display text.
+   *
+   * @param displayText the display text
+   */
+  public void setDisplayText(Boolean displayText) {
+    this.displayText = displayText == null || displayText;
   }
 
   /**

@@ -83,6 +83,7 @@ public class MenuServiceImpl implements MenuService {
                     .href(linkEntity.getHref())
                     .blank(linkEntity.getBlank())
                     .text(linkEntity.getText(language))
+                    .displayText(linkEntity.getDisplayText())
                     .description(linkEntity.getDescription(language))
                     .cardImageUrl(urlSigner.apply(linkEntity.getCardImage()))
                     .menuImageUrl(urlSigner.apply(linkEntity.getMenuImage()))

@@ -65,6 +65,12 @@ public class Link {
   private String text;
 
   @Schema(
+      description = "Specifies whether the text should be displayed or not.",
+      defaultValue = "true")
+  @JsonProperty("displayText")
+  private Boolean displayText = Boolean.TRUE;
+
+  @Schema(
       description = "The description of the link.",
       example = "On the example page you can view some examples.")
   @JsonProperty("description")
@@ -85,19 +91,40 @@ public class Link {
    * @param href the href
    * @param blank the blank
    * @param text the text
+   * @param displayText the display text
    * @param description the description
    * @param cardImageUrl the card image url
    * @param menuImageUrl the menu image url
    */
   @Builder(toBuilder = true)
-  public Link(String id, String href, Boolean blank, String text, String description,
-      String cardImageUrl, String menuImageUrl) {
+  public Link(String id, String href, Boolean blank, String text, Boolean displayText,
+      String description, String cardImageUrl, String menuImageUrl) {
     this.id = id;
     this.href = href;
-    this.blank = blank;
+    setBlank(blank);
     this.text = text;
+    setDisplayText(displayText);
     this.description = description;
     this.cardImageUrl = cardImageUrl;
     this.menuImageUrl = menuImageUrl;
   }
+
+  /**
+   * Sets blank.
+   *
+   * @param blank the blank
+   */
+  public void setBlank(Boolean blank) {
+    this.blank = Boolean.TRUE.equals(blank);
+  }
+
+  /**
+   * Sets display text.
+   *
+   * @param displayText the display text
+   */
+  public void setDisplayText(Boolean displayText) {
+    this.displayText = displayText == null || displayText;
+  }
+
 }

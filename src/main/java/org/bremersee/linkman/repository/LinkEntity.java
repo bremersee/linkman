@@ -70,6 +70,8 @@ public class LinkEntity implements Comparable<LinkEntity> {
 
   private Set<Translation> textTranslations = new LinkedHashSet<>();
 
+  private Boolean displayText = Boolean.TRUE;
+
   @Size(max = 255)
   private String description;
 
@@ -78,6 +80,15 @@ public class LinkEntity implements Comparable<LinkEntity> {
   private String cardImage;
 
   private String menuImage;
+
+  /**
+   * Sets blank.
+   *
+   * @param blank the blank
+   */
+  public void setBlank(Boolean blank) {
+    this.blank = Boolean.TRUE.equals(blank);
+  }
 
   /**
    * Gets text.
@@ -92,6 +103,15 @@ public class LinkEntity implements Comparable<LinkEntity> {
         .flatMap(set -> set.stream().filter(entry -> code == entry.getLanguage()).findAny())
         .map(Translation::getValue)
         .orElse(text);
+  }
+
+  /**
+   * Sets display text.
+   *
+   * @param displayText the display text
+   */
+  public void setDisplayText(Boolean displayText) {
+    this.displayText = displayText == null || displayText;
   }
 
   /**
@@ -127,6 +147,7 @@ public class LinkEntity implements Comparable<LinkEntity> {
         && Objects.equals(blank, that.blank)
         && Objects.equals(text, that.text)
         && Objects.equals(textTranslations, that.textTranslations)
+        && Objects.equals(displayText, that.displayText)
         && Objects.equals(description, that.description)
         && Objects.equals(descriptionTranslations, that.descriptionTranslations);
   }
@@ -136,8 +157,8 @@ public class LinkEntity implements Comparable<LinkEntity> {
     if (StringUtils.hasText(id)) {
       return id.hashCode();
     }
-    return Objects.hash(categoryIds, order, href, blank, text, textTranslations, description,
-        descriptionTranslations);
+    return Objects.hash(categoryIds, order, href, blank, text, textTranslations, displayText,
+        description, descriptionTranslations);
   }
 
   @Override

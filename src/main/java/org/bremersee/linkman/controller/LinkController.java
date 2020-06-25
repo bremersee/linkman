@@ -226,17 +226,13 @@ public class LinkController {
    * @return the link
    */
   @Operation(
-      summary = "Update link images.",
+      summary = "Update link images. The multipart may contain a part with name 'cardImage' "
+          + "or/and a part with name 'menuImage'. The part can be a file or a value as data uri.",
       operationId = "updateLinkImages",
       tags = {"link-controller"},
       requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-          description = "The multipart may contain a part with name 'cardImage' or/and a part "
-              + "with name 'menuImage'. The part can be a file or a value as data uri.",
           required = true,
-          content = {
-              @Content(
-                  mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
-              )}
+          content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
       ))
   @ApiResponses(value = {
       @ApiResponse(
