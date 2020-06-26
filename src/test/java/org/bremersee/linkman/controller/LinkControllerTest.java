@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.model.CategorySpec;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.model.Translation;
@@ -332,17 +333,17 @@ class LinkControllerTest {
 
     final byte[] cardImage = "cardImage".getBytes(StandardCharsets.UTF_8);
     final byte[] menuImage = "menuImage".getBytes(StandardCharsets.UTF_8);
-    DataUrl menuImageDataUrl = new DataUrlBuilder()
+    final DataUrl menuImageDataUrl = new DataUrlBuilder()
         .setData(menuImage)
         .setCharset(StandardCharsets.UTF_8.name())
         .setEncoding(DataUrlEncoding.BASE64)
         .setMimeType(MediaType.IMAGE_GIF_VALUE)
         .build();
-    String menuImageValue;
+    final String menuImageValue;
     try {
       menuImageValue = new DataUrlSerializer().serialize(menuImageDataUrl);
     } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
+      throw ServiceException.internalServerError("Fatal error", e);
     }
 
     MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
