@@ -56,7 +56,7 @@ public class LinkSpec {
   /**
    * The constant MENU_IMAGE_NAME.
    */
-  public static final String MENU_IMAGE_NAME = "cardImage";
+  public static final String MENU_IMAGE_NAME = "menuImage";
 
   @Schema(description = "Unique identifier of the link.", accessMode = AccessMode.READ_ONLY)
   @JsonProperty("id")

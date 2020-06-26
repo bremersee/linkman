@@ -42,11 +42,11 @@ import org.springframework.context.annotation.Configuration;
 public class ModelMapperConfiguration {
 
   /**
-   * Creates presigned url provider bean.
+   * Creates url signer bean.
    *
    * @param properties the properties
    * @param minioOperationsProvider the minio operations provider
-   * @return the presigned url provider
+   * @return the url signer
    */
   @Bean
   public UrlSigner urlSigner(
@@ -81,7 +81,7 @@ public class ModelMapperConfiguration {
     private final Converter<String, String> urlSignConverter;
 
     /**
-     * Instantiates a new Link spec mapper configuration.
+     * Instantiates a new link spec mapper configuration.
      *
      * @param urlSignConverter the presigned url converter
      */

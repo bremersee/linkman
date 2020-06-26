@@ -82,12 +82,14 @@ public class ModelMapperTest {
     entity.setId(UUID.randomUUID().toString());
     entity.setOrder(123);
     entity.setHref("http://localhost");
+    entity.setBlank(true);
     entity.setText("Local Service");
     entity.setTextTranslations(Set.of(
         Translation.builder()
             .language(TwoLetterLanguageCode.DE)
             .value("Lokaler Service")
             .build()));
+    entity.setDisplayText(false);
     entity.setDescription("This is the local host service.");
     entity.setDescriptionTranslations(Set.of(
         Translation.builder()
@@ -102,8 +104,10 @@ public class ModelMapperTest {
     assertEquals(entity.getId(), spec.getId());
     assertEquals(entity.getOrder(), spec.getOrder());
     assertEquals(entity.getHref(), spec.getHref());
+    assertEquals(entity.getBlank(), spec.getBlank());
     assertEquals(entity.getText(), spec.getText());
     assertEquals(entity.getTextTranslations(), spec.getTextTranslations());
+    assertEquals(entity.getDisplayText(), spec.getDisplayText());
     assertEquals(entity.getDescription(), spec.getDescription());
     assertEquals(entity.getDescriptionTranslations(), spec.getDescriptionTranslations());
     assertEquals(IMAGE_URL, spec.getCardImageUrl());
@@ -135,6 +139,8 @@ public class ModelMapperTest {
         .cardImageUrl("http://somehost/presigned")
         .menuImageUrl(null)
         .build();
+    spec.setBlank(true);
+    spec.setDisplayText(false);
 
     LinkEntity entity = new LinkEntity();
     entity.setCardImage("card");
@@ -145,8 +151,10 @@ public class ModelMapperTest {
     assertEquals(spec.getId(), entity.getId());
     assertEquals(spec.getOrder(), entity.getOrder());
     assertEquals(spec.getHref(), entity.getHref());
+    assertEquals(spec.getBlank(), entity.getBlank());
     assertEquals(spec.getText(), entity.getText());
     assertEquals(spec.getTextTranslations(), entity.getTextTranslations());
+    assertEquals(spec.getDisplayText(), entity.getDisplayText());
     assertEquals(spec.getDescription(), entity.getDescription());
     assertEquals(spec.getDescriptionTranslations(), entity.getDescriptionTranslations());
     assertEquals("card", entity.getCardImage());

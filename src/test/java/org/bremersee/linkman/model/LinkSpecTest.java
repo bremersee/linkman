@@ -121,6 +121,18 @@ class LinkSpecTest {
   }
 
   /**
+   * Gets display text.
+   */
+  @Test
+  void getDisplayTest() {
+    LinkSpec model = new LinkSpec();
+    model.setDisplayText(false);
+    assertEquals(Boolean.FALSE, model.getDisplayText());
+    assertEquals(model, LinkSpec.builder().displayText(false).build());
+    assertTrue(model.toBuilder().build().toString().contains(String.valueOf(false)));
+  }
+
+  /**
    * Gets description.
    */
   @Test
