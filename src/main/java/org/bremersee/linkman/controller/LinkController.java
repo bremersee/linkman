@@ -60,19 +60,19 @@ public class LinkController {
 
   private final LinkService linkService;
 
-  private final UploadedItemBuilder putObjectBuilder;
+  private final UploadedItemBuilder uploadedItemBuilder;
 
   /**
    * Instantiates a new link controller.
    *
    * @param linkService the link service
-   * @param putObjectBuilder the put object builder
+   * @param uploadedItemBuilder the uploaded item builder
    */
   public LinkController(
       LinkService linkService,
-      UploadedItemBuilder putObjectBuilder) {
+      UploadedItemBuilder uploadedItemBuilder) {
     this.linkService = linkService;
-    this.putObjectBuilder = putObjectBuilder;
+    this.uploadedItemBuilder = uploadedItemBuilder;
   }
 
   /**
@@ -267,7 +267,7 @@ public class LinkController {
 
     log.info("Updating link images (link id = {}", id);
     return webExchange.getMultipartData()
-        .flatMap(multiPartData -> putObjectBuilder.buildFromFirstParameterValue(
+        .flatMap(multiPartData -> uploadedItemBuilder.buildFromFirstParameterValue(
             multiPartData,
             new ReqParam(LinkSpec.CARD_IMAGE_NAME, false),
             new ReqParam(LinkSpec.MENU_IMAGE_NAME, false)))
