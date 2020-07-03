@@ -53,12 +53,15 @@ eureka:
     enabled: false
 
 spring:
-#  codec:
-#    max-in-memory-size: 8MB
+  #  codec:
+  #    max-in-memory-size: 8MB
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017/test}
       auto-index-creation: true
+    redis:
+      repositories:
+        enabled: false
   sleuth:
     enabled: ${SLEUTH_ENABLED:false}
     sampler:
@@ -70,8 +73,6 @@ spring:
     loadbalancer:
       ribbon:
         enabled: false
-
-
 management:
   endpoints:
     web:

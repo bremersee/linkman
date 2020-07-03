@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.data.convert.BaseCommonConversions;
 import org.bremersee.data.minio.MinioOperations;
 import org.bremersee.linkman.repository.CategoryRepository;
+import org.bremersee.linkman.repository.LinkRepository;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,7 +24,8 @@ import org.springframework.util.StringUtils;
  */
 @Configuration
 @EnableReactiveMongoRepositories(basePackageClasses = {
-    CategoryRepository.class
+    CategoryRepository.class,
+    LinkRepository.class
 })
 @EnableConfigurationProperties(LinkmanProperties.class)
 @Slf4j
