@@ -266,7 +266,7 @@ public class LinkController {
       @RequestPart(name = "cardImage", required = false) Flux<Part> cardImage,
       @RequestPart(name = "menuImage", required = false)  Flux<Part> menuImage) {
 
-    log.info("Updating link images (link id = {}", id);
+    log.info("Updating link images (link id = {}).", id);
     return lastPart(cardImage)
         .flatMap(uploadedItemBuilder::build)
         .flatMap(item -> linkService.updateLinkImages(id, item, UploadedItem.EMPTY))
