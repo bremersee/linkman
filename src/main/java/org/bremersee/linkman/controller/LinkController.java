@@ -34,6 +34,8 @@ import org.bremersee.linkman.service.LinkService;
 import org.bremersee.web.ReqParam;
 import org.bremersee.web.reactive.UploadedItemBuilder;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.Part;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -222,7 +224,7 @@ public class LinkController {
    * Update link images.
    *
    * @param id the link id
-   * @param webExchange the web exchange
+   * @param parts the multipart
    * @return the link
    */
   @Operation(
@@ -263,6 +265,23 @@ public class LinkController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<LinkSpec> updateLinkImages(
       @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
+      @RequestBody Mono<MultiValueMap<String, Part>> parts) {
+
+    log.info("Updating link images (link id = {}", id);
+    return parts
+        .flatMap(multiPartData -> uploadedItemBuilder.buildFromFirstParameterValue(
+            multiPartData,
+            new ReqParam(LinkSpec.CARD_IMAGE_NAME, false),
+            new ReqParam(LinkSpec.MENU_IMAGE_NAME, false)))
+        .flatMap(putObjects -> linkService.updateLinkImages(
+            id,
+            getUploadedItem(putObjects, 0),
+            getUploadedItem(putObjects, 1)));
+  }
+
+  /*
+  public Mono<LinkSpec> updateLinkImages(
+      @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
       ServerWebExchange webExchange) {
 
     log.info("Updating link images (link id = {}", id);
@@ -276,6 +295,7 @@ public class LinkController {
             getUploadedItem(putObjects, 0),
             getUploadedItem(putObjects, 1)));
   }
+  */
 
   /**
    * Delete link images.
