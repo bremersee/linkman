@@ -16,8 +16,13 @@
 
 package org.bremersee.linkman.controller;
 
+import static org.bremersee.web.reactive.UploadedItemBuilder.getUploadedItem;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,10 +34,11 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
-import org.bremersee.web.UploadedItem;
+import org.bremersee.web.ReqParam;
 import org.bremersee.web.reactive.UploadedItemBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +47,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -221,8 +226,7 @@ public class LinkController {
    * Update link images.
    *
    * @param id the link id
-   * @param cardImage the card image
-   * @param menuImage the menu image
+   * @param formData the form data
    * @return the link
    */
   @Operation(
@@ -257,48 +261,21 @@ public class LinkController {
           responseCode = "403",
           description = "Forbidden")
   })
+  @Parameters({
+      @Parameter(name = "id", description = "The link ID.", required = true, in = ParameterIn.PATH),
+      @Parameter(name = "cardImage", description = "The card image.", style = ParameterStyle.FORM),
+      @Parameter(name = "menuImage", description = "The menu image.", style = ParameterStyle.FORM)
+  })
   @PostMapping(
       path = "/api/links/{id}/images",
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<LinkSpec> updateLinkImages(
-      @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
-      @RequestPart(name = "cardImage", required = false) Flux<Part> cardImage,
-      @RequestPart(name = "menuImage", required = false)  Flux<Part> menuImage) {
+      @PathVariable("id") String id,
+      @RequestBody Mono<MultiValueMap<String, Part>> formData) {
 
     log.info("Updating link images (link id = {}).", id);
-    return lastPart(cardImage)
-        .flatMap(uploadedItemBuilder::build)
-        .flatMap(item -> linkService.updateLinkImages(id, item, UploadedItem.EMPTY))
-        .then(lastPart(menuImage))
-        .flatMap(uploadedItemBuilder::build)
-        .flatMap(item -> linkService.updateLinkImages(id, UploadedItem.EMPTY, item))
-        .switchIfEmpty(linkService.getLink(id));
-
-    /*
-    return parts
-        .flatMap(multiPartData -> uploadedItemBuilder.buildFromFirstParameterValue(
-            multiPartData,
-            new ReqParam(LinkSpec.CARD_IMAGE_NAME, false),
-            new ReqParam(LinkSpec.MENU_IMAGE_NAME, false)))
-        .flatMap(putObjects -> linkService.updateLinkImages(
-            id,
-            getUploadedItem(putObjects, 0),
-            getUploadedItem(putObjects, 1)));
-    */
-  }
-
-  private Mono<Part> lastPart(Flux<Part> parts) {
-    return parts == null ? Mono.empty() : parts.last();
-  }
-
-  /*
-  public Mono<LinkSpec> updateLinkImages(
-      @Parameter(description = "The link ID.", required = true) @PathVariable("id") String id,
-      ServerWebExchange webExchange) {
-
-    log.info("Updating link images (link id = {}", id);
-    return webExchange.getMultipartData()
+    return formData
         .flatMap(multiPartData -> uploadedItemBuilder.buildFromFirstParameterValue(
             multiPartData,
             new ReqParam(LinkSpec.CARD_IMAGE_NAME, false),
@@ -308,7 +285,6 @@ public class LinkController {
             getUploadedItem(putObjects, 0),
             getUploadedItem(putObjects, 1)));
   }
-  */
 
   /**
    * Delete link images.
