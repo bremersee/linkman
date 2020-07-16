@@ -19,24 +19,23 @@ package org.bremersee.linkman.service;
 import static org.bremersee.linkman.model.LinkSpec.CARD_IMAGE_NAME;
 import static org.bremersee.linkman.model.LinkSpec.MENU_IMAGE_NAME;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.data.minio.MinioOperations;
+import org.bremersee.data.minio.DeleteMode;
+import org.bremersee.data.minio.MinioObjectId;
+import org.bremersee.data.minio.MinioRepository;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.linkman.config.LinkmanProperties;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkEntity;
 import org.bremersee.linkman.repository.LinkRepository;
-import org.bremersee.web.UploadedItem;
-import org.bremersee.web.UploadedItem.DeleteMode;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -49,35 +48,30 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class LinkServiceImpl implements LinkService {
 
-  private final LinkmanProperties properties;
-
   private final LinkRepository linkRepository;
 
   private final CategoryRepository categoryRepository;
 
   private final ModelMapper modelMapper;
 
-  private final MinioOperations minioOperations;
+  private final MinioRepository imageRepository;
 
   /**
    * Instantiates a new link service.
    *
-   * @param properties the properties
    * @param linkRepository the link repository
    * @param categoryRepository the category repository
-   * @param minioOperationsProvider the minio operations provider
+   * @param imageRepository the minio image repository
    * @param modelMapper the model mapper
    */
   public LinkServiceImpl(
-      LinkmanProperties properties,
       LinkRepository linkRepository,
       CategoryRepository categoryRepository,
-      ObjectProvider<MinioOperations> minioOperationsProvider,
+      MinioRepository imageRepository,
       ModelMapper modelMapper) {
-    this.properties = properties;
     this.linkRepository = linkRepository;
     this.categoryRepository = categoryRepository;
-    this.minioOperations = minioOperationsProvider.getIfAvailable();
+    this.imageRepository = imageRepository;
     this.modelMapper = modelMapper;
   }
 
@@ -131,26 +125,23 @@ public class LinkServiceImpl implements LinkService {
   @Override
   public Mono<LinkSpec> updateLinkImages(
       String id,
-      UploadedItem<?> cardImage,
-      UploadedItem<?> menuImage) {
+      MultipartFile cardImage,
+      MultipartFile menuImage) {
 
+    System.out.println("images: card = " + cardImage.isEmpty() + ", menu = " + menuImage.isEmpty());
     return linkRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Link", id)))
-        .flatMap(entity -> Optional.ofNullable(minioOperations)
-            .map(minio -> {
-              String bucket = properties.getBucketName();
-              DeleteMode deleteMode = DeleteMode.ALWAYS;
-              String cardImageName = entity.getId() + "_card_image";
-              if (minio.putObject(bucket, cardImageName, cardImage, deleteMode)) {
-                entity.setCardImage(cardImageName);
-              }
-              String menuImageName = entity.getId() + "_menu_image";
-              if (minio.putObject(bucket, menuImageName, menuImage, deleteMode)) {
-                entity.setMenuImage(menuImageName);
-              }
-              return linkRepository.save(entity);
-            })
-            .orElseGet(() -> Mono.just(entity)))
+        .flatMap(entity -> {
+          String cardImageName = entity.getId() + "_card_image";
+          imageRepository
+              .save(MinioObjectId.from(cardImageName), cardImage, DeleteMode.ALWAYS)
+              .ifPresent(response -> entity.setCardImage(response.object()));
+          String menuImageName = entity.getId() + "_menu_image";
+          imageRepository
+              .save(MinioObjectId.from(menuImageName), menuImage, DeleteMode.ALWAYS)
+              .ifPresent(response -> entity.setMenuImage(response.object()));
+          return linkRepository.save(entity);
+        })
         .map(entity -> modelMapper.map(entity, LinkSpec.class));
   }
 
@@ -158,19 +149,17 @@ public class LinkServiceImpl implements LinkService {
   public Mono<LinkSpec> deleteLinkImages(String id, List<String> names) {
     return linkRepository.findById(id)
         .switchIfEmpty(Mono.error(() -> ServiceException.notFound("Link", id)))
-        .flatMap(entity -> Optional.ofNullable(minioOperations)
-            .map(minio -> {
-              if (StringUtils.hasText(entity.getCardImage()) && names.contains(CARD_IMAGE_NAME)) {
-                minio.removeObject(properties.getBucketName(), entity.getCardImage());
-                entity.setCardImage(null);
-              }
-              if (StringUtils.hasText(entity.getMenuImage()) && names.contains(MENU_IMAGE_NAME)) {
-                minio.removeObject(properties.getBucketName(), entity.getMenuImage());
-                entity.setMenuImage(null);
-              }
-              return linkRepository.save(entity);
-            })
-            .orElseGet(() -> Mono.just(entity)))
+        .flatMap(entity -> {
+          if (StringUtils.hasText(entity.getCardImage()) && names.contains(CARD_IMAGE_NAME)) {
+            imageRepository.delete(MinioObjectId.from(entity.getCardImage()));
+            entity.setCardImage(null);
+          }
+          if (StringUtils.hasText(entity.getMenuImage()) && names.contains(MENU_IMAGE_NAME)) {
+            imageRepository.delete(MinioObjectId.from(entity.getMenuImage()));
+            entity.setMenuImage(null);
+          }
+          return linkRepository.save(entity);
+        })
         .map(linkEntity -> modelMapper.map(linkEntity, LinkSpec.class));
   }
 
@@ -179,21 +168,15 @@ public class LinkServiceImpl implements LinkService {
 
     return linkRepository.findById(id)
         .flatMap(entity -> {
-          if (minioOperations != null) {
-            if (StringUtils.hasText(entity.getCardImage())) {
-              try {
-                minioOperations.removeObject(properties.getBucketName(), entity.getCardImage());
-              } catch (RuntimeException e) {
-                log.error("Removing card image " + entity.getCardImage() + " failed.");
-              }
-            }
-            if (StringUtils.hasText(entity.getMenuImage())) {
-              try {
-                minioOperations.removeObject(properties.getBucketName(), entity.getMenuImage());
-              } catch (RuntimeException e) {
-                log.error("Removing menu image " + entity.getMenuImage() + " failed.");
-              }
-            }
+          List<MinioObjectId> imageIds = new ArrayList<>(2);
+          if (StringUtils.hasText(entity.getCardImage())) {
+            imageIds.add(MinioObjectId.from(entity.getCardImage()));
+          }
+          if (StringUtils.hasText(entity.getMenuImage())) {
+            imageIds.add(MinioObjectId.from(entity.getMenuImage()));
+          }
+          if (!imageIds.isEmpty()) {
+            imageRepository.deleteAll(imageIds);
           }
           return linkRepository.delete(entity);
         });

@@ -19,9 +19,9 @@ package org.bremersee.linkman.service;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import org.bremersee.linkman.model.LinkSpec;
-import org.bremersee.web.UploadedItem;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -76,8 +76,8 @@ public interface LinkService {
    */
   Mono<LinkSpec> updateLinkImages(
       String id,
-      UploadedItem<?> cardImage,
-      UploadedItem<?> menuImage);
+      MultipartFile cardImage,
+      MultipartFile menuImage);
 
   /**
    * Delete link images.

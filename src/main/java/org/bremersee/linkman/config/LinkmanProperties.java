@@ -16,12 +16,14 @@
 
 package org.bremersee.linkman.config;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,6 +47,9 @@ public class LinkmanProperties {
 
   @NotEmpty
   private String bucketName = "linkman";
+
+  @NotNull
+  private Duration presignedObjectUrlDuration = Duration.ofDays(1L);
 
   private String groupmanBaseUri;
 

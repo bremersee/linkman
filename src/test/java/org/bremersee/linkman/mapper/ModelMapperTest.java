@@ -18,12 +18,15 @@ package org.bremersee.linkman.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import io.minio.http.Method;
 import java.util.Set;
 import java.util.UUID;
 import org.bremersee.common.model.TwoLetterLanguageCode;
-import org.bremersee.data.minio.UrlSigner;
+import org.bremersee.data.minio.MinioObjectId;
+import org.bremersee.data.minio.MinioRepository;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.model.Translation;
 import org.bremersee.linkman.repository.LinkEntity;
@@ -33,8 +36,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,17 +61,15 @@ public class ModelMapperTest {
   private ModelMapper modelMapper;
 
   @MockBean
-  private UrlSigner urlSigner;
+  private MinioRepository minioRepository;
 
   /**
    * Sets up.
    */
   @BeforeEach
   void setUp() {
-    when(urlSigner.apply(Mockito.any()))
-        .thenAnswer((Answer<String>) invocation -> invocation.getArgument(0) == null
-            ? null
-            : IMAGE_URL);
+    when(minioRepository.getPresignedObjectUrl(any(MinioObjectId.class), any(Method.class)))
+        .thenReturn(IMAGE_URL);
   }
 
   /**

@@ -17,20 +17,17 @@
 package org.bremersee.linkman.config;
 
 import io.minio.http.Method;
-import java.time.Duration;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.bremersee.converter.ModelMapperConfigurerAdapter;
-import org.bremersee.data.minio.MinioOperations;
-import org.bremersee.data.minio.UrlSigner;
+import org.bremersee.data.minio.MinioObjectId;
+import org.bremersee.data.minio.MinioRepository;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.repository.LinkEntity;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.Provider;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -42,37 +39,6 @@ import org.springframework.context.annotation.Configuration;
 public class ModelMapperConfiguration {
 
   /**
-   * Creates url signer bean.
-   *
-   * @param properties the properties
-   * @param minioOperationsProvider the minio operations provider
-   * @return the url signer
-   */
-  @Bean
-  public UrlSigner urlSigner(
-      LinkmanProperties properties,
-      ObjectProvider<MinioOperations> minioOperationsProvider) {
-
-    return UrlSigner.defaultSigner(
-        minioOperationsProvider.getIfAvailable(),
-        Method.GET,
-        properties.getBucketName(),
-        Duration.ofDays(1L),
-        null);
-  }
-
-  /**
-   * Creates (internal) url sign converter of the model mapper.
-   *
-   * @param urlSigner the url signer
-   * @return the converter
-   */
-  @Bean(name = "urlSignConverter")
-  public Converter<String, String> urlSignConverter(UrlSigner urlSigner) {
-    return mappingContext -> urlSigner.apply(mappingContext.getSource());
-  }
-
-  /**
    * The link spec mapper configuration.
    */
   @Configuration
@@ -80,14 +46,12 @@ public class ModelMapperConfiguration {
 
     private final Converter<String, String> urlSignConverter;
 
-    /**
-     * Instantiates a new link spec mapper configuration.
-     *
-     * @param urlSignConverter the presigned url converter
-     */
-    public LinkSpecMapperConfiguration(
-        @Qualifier("urlSignConverter") Converter<String, String> urlSignConverter) {
-      this.urlSignConverter = urlSignConverter;
+    public LinkSpecMapperConfiguration(MinioRepository minioRepository) {
+      this.urlSignConverter = mappingContext -> Optional
+          .ofNullable(mappingContext.getSource())
+          .map(MinioObjectId::from)
+          .map(id -> minioRepository.getPresignedObjectUrl(id, Method.GET))
+          .orElse(null);
     }
 
     @Override

@@ -16,12 +16,12 @@
 
 package org.bremersee.linkman.controller;
 
-import static org.bremersee.web.reactive.UploadedItemBuilder.getUploadedItem;
+import static org.bremersee.linkman.model.LinkSpec.CARD_IMAGE_NAME;
+import static org.bremersee.linkman.model.LinkSpec.MENU_IMAGE_NAME;
+import static org.bremersee.web.reactive.multipart.MultipartFileBuilder.getMultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,11 +34,9 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
-import org.bremersee.web.ReqParam;
-import org.bremersee.web.reactive.UploadedItemBuilder;
+import org.bremersee.web.reactive.multipart.MultipartFileBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +45,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -64,19 +63,19 @@ public class LinkController {
 
   private final LinkService linkService;
 
-  private final UploadedItemBuilder uploadedItemBuilder;
+  private final MultipartFileBuilder multipartFileBuilder;
 
   /**
    * Instantiates a new link controller.
    *
    * @param linkService the link service
-   * @param uploadedItemBuilder the uploaded item builder
+   * @param multipartFileBuilder the multipart file builder
    */
   public LinkController(
       LinkService linkService,
-      UploadedItemBuilder uploadedItemBuilder) {
+      MultipartFileBuilder multipartFileBuilder) {
     this.linkService = linkService;
-    this.uploadedItemBuilder = uploadedItemBuilder;
+    this.multipartFileBuilder = multipartFileBuilder;
   }
 
   /**
@@ -226,7 +225,8 @@ public class LinkController {
    * Update link images.
    *
    * @param id the link id
-   * @param formData the form data
+   * @param cardImage the card image
+   * @param menuImage the menu image
    * @return the link
    */
   @Operation(
@@ -261,29 +261,27 @@ public class LinkController {
           responseCode = "403",
           description = "Forbidden")
   })
-  @Parameters({
-      @Parameter(name = "id", description = "The link ID.", required = true, in = ParameterIn.PATH),
-      @Parameter(name = "cardImage", description = "The card image.", style = ParameterStyle.FORM),
-      @Parameter(name = "menuImage", description = "The menu image.", style = ParameterStyle.FORM)
-  })
   @PostMapping(
       path = "/api/links/{id}/images",
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<LinkSpec> updateLinkImages(
+      @Parameter(name = "id", description = "The link ID.", required = true)
       @PathVariable("id") String id,
-      @RequestBody Mono<MultiValueMap<String, Part>> formData) {
+
+      @Parameter(name = "cardImage", description = "The card image.", style = ParameterStyle.FORM)
+      @RequestPart(name = CARD_IMAGE_NAME, required = false) Flux<Part> cardImage,
+
+      @Parameter(name = "menuImage", description = "The menu image.", style = ParameterStyle.FORM)
+      @RequestPart(name = MENU_IMAGE_NAME, required = false) Flux<Part> menuImage) {
 
     log.info("Updating link images (link id = {}).", id);
-    return formData
-        .flatMap(multiPartData -> uploadedItemBuilder.buildFromFirstParameterValue(
-            multiPartData,
-            new ReqParam(LinkSpec.CARD_IMAGE_NAME, false),
-            new ReqParam(LinkSpec.MENU_IMAGE_NAME, false)))
-        .flatMap(putObjects -> linkService.updateLinkImages(
+    //noinspection unchecked
+    return multipartFileBuilder.buildMap(cardImage, menuImage)
+        .flatMap(map -> linkService.updateLinkImages(
             id,
-            getUploadedItem(putObjects, 0),
-            getUploadedItem(putObjects, 1)));
+            getMultipartFile(map, CARD_IMAGE_NAME),
+            getMultipartFile(map, MENU_IMAGE_NAME)));
   }
 
   /**

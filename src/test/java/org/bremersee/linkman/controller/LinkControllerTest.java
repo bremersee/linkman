@@ -347,11 +347,13 @@ class LinkControllerTest {
     }
 
     MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
-    bodyBuilder.part(LinkSpec.CARD_IMAGE_NAME, cardImage, MediaType.IMAGE_PNG)
+    bodyBuilder
+        .part(LinkSpec.CARD_IMAGE_NAME, cardImage, MediaType.IMAGE_PNG)
         .header(
             "Content-Disposition",
             "form-data; name=cardImage; filename=test.png");
-    bodyBuilder.part(LinkSpec.MENU_IMAGE_NAME, menuImageValue);
+    bodyBuilder
+        .part(LinkSpec.MENU_IMAGE_NAME, menuImageValue);
 
     webTestClient
         .post()
