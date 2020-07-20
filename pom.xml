@@ -25,10 +25,10 @@
 
     <start-class>org.bremersee.linkman.Application</start-class>
 
-    <groupman-api-spring-reactive.version>2.1.0-SNAPSHOT</groupman-api-spring-reactive.version>
-    <common-model.version>2.1.0-SNAPSHOT</common-model.version>
-    <common-base.version>2.2.0-SNAPSHOT</common-base.version>
-    <comparator.version>2.2.0-SNAPSHOT</comparator.version>
+    <groupman-api-spring-reactive.version>2.1.0</groupman-api-spring-reactive.version>
+    <common-model.version>2.1.0</common-model.version>
+    <common-base.version>2.2.0</common-base.version>
+    <comparator.version>2.2.0</comparator.version>
   </properties>
 
   <scm>

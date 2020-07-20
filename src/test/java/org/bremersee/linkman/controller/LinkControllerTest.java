@@ -55,7 +55,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -71,42 +70,36 @@ import reactor.test.StepVerifier;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"in-memory"})
-@TestInstance(Lifecycle.PER_CLASS) // allows us to use @BeforeAll with a non-static method
+@TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class LinkControllerTest {
 
   private static final String categoryId = UUID.randomUUID().toString();
 
   /**
-   * The application context.
-   */
-  @Autowired
-  ApplicationContext context;
-
-  /**
    * The web test client.
    */
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
-  WebTestClient webTestClient;
+  private WebTestClient webTestClient;
 
   /**
    * The category repository.
    */
   @Autowired
-  CategoryRepository categoryRepository;
+  private CategoryRepository categoryRepository;
 
   /**
    * The link repository.
    */
   @Autowired
-  LinkRepository linkRepository;
+  private LinkRepository linkRepository;
 
   /**
    * The model mapper.
    */
   @Autowired
-  ModelMapper modelMapper;
+  private ModelMapper modelMapper;
 
   /**
    * The test category.
@@ -144,12 +137,6 @@ class LinkControllerTest {
    */
   @BeforeAll
   void setUp() {
-    // https://docs.spring.io/spring-security/site/docs/current/reference/html/test-webflux.html
-    WebTestClient
-        .bindToApplicationContext(this.context)
-        .configureClient()
-        .build();
-
     CategoryEntity testCategoryEntity = modelMapper.map(testCategory, CategoryEntity.class);
     StepVerifier
         .create(categoryRepository.save(testCategoryEntity))

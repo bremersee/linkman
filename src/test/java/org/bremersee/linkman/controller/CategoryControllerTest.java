@@ -49,7 +49,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -65,39 +64,33 @@ import reactor.test.StepVerifier;
     "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwk"
 })
 @ActiveProfiles({"default"})
-@TestInstance(Lifecycle.PER_CLASS) // allows us to use @BeforeAll with a non-static method
+@TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CategoryControllerTest {
-
-  /**
-   * The application context.
-   */
-  @Autowired
-  ApplicationContext context;
 
   /**
    * The web test client.
    */
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
-  WebTestClient webTestClient;
+  private WebTestClient webTestClient;
 
   /**
    * The category repository.
    */
   @Autowired
-  CategoryRepository categoryRepository;
+  private CategoryRepository categoryRepository;
 
   /**
    * The model mapper.
    */
   @Autowired
-  ModelMapper modelMapper;
+  private ModelMapper modelMapper;
 
   /**
    * The test entry.
    */
-  final CategorySpec testEntry = CategorySpec.builder()
+  private final CategorySpec testEntry = CategorySpec.builder()
       .id(UUID.randomUUID().toString())
       .order(100)
       .name("Administration")
@@ -115,11 +108,6 @@ class CategoryControllerTest {
    */
   @BeforeAll
   void setUp() {
-    // https://docs.spring.io/spring-security/site/docs/current/reference/html/test-webflux.html
-    WebTestClient
-        .bindToApplicationContext(this.context)
-        .configureClient()
-        .build();
     CategoryEntity testEntity = modelMapper.map(testEntry, CategoryEntity.class);
     StepVerifier
         .create(categoryRepository.save(testEntity))

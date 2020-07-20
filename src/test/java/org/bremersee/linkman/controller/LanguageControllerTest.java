@@ -25,7 +25,6 @@ import java.util.Locale;
 import org.bremersee.common.model.JavaLocaleDescription;
 import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.bremersee.test.security.authentication.WithJwtAuthenticationToken;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -47,33 +46,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 })
 @ActiveProfiles({"default"})
 @TestInstance(Lifecycle.PER_CLASS)
-    // allows us to use @BeforeAll with a non-static method
 class LanguageControllerTest {
-
-  /**
-   * The application context.
-   */
-  @Autowired
-  ApplicationContext context;
 
   /**
    * The web test client.
    */
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
-  WebTestClient webTestClient;
-
-  /**
-   * Setup tests.
-   */
-  @BeforeAll
-  void setUp() {
-    // https://docs.spring.io/spring-security/site/docs/current/reference/html/test-webflux.html
-    WebTestClient
-        .bindToApplicationContext(this.context)
-        .configureClient()
-        .build();
-  }
+  private WebTestClient webTestClient;
 
   /**
    * Gets available languages.
