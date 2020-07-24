@@ -41,6 +41,8 @@ bremersee:
         access-mode: permit_all
       - ant-pattern: "/api/**"
         roles: *adminRoles
+    jwt-cache:
+      key-prefix: "jwt_${spring.application.name}_"
   redis:
     embedded: true
   minio:

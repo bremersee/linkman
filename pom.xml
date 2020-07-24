@@ -27,7 +27,7 @@
 
     <groupman-api-spring-reactive.version>2.1.0</groupman-api-spring-reactive.version>
     <common-model.version>2.1.0</common-model.version>
-    <common-base.version>2.2.0</common-base.version>
+    <common-base.version>2.2.1-SNAPSHOT</common-base.version>
     <comparator.version>2.2.0</comparator.version>
   </properties>
 
