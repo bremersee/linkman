@@ -30,7 +30,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -42,7 +41,11 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * @author Christian Bremer
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-    "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwk"
+    "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwk",
+    "bremersee.linkman.available-languages[0]=en",
+    "bremersee.linkman.available-languages[1]=de",
+    "bremersee.linkman.available-languages[2]=fr",
+    "bremersee.linkman.available-languages[3]=bg"
 })
 @ActiveProfiles({"default"})
 @TestInstance(Lifecycle.PER_CLASS)
