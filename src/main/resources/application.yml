@@ -41,18 +41,29 @@ bremersee:
         access-mode: permit_all
       - ant-pattern: "/api/**"
         roles: *adminRoles
+    jwt-cache:
+      key-prefix: "jwt_${spring.application.name}_"
   redis:
     embedded: true
+  minio:
+    url: "https://play.min.io"
+    access-key: "Q3AM3UQ867SPQQA43P2F"
+    secret-key: "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
 
 eureka:
   client:
     enabled: false
 
 spring:
+  #  codec:
+  #    max-in-memory-size: 8MB
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017/test}
       auto-index-creation: true
+    redis:
+      repositories:
+        enabled: false
   sleuth:
     enabled: ${SLEUTH_ENABLED:false}
     sampler:
@@ -64,7 +75,6 @@ spring:
     loadbalancer:
       ribbon:
         enabled: false
-
 management:
   endpoints:
     web:
@@ -78,6 +88,10 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+  # Redis health check is broken: https://github.com/spring-projects/spring-boot/issues/22061
+  health:
+    redis:
+      enabled: false
 
 server:
   port: ${SERVER_PORT:8080}
@@ -87,7 +101,7 @@ logging:
     ROOT: info
     com.netflix.eureka.registry: warn
     com.netflix.discovery.shared.resolver: warn
-    org.springframework.cloud.configclient: warn
+    org.springframework.cloud.config.client: warn
 
 ---
 

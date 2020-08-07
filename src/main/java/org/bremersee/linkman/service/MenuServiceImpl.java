@@ -16,14 +16,19 @@
 
 package org.bremersee.linkman.service;
 
+import io.minio.http.Method;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import org.bremersee.common.model.Link;
+import org.bremersee.data.minio.MinioObjectId;
+import org.bremersee.data.minio.MinioRepository;
+import org.bremersee.linkman.model.Link;
 import org.bremersee.linkman.model.MenuEntry;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.bremersee.security.core.UserContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.util.function.Tuples;
 
@@ -39,16 +44,23 @@ public class MenuServiceImpl implements MenuService {
 
   private final LinkRepository linkRepository;
 
+  private final MinioRepository imageRepository;
+
   /**
    * Instantiates a new menu service.
    *
    * @param categoryRepository the category repository
    * @param linkRepository the link repository
+   * @param imageRepository the image repository
    */
-  public MenuServiceImpl(CategoryRepository categoryRepository,
-      LinkRepository linkRepository) {
+  public MenuServiceImpl(
+      CategoryRepository categoryRepository,
+      LinkRepository linkRepository,
+      MinioRepository imageRepository) {
+
     this.categoryRepository = categoryRepository;
     this.linkRepository = linkRepository;
+    this.imageRepository = imageRepository;
   }
 
   @Override
@@ -74,10 +86,22 @@ public class MenuServiceImpl implements MenuService {
                     .href(linkEntity.getHref())
                     .blank(linkEntity.getBlank())
                     .text(linkEntity.getText(language))
+                    .displayText(linkEntity.getDisplayText())
                     .description(linkEntity.getDescription(language))
+                    .cardImageUrl(getPresignedUrl(linkEntity.getCardImage()))
+                    .menuImageUrl(getPresignedUrl(linkEntity.getMenuImage()))
                     .build())
                 .collect(Collectors.toList()))
             .build())
         .filter(menuEntry -> menuEntry.getLinks() != null && !menuEntry.getLinks().isEmpty());
   }
+
+  private String getPresignedUrl(String objectName) {
+    return Optional.ofNullable(objectName)
+        .filter(StringUtils::hasText)
+        .map(MinioObjectId::from)
+        .map(id -> imageRepository.getPresignedObjectUrl(id, Method.GET))
+        .orElse(null);
+  }
+
 }

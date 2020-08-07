@@ -29,10 +29,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import org.bremersee.common.model.Link;
 import org.bremersee.groupman.api.GroupWebfluxControllerApi;
-import org.bremersee.linkman.config.LinkmanProperties;
 import org.bremersee.linkman.model.CategorySpec;
+import org.bremersee.linkman.model.Link;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.model.MenuEntry;
 import org.bremersee.linkman.model.Translation;
@@ -53,7 +52,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -70,54 +68,27 @@ import reactor.test.StepVerifier;
     "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/jwk"
 })
 @ActiveProfiles({"default"})
-@TestInstance(Lifecycle.PER_CLASS) // allows us to use @BeforeAll with a non-static method
+@TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MenuControllerTest {
 
   private static final String categoryId = UUID.randomUUID().toString();
 
-  /**
-   * The application context.
-   */
-  @Autowired
-  ApplicationContext context;
-
-  /**
-   * The web test client.
-   */
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
-  WebTestClient webTestClient;
+  private WebTestClient webTestClient;
 
-  /**
-   * The properties.
-   */
   @Autowired
-  LinkmanProperties properties;
+  private CategoryRepository categoryRepository;
 
-  /**
-   * The category repository.
-   */
   @Autowired
-  CategoryRepository categoryRepository;
+  private LinkRepository linkRepository;
 
-  /**
-   * The link repository.
-   */
   @Autowired
-  LinkRepository linkRepository;
+  private ModelMapper modelMapper;
 
-  /**
-   * The model mapper.
-   */
-  @Autowired
-  ModelMapper modelMapper;
-
-  /**
-   * The group service.
-   */
   @MockBean
-  GroupWebfluxControllerApi groupService;
+  private GroupWebfluxControllerApi groupService;
 
   /**
    * The test category.
@@ -175,12 +146,6 @@ class MenuControllerTest {
    */
   @BeforeAll
   void setUp() {
-    // https://docs.spring.io/spring-security/site/docs/current/reference/html/test-webflux.html
-    WebTestClient
-        .bindToApplicationContext(this.context)
-        .configureClient()
-        .build();
-
     CategoryEntity testCategoryEntity = modelMapper.map(testCategory, CategoryEntity.class);
     StepVerifier
         .create(categoryRepository.save(testCategoryEntity))

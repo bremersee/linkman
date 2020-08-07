@@ -16,18 +16,21 @@
 
 package org.bremersee.linkman.config;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The linkman properties.
@@ -35,12 +38,18 @@ import org.springframework.stereotype.Component;
  * @author Christian Bremer
  */
 @ConfigurationProperties(prefix = "bremersee.linkman")
-@Component
+@Validated
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
 public class LinkmanProperties {
+
+  @NotEmpty
+  private String bucketName = "linkman";
+
+  @NotNull
+  private Duration presignedObjectUrlDuration = Duration.ofDays(1L);
 
   private String groupmanBaseUri;
 
@@ -60,30 +69,8 @@ public class LinkmanProperties {
    * Instantiates new linkman properties.
    */
   public LinkmanProperties() {
-    availableLanguages.add(TwoLetterLanguageCode.BG);
-    availableLanguages.add(TwoLetterLanguageCode.HR);
-    availableLanguages.add(TwoLetterLanguageCode.CS);
-    availableLanguages.add(TwoLetterLanguageCode.DA);
-    availableLanguages.add(TwoLetterLanguageCode.NL);
     availableLanguages.add(TwoLetterLanguageCode.EN);
-    availableLanguages.add(TwoLetterLanguageCode.ET);
-    availableLanguages.add(TwoLetterLanguageCode.FI);
-    availableLanguages.add(TwoLetterLanguageCode.FR);
     availableLanguages.add(TwoLetterLanguageCode.DE);
-    availableLanguages.add(TwoLetterLanguageCode.EL);
-    availableLanguages.add(TwoLetterLanguageCode.HU);
-    availableLanguages.add(TwoLetterLanguageCode.GA);
-    availableLanguages.add(TwoLetterLanguageCode.IT);
-    availableLanguages.add(TwoLetterLanguageCode.LV);
-    availableLanguages.add(TwoLetterLanguageCode.LT);
-    availableLanguages.add(TwoLetterLanguageCode.MT);
-    availableLanguages.add(TwoLetterLanguageCode.PL);
-    availableLanguages.add(TwoLetterLanguageCode.PT);
-    availableLanguages.add(TwoLetterLanguageCode.RO);
-    availableLanguages.add(TwoLetterLanguageCode.SK);
-    availableLanguages.add(TwoLetterLanguageCode.SL);
-    availableLanguages.add(TwoLetterLanguageCode.ES);
-    availableLanguages.add(TwoLetterLanguageCode.SV);
 
     publicCategory = new Category();
     publicCategory.setName("Public");

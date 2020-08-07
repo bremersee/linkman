@@ -32,7 +32,7 @@ import reactor.core.publisher.Mono;
 @SuppressWarnings("unused")
 public class LinkRepositoryImpl implements LinkRepositoryCustom {
 
-  private ReactiveMongoTemplate mongoTemplate;
+  private final ReactiveMongoTemplate mongoTemplate;
 
   /**
    * Instantiates a new custom link repository.

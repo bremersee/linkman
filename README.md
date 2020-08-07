@@ -8,4 +8,4 @@ A link management service.
 
 - [Release](https://bremersee.github.io/linkman/index.html)
 
-- [Snapshot](https://nexus.bremersee.org/repository/maven-sites/linkman/1.0.2-SNAPSHOT/index.html)
+- [Snapshot](https://nexus.bremersee.org/repository/maven-sites/linkman/1.0.3-SNAPSHOT/index.html)

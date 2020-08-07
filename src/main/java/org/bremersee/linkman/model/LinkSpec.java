@@ -35,6 +35,8 @@ import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.springframework.validation.annotation.Validated;
 
 /**
+ * The link specification.
+ *
  * @author Christian Bremer
  */
 @Schema(description = "The specification of a link.")
@@ -45,6 +47,16 @@ import org.springframework.validation.annotation.Validated;
 @NoArgsConstructor
 @Validated
 public class LinkSpec {
+
+  /**
+   * The constant CARD_IMAGE_NAME.
+   */
+  public static final String CARD_IMAGE_NAME = "cardImage";
+
+  /**
+   * The constant MENU_IMAGE_NAME.
+   */
+  public static final String MENU_IMAGE_NAME = "menuImage";
 
   @Schema(description = "Unique identifier of the link.", accessMode = AccessMode.READ_ONLY)
   @JsonProperty("id")
@@ -82,6 +94,10 @@ public class LinkSpec {
   @JsonProperty("textTranslations")
   private Set<Translation> textTranslations = new LinkedHashSet<>();
 
+  @Schema(description = "Specifies whether the text should be displayed or not.")
+  @JsonProperty("displayText")
+  private Boolean displayText = Boolean.TRUE;
+
   @Schema(
       description = "The description of the link.",
       example = "On the example page you can view some examples.")
@@ -93,6 +109,14 @@ public class LinkSpec {
   @JsonProperty("descriptionTranslations")
   private Set<Translation> descriptionTranslations = new LinkedHashSet<>();
 
+  @Schema(description = "The image URL of the card.")
+  @JsonProperty("cardImageUrl")
+  private String cardImageUrl;
+
+  @Schema(description = "The image URL of the menu entry.")
+  @JsonProperty("menuImageUrl")
+  private String menuImageUrl;
+
   /**
    * Instantiates a new link specification.
    *
@@ -103,8 +127,11 @@ public class LinkSpec {
    * @param blank specified whether to open the link in a blank target (default is false)
    * @param text the text that is displayed instead of the link
    * @param textTranslations the text translations
+   * @param displayText the display text
    * @param description the description
    * @param descriptionTranslations the description translations
+   * @param cardImageUrl the card image url
+   * @param menuImageUrl the menu image url
    */
   @Builder(toBuilder = true)
   @SuppressWarnings("unused")
@@ -116,8 +143,11 @@ public class LinkSpec {
       Boolean blank,
       String text,
       Set<Translation> textTranslations,
+      Boolean displayText,
       String description,
-      Set<Translation> descriptionTranslations) {
+      Set<Translation> descriptionTranslations,
+      String cardImageUrl,
+      String menuImageUrl) {
     this.id = id;
     setCategoryIds(categoryIds);
     this.order = order;
@@ -125,10 +155,18 @@ public class LinkSpec {
     setBlank(blank);
     this.text = text;
     setTextTranslations(textTranslations);
+    setDisplayText(displayText);
     this.description = description;
     setDescriptionTranslations(descriptionTranslations);
+    this.cardImageUrl = cardImageUrl;
+    this.menuImageUrl = menuImageUrl;
   }
 
+  /**
+   * Sets category ids.
+   *
+   * @param categoryIds the category ids
+   */
   public void setCategoryIds(Set<String> categoryIds) {
     this.categoryIds.clear();
     if (categoryIds != null) {
@@ -155,6 +193,15 @@ public class LinkSpec {
     if (textTranslations != null) {
       this.textTranslations.addAll(textTranslations);
     }
+  }
+
+  /**
+   * Sets display text.
+   *
+   * @param displayText the display text
+   */
+  public void setDisplayText(Boolean displayText) {
+    this.displayText = displayText == null || displayText;
   }
 
   /**

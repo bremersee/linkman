@@ -33,6 +33,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 
@@ -69,11 +70,25 @@ public class LinkEntity implements Comparable<LinkEntity> {
 
   private Set<Translation> textTranslations = new LinkedHashSet<>();
 
-  @NotBlank
+  private Boolean displayText = Boolean.TRUE;
+
   @Size(max = 255)
   private String description;
 
   private Set<Translation> descriptionTranslations = new LinkedHashSet<>();
+
+  private String cardImage;
+
+  private String menuImage;
+
+  /**
+   * Sets blank.
+   *
+   * @param blank the blank
+   */
+  public void setBlank(Boolean blank) {
+    this.blank = Boolean.TRUE.equals(blank);
+  }
 
   /**
    * Gets text.
@@ -88,6 +103,15 @@ public class LinkEntity implements Comparable<LinkEntity> {
         .flatMap(set -> set.stream().filter(entry -> code == entry.getLanguage()).findAny())
         .map(Translation::getValue)
         .orElse(text);
+  }
+
+  /**
+   * Sets display text.
+   *
+   * @param displayText the display text
+   */
+  public void setDisplayText(Boolean displayText) {
+    this.displayText = displayText == null || displayText;
   }
 
   /**
@@ -117,14 +141,15 @@ public class LinkEntity implements Comparable<LinkEntity> {
     if (StringUtils.hasText(id) && StringUtils.hasText(that.id)) {
       return id.equals(that.getId());
     }
-    return order == that.order &&
-        Objects.equals(categoryIds, that.categoryIds) &&
-        Objects.equals(href, that.href) &&
-        Objects.equals(blank, that.blank) &&
-        Objects.equals(text, that.text) &&
-        Objects.equals(textTranslations, that.textTranslations) &&
-        Objects.equals(description, that.description) &&
-        Objects.equals(descriptionTranslations, that.descriptionTranslations);
+    return order == that.order
+        && Objects.equals(categoryIds, that.categoryIds)
+        && Objects.equals(href, that.href)
+        && Objects.equals(blank, that.blank)
+        && Objects.equals(text, that.text)
+        && Objects.equals(textTranslations, that.textTranslations)
+        && Objects.equals(displayText, that.displayText)
+        && Objects.equals(description, that.description)
+        && Objects.equals(descriptionTranslations, that.descriptionTranslations);
   }
 
   @Override
@@ -132,12 +157,12 @@ public class LinkEntity implements Comparable<LinkEntity> {
     if (StringUtils.hasText(id)) {
       return id.hashCode();
     }
-    return Objects.hash(categoryIds, order, href, blank, text, textTranslations, description,
-        descriptionTranslations);
+    return Objects.hash(categoryIds, order, href, blank, text, textTranslations, displayText,
+        description, descriptionTranslations);
   }
 
   @Override
-  public int compareTo(final LinkEntity o) {
+  public int compareTo(@NonNull final LinkEntity o) {
     return compareTo(o, null);
   }
 

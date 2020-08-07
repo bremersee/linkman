@@ -20,14 +20,22 @@ import static org.bremersee.security.core.AuthorityConstants.ADMIN_ROLE_NAME;
 import static org.bremersee.security.core.AuthorityConstants.USER_ROLE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.maxschuster.dataurl.DataUrl;
+import eu.maxschuster.dataurl.DataUrlBuilder;
+import eu.maxschuster.dataurl.DataUrlEncoding;
+import eu.maxschuster.dataurl.DataUrlSerializer;
+import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.model.CategorySpec;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.model.Translation;
@@ -47,8 +55,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -62,42 +70,36 @@ import reactor.test.StepVerifier;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"in-memory"})
-@TestInstance(Lifecycle.PER_CLASS) // allows us to use @BeforeAll with a non-static method
+@TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class LinkControllerTest {
 
   private static final String categoryId = UUID.randomUUID().toString();
 
   /**
-   * The application context.
-   */
-  @Autowired
-  ApplicationContext context;
-
-  /**
    * The web test client.
    */
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
-  WebTestClient webTestClient;
+  private WebTestClient webTestClient;
 
   /**
    * The category repository.
    */
   @Autowired
-  CategoryRepository categoryRepository;
+  private CategoryRepository categoryRepository;
 
   /**
    * The link repository.
    */
   @Autowired
-  LinkRepository linkRepository;
+  private LinkRepository linkRepository;
 
   /**
    * The model mapper.
    */
   @Autowired
-  ModelMapper modelMapper;
+  private ModelMapper modelMapper;
 
   /**
    * The test category.
@@ -135,12 +137,6 @@ class LinkControllerTest {
    */
   @BeforeAll
   void setUp() {
-    // https://docs.spring.io/spring-security/site/docs/current/reference/html/test-webflux.html
-    WebTestClient
-        .bindToApplicationContext(this.context)
-        .configureClient()
-        .build();
-
     CategoryEntity testCategoryEntity = modelMapper.map(testCategory, CategoryEntity.class);
     StepVerifier
         .create(categoryRepository.save(testCategoryEntity))
@@ -312,6 +308,66 @@ class LinkControllerTest {
         .expectBody(LinkSpec.class)
         .value((Consumer<LinkSpec>) entry -> assertEquals(
             "Page d'administration", entry.getText("fr")));
+  }
+
+  @WithMockUser(
+      username = "admin",
+      password = "admin",
+      authorities = {ADMIN_ROLE_NAME})
+  @Order(45)
+  @Test
+  void updateAndDeleteLinkImages() {
+
+    final byte[] cardImage = "cardImage".getBytes(StandardCharsets.UTF_8);
+    final byte[] menuImage = "menuImage".getBytes(StandardCharsets.UTF_8);
+    final DataUrl menuImageDataUrl = new DataUrlBuilder()
+        .setData(menuImage)
+        .setCharset(StandardCharsets.UTF_8.name())
+        .setEncoding(DataUrlEncoding.BASE64)
+        .setMimeType(MediaType.IMAGE_GIF_VALUE)
+        .build();
+    final String menuImageValue;
+    try {
+      menuImageValue = new DataUrlSerializer().serialize(menuImageDataUrl);
+    } catch (MalformedURLException e) {
+      throw ServiceException.internalServerError("Fatal error", e);
+    }
+
+    MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+    bodyBuilder
+        .part(LinkSpec.CARD_IMAGE_NAME, cardImage, MediaType.IMAGE_PNG)
+        .header(
+            "Content-Disposition",
+            "form-data; name=cardImage; filename=test.png");
+    bodyBuilder
+        .part(LinkSpec.MENU_IMAGE_NAME, menuImageValue);
+
+    webTestClient
+        .post()
+        .uri("/api/links/{id}/images", testLink.getId())
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.MULTIPART_FORM_DATA)
+        .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
+        .exchange()
+        .expectBody(LinkSpec.class)
+        .value((Consumer<LinkSpec>) entry -> {
+          assertNotNull(entry);
+          assertNotNull(entry.getCardImageUrl());
+          assertNotNull(entry.getMenuImageUrl());
+        });
+
+    webTestClient
+        .delete()
+        .uri("/api/links/{id}/images?name={0}&name={1}",
+            testLink.getId(), LinkSpec.CARD_IMAGE_NAME, LinkSpec.MENU_IMAGE_NAME)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectBody(LinkSpec.class)
+        .value((Consumer<LinkSpec>) entry -> {
+          assertNotNull(entry);
+          assertNull(entry.getCardImageUrl());
+          assertNull(entry.getMenuImageUrl());
+        });
   }
 
   /**
