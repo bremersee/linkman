@@ -44,7 +44,7 @@ import org.springframework.validation.annotation.Validated;
 @TypeAlias(&quot;category&quot;)
 @Getter
 <span class="fc" id="L46">@Setter</span>
-<span class="nc" id="L47">@ToString</span>
+<span class="fc" id="L47">@ToString</span>
 <span class="fc" id="L48">@NoArgsConstructor</span>
 @Validated
 public class CategoryEntity implements Comparable&lt;CategoryEntity&gt; {
@@ -91,33 +91,33 @@ public class CategoryEntity implements Comparable&lt;CategoryEntity&gt; {
 
   @Override
   public boolean equals(Object o) {
-<span class="nc bnc" id="L94" title="All 2 branches missed.">    if (this == o) {</span>
-<span class="nc" id="L95">      return true;</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    if (this == o) {</span>
+<span class="fc" id="L95">      return true;</span>
     }
-<span class="nc bnc" id="L97" title="All 4 branches missed.">    if (o == null || getClass() != o.getClass()) {</span>
-<span class="nc" id="L98">      return false;</span>
+<span class="fc bfc" id="L97" title="All 4 branches covered.">    if (o == null || getClass() != o.getClass()) {</span>
+<span class="fc" id="L98">      return false;</span>
     }
-<span class="nc" id="L100">    CategoryEntity entity = (CategoryEntity) o;</span>
-<span class="nc bnc" id="L101" title="All 4 branches missed.">    if (StringUtils.hasText(id) &amp;&amp; StringUtils.hasText(entity.id)) {</span>
-<span class="nc" id="L102">      return id.equals(entity.getId());</span>
+<span class="fc" id="L100">    CategoryEntity entity = (CategoryEntity) o;</span>
+<span class="pc bpc" id="L101" title="1 of 4 branches missed.">    if (StringUtils.hasText(id) &amp;&amp; StringUtils.hasText(entity.id)) {</span>
+<span class="fc" id="L102">      return id.equals(entity.getId());</span>
     }
-<span class="nc bnc" id="L104" title="All 2 branches missed.">    return order == entity.order</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        &amp;&amp; Objects.equals(name, entity.name)</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        &amp;&amp; Objects.equals(translations, entity.translations);</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">    return order == entity.order</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        &amp;&amp; Objects.equals(name, entity.name)</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        &amp;&amp; Objects.equals(translations, entity.translations);</span>
   }
 
   @Override
   public int hashCode() {
-<span class="nc bnc" id="L111" title="All 2 branches missed.">    if (StringUtils.hasText(id)) {</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">    if (StringUtils.hasText(id)) {</span>
 <span class="nc" id="L112">      return id.hashCode();</span>
     }
-<span class="nc" id="L114">    return Objects</span>
-<span class="nc" id="L115">        .hash(order, name, translations);</span>
+<span class="fc" id="L114">    return Objects</span>
+<span class="fc" id="L115">        .hash(order, name, translations);</span>
   }
 
   @Override
   public int compareTo(final CategoryEntity o) {
-<span class="nc" id="L120">    return compareTo(o, null);</span>
+<span class="fc" id="L120">    return compareTo(o, null);</span>
   }
 
   /**
@@ -129,10 +129,10 @@ public class CategoryEntity implements Comparable&lt;CategoryEntity&gt; {
    */
   public int compareTo(final CategoryEntity o, final Locale language) {
 <span class="fc" id="L131">    int result = Integer.compare(order, o.order);</span>
-<span class="pc bpc" id="L132" title="1 of 2 branches missed.">    return result != 0</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">    return result != 0</span>
 <span class="fc" id="L133">        ? result</span>
-<span class="nc" id="L134">        : String.valueOf(getName(language))</span>
-<span class="nc" id="L135">            .compareToIgnoreCase(String.valueOf(o.getName(language)));</span>
+<span class="fc" id="L134">        : String.valueOf(getName(language))</span>
+<span class="fc" id="L135">            .compareToIgnoreCase(String.valueOf(o.getName(language)));</span>
   }
 
 }

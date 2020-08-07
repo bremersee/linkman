@@ -16,6 +16,15 @@
 
 package org.bremersee.linkman.service;
 
+import static org.bremersee.linkman.model.LinkSpec.CARD_IMAGE_NAME;
+import static org.bremersee.linkman.model.LinkSpec.MENU_IMAGE_NAME;
+
+import java.util.ArrayList;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.data.minio.DeleteMode;
+import org.bremersee.data.minio.MinioObjectId;
+import org.bremersee.data.minio.MinioRepository;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.repository.CategoryRepository;
@@ -26,6 +35,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,6 +45,7 @@ import reactor.core.publisher.Mono;
  * @author Christian Bremer
  */
 @Component
+<span class="fc" id="L48">@Slf4j</span>
 public class LinkServiceImpl implements LinkService {
 
   private final LinkRepository linkRepository;
@@ -43,68 +54,132 @@ public class LinkServiceImpl implements LinkService {
 
   private final ModelMapper modelMapper;
 
+  private final MinioRepository imageRepository;
+
   /**
    * Instantiates a new link service.
    *
    * @param linkRepository the link repository
    * @param categoryRepository the category repository
+   * @param imageRepository the minio image repository
    * @param modelMapper the model mapper
    */
   public LinkServiceImpl(
       LinkRepository linkRepository,
       CategoryRepository categoryRepository,
-<span class="fc" id="L56">      ModelMapper modelMapper) {</span>
-<span class="fc" id="L57">    this.linkRepository = linkRepository;</span>
-<span class="fc" id="L58">    this.categoryRepository = categoryRepository;</span>
-<span class="fc" id="L59">    this.modelMapper = modelMapper;</span>
-<span class="fc" id="L60">  }</span>
+      MinioRepository imageRepository,
+<span class="fc" id="L71">      ModelMapper modelMapper) {</span>
+<span class="fc" id="L72">    this.linkRepository = linkRepository;</span>
+<span class="fc" id="L73">    this.categoryRepository = categoryRepository;</span>
+<span class="fc" id="L74">    this.imageRepository = imageRepository;</span>
+<span class="fc" id="L75">    this.modelMapper = modelMapper;</span>
+<span class="fc" id="L76">  }</span>
 
   @Override
   public Flux&lt;LinkSpec&gt; getLinks(String categoryId) {
-<span class="fc" id="L64">    final Sort sort = Sort.by(Order.asc(&quot;order&quot;), Order.asc(&quot;text&quot;));</span>
-<span class="fc bfc" id="L65" title="All 2 branches covered.">    return (StringUtils.hasText(categoryId)</span>
-<span class="fc" id="L66">        ? linkRepository.findByCategoryId(categoryId, sort)</span>
-<span class="fc" id="L67">        : linkRepository.findAll(sort))</span>
-<span class="fc" id="L68">        .map(entity -&gt; modelMapper.map(entity, LinkSpec.class));</span>
+<span class="fc" id="L80">    final Sort sort = Sort.by(Order.asc(&quot;order&quot;), Order.asc(&quot;text&quot;));</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">    return (StringUtils.hasText(categoryId)</span>
+<span class="fc" id="L82">        ? linkRepository.findByCategoryId(categoryId, sort)</span>
+<span class="fc" id="L83">        : linkRepository.findAll(sort))</span>
+<span class="fc" id="L84">        .map(entity -&gt; modelMapper.map(entity, LinkSpec.class));</span>
   }
 
   @Override
   public Mono&lt;LinkSpec&gt; addLink(LinkSpec link) {
-<span class="fc" id="L73">    return categoryRepository.validateCategoryIds(link.getCategoryIds())</span>
-<span class="fc" id="L74">        .map(categoryIds -&gt; link.toBuilder()</span>
-<span class="fc" id="L75">            .id(null)</span>
-<span class="fc" id="L76">            .categoryIds(categoryIds)</span>
-<span class="fc" id="L77">            .build())</span>
-<span class="fc" id="L78">        .flatMap(model -&gt; linkRepository</span>
-<span class="fc" id="L79">            .save(modelMapper.map(model, LinkEntity.class))</span>
-<span class="fc" id="L80">            .map(entity -&gt; modelMapper.map(entity, LinkSpec.class)));</span>
+<span class="fc" id="L89">    return categoryRepository.validateCategoryIds(link.getCategoryIds())</span>
+<span class="fc" id="L90">        .map(categoryIds -&gt; link.toBuilder()</span>
+<span class="fc" id="L91">            .id(null)</span>
+<span class="fc" id="L92">            .categoryIds(categoryIds)</span>
+<span class="fc" id="L93">            .build())</span>
+<span class="fc" id="L94">        .flatMap(model -&gt; linkRepository</span>
+<span class="fc" id="L95">            .save(modelMapper.map(model, LinkEntity.class))</span>
+<span class="fc" id="L96">            .map(entity -&gt; modelMapper.map(entity, LinkSpec.class)));</span>
   }
 
   @Override
   public Mono&lt;LinkSpec&gt; getLink(String id) {
-<span class="fc" id="L85">    return linkRepository.findById(id)</span>
-<span class="fc" id="L86">        .switchIfEmpty(Mono.error(() -&gt; ServiceException.notFound(&quot;Link&quot;, id)))</span>
-<span class="fc" id="L87">        .map(entity -&gt; modelMapper.map(entity, LinkSpec.class));</span>
+<span class="fc" id="L101">    return linkRepository.findById(id)</span>
+<span class="fc" id="L102">        .switchIfEmpty(Mono.error(() -&gt; ServiceException.notFound(&quot;Link&quot;, id)))</span>
+<span class="fc" id="L103">        .map(entity -&gt; modelMapper.map(entity, LinkSpec.class));</span>
   }
 
   @Override
   public Mono&lt;LinkSpec&gt; updateLink(String id, LinkSpec link) {
-<span class="fc" id="L92">    return linkRepository.findById(id)</span>
-<span class="pc" id="L93">        .switchIfEmpty(Mono.error(() -&gt; ServiceException.notFound(&quot;Link&quot;, id)))</span>
-<span class="fc" id="L94">        .flatMap(entity -&gt; categoryRepository</span>
-<span class="fc" id="L95">            .validateCategoryIds(link.getCategoryIds())</span>
-<span class="fc" id="L96">            .map(categoryIds -&gt; link.toBuilder()</span>
-<span class="fc" id="L97">                .id(entity.getId())</span>
-<span class="fc" id="L98">                .categoryIds(categoryIds)</span>
-<span class="fc" id="L99">                .build()))</span>
-<span class="fc" id="L100">        .flatMap(model -&gt; linkRepository</span>
-<span class="fc" id="L101">            .save(modelMapper.map(model, LinkEntity.class)))</span>
-<span class="fc" id="L102">        .map(entity -&gt; modelMapper.map(entity, LinkSpec.class));</span>
+<span class="fc" id="L108">    return linkRepository.findById(id)</span>
+<span class="pc" id="L109">        .switchIfEmpty(Mono.error(() -&gt; ServiceException.notFound(&quot;Link&quot;, id)))</span>
+<span class="fc" id="L110">        .flatMap(entity -&gt; categoryRepository</span>
+<span class="fc" id="L111">            .validateCategoryIds(link.getCategoryIds())</span>
+<span class="fc" id="L112">            .map(categoryIds -&gt; link.toBuilder()</span>
+<span class="fc" id="L113">                .id(entity.getId())</span>
+<span class="fc" id="L114">                .categoryIds(categoryIds)</span>
+<span class="fc" id="L115">                .build())</span>
+<span class="fc" id="L116">            .map(model -&gt; {</span>
+<span class="fc" id="L117">              modelMapper.map(model, entity);</span>
+<span class="fc" id="L118">              return entity;</span>
+            })
+        )
+<span class="fc" id="L121">        .flatMap(linkRepository::save)</span>
+<span class="fc" id="L122">        .map(entity -&gt; modelMapper.map(entity, LinkSpec.class));</span>
+  }
+
+  @Override
+  public Mono&lt;LinkSpec&gt; updateLinkImages(
+      String id,
+      MultipartFile cardImage,
+      MultipartFile menuImage) {
+
+<span class="fc" id="L131">    System.out.println(&quot;images: card = &quot; + cardImage.isEmpty() + &quot;, menu = &quot; + menuImage.isEmpty());</span>
+<span class="fc" id="L132">    return linkRepository.findById(id)</span>
+<span class="pc" id="L133">        .switchIfEmpty(Mono.error(() -&gt; ServiceException.notFound(&quot;Link&quot;, id)))</span>
+<span class="fc" id="L134">        .flatMap(entity -&gt; {</span>
+<span class="fc" id="L135">          String cardImageName = entity.getId() + &quot;_card_image&quot;;</span>
+<span class="fc" id="L136">          imageRepository</span>
+<span class="fc" id="L137">              .save(MinioObjectId.from(cardImageName), cardImage, DeleteMode.ALWAYS)</span>
+<span class="fc" id="L138">              .ifPresent(response -&gt; entity.setCardImage(response.object()));</span>
+<span class="fc" id="L139">          String menuImageName = entity.getId() + &quot;_menu_image&quot;;</span>
+<span class="fc" id="L140">          imageRepository</span>
+<span class="fc" id="L141">              .save(MinioObjectId.from(menuImageName), menuImage, DeleteMode.ALWAYS)</span>
+<span class="fc" id="L142">              .ifPresent(response -&gt; entity.setMenuImage(response.object()));</span>
+<span class="fc" id="L143">          return linkRepository.save(entity);</span>
+        })
+<span class="fc" id="L145">        .map(entity -&gt; modelMapper.map(entity, LinkSpec.class));</span>
+  }
+
+  @Override
+  public Mono&lt;LinkSpec&gt; deleteLinkImages(String id, List&lt;String&gt; names) {
+<span class="fc" id="L150">    return linkRepository.findById(id)</span>
+<span class="pc" id="L151">        .switchIfEmpty(Mono.error(() -&gt; ServiceException.notFound(&quot;Link&quot;, id)))</span>
+<span class="fc" id="L152">        .flatMap(entity -&gt; {</span>
+<span class="pc bpc" id="L153" title="2 of 4 branches missed.">          if (StringUtils.hasText(entity.getCardImage()) &amp;&amp; names.contains(CARD_IMAGE_NAME)) {</span>
+<span class="fc" id="L154">            imageRepository.delete(MinioObjectId.from(entity.getCardImage()));</span>
+<span class="fc" id="L155">            entity.setCardImage(null);</span>
+          }
+<span class="pc bpc" id="L157" title="2 of 4 branches missed.">          if (StringUtils.hasText(entity.getMenuImage()) &amp;&amp; names.contains(MENU_IMAGE_NAME)) {</span>
+<span class="fc" id="L158">            imageRepository.delete(MinioObjectId.from(entity.getMenuImage()));</span>
+<span class="fc" id="L159">            entity.setMenuImage(null);</span>
+          }
+<span class="fc" id="L161">          return linkRepository.save(entity);</span>
+        })
+<span class="fc" id="L163">        .map(linkEntity -&gt; modelMapper.map(linkEntity, LinkSpec.class));</span>
   }
 
   @Override
   public Mono&lt;Void&gt; deleteLink(String id) {
-<span class="fc" id="L107">    return linkRepository.deleteById(id);</span>
+
+<span class="fc" id="L169">    return linkRepository.findById(id)</span>
+<span class="fc" id="L170">        .flatMap(entity -&gt; {</span>
+<span class="fc" id="L171">          List&lt;MinioObjectId&gt; imageIds = new ArrayList&lt;&gt;(2);</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">          if (StringUtils.hasText(entity.getCardImage())) {</span>
+<span class="nc" id="L173">            imageIds.add(MinioObjectId.from(entity.getCardImage()));</span>
+          }
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">          if (StringUtils.hasText(entity.getMenuImage())) {</span>
+<span class="nc" id="L176">            imageIds.add(MinioObjectId.from(entity.getMenuImage()));</span>
+          }
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">          if (!imageIds.isEmpty()) {</span>
+<span class="nc" id="L179">            imageRepository.deleteAll(imageIds);</span>
+          }
+<span class="fc" id="L181">          return linkRepository.delete(entity);</span>
+        });
   }
 
 }

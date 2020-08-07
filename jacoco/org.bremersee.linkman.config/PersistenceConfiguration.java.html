@@ -1,23 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PersistenceConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.config</a> &gt; <span class="el_source">PersistenceConfiguration.java</span></div><h1>PersistenceConfiguration.java</h1><pre class="source lang-java linenums">package org.bremersee.linkman.config;
 
 import java.util.Arrays;
+import lombok.extern.slf4j.Slf4j;
 import org.bremersee.data.convert.BaseCommonConversions;
+import org.bremersee.data.minio.MinioOperations;
+import org.bremersee.data.minio.MinioRepository;
+import org.bremersee.data.minio.MinioRepositoryImpl;
 import org.bremersee.linkman.repository.CategoryRepository;
+import org.bremersee.linkman.repository.LinkRepository;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.convert.CustomConversions;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
+import org.springframework.util.Assert;
 
 /**
  * The persistence configuration.
+ *
+ * @author Christian Bremer
  */
 @Configuration
 @EnableReactiveMongoRepositories(basePackageClasses = {
-    CategoryRepository.class
+    CategoryRepository.class,
+    LinkRepository.class
 })
-<span class="fc" id="L20">public class PersistenceConfiguration {</span>
+@EnableConfigurationProperties(LinkmanProperties.class)
+<span class="fc" id="L33">@Slf4j</span>
+public class PersistenceConfiguration {
+
+  private final LinkmanProperties properties;
+
+  private final MinioOperations minioOperations;
+
+  /**
+   * Instantiates a new persistence configuration.
+   *
+   * @param properties the properties
+   * @param minioOperationsProvider the minio operations provider
+   */
+  public PersistenceConfiguration(
+      LinkmanProperties properties,
+<span class="fc" id="L48">      ObjectProvider&lt;MinioOperations&gt; minioOperationsProvider) {</span>
+<span class="fc" id="L49">    this.properties = properties;</span>
+<span class="fc" id="L50">    this.minioOperations = minioOperationsProvider.getIfAvailable();</span>
+<span class="fc" id="L51">    Assert.notNull(this.minioOperations, &quot;Minio operations must not be null.&quot;);</span>
+<span class="fc" id="L52">  }</span>
+
+  /**
+   * Init.
+   */
+  @EventListener(ApplicationReadyEvent.class)
+  public void init() {
+<span class="fc" id="L59">  }</span>
 
   /**
    * Custom conversions.
@@ -27,7 +66,23 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
   @Primary
   @Bean
   public MongoCustomConversions customConversions() {
-<span class="fc" id="L30">    return new MongoCustomConversions(Arrays.asList(BaseCommonConversions.CONVERTERS));</span>
+<span class="fc" id="L69">    return new MongoCustomConversions(Arrays.asList(BaseCommonConversions.CONVERTERS));</span>
+  }
+
+  /**
+   * Minio repository.
+   *
+   * @return the minio repository
+   */
+  @Bean
+  public MinioRepository minioRepository() {
+<span class="fc" id="L79">    return new MinioRepositoryImpl(</span>
+        minioOperations,
+        null,
+<span class="fc" id="L82">        properties.getBucketName(),</span>
+        false,
+        true,
+<span class="fc" id="L85">        properties.getPresignedObjectUrlDuration());</span>
   }
 
 }

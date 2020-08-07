@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Link.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">linkman</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.linkman.model</a> &gt; <span class="el_source">Link.java</span></div><h1>Link.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.linkman.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The link.
+ *
+ * @author Christian Bremer
+ */
+@Schema(description = &quot;A link description.&quot;)
+@Validated
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+<span class="fc" id="L40">@Setter</span>
+<span class="pc bpc" id="L41" title="29 of 70 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L42">@ToString</span>
+<span class="fc" id="L43">@NoArgsConstructor</span>
+public class Link {
+
+  @Schema(description = &quot;Unique identifier of the link.&quot;, accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(&quot;id&quot;)
+<span class="fc" id="L48">  private String id;</span>
+
+  @Schema(description = &quot;The linked resource.&quot;, required = true, example = &quot;http://example.org&quot;)
+  @JsonProperty(value = &quot;href&quot;, required = true)
+<span class="fc" id="L52">  private String href;</span>
+
+<span class="fc" id="L54">  @Schema(</span>
+      description = &quot;Specified whether to open the link in a blank target (default is false).&quot;,
+      defaultValue = &quot;false&quot;)
+  @JsonProperty(&quot;blank&quot;)
+<span class="fc" id="L58">  private Boolean blank = Boolean.FALSE;</span>
+
+  @Schema(
+      description = &quot;The text that is displayed instead of the link.&quot;,
+      required = true,
+      example = &quot;The example page&quot;)
+  @JsonProperty(&quot;text&quot;)
+<span class="fc" id="L65">  private String text;</span>
+
+<span class="fc" id="L67">  @Schema(</span>
+      description = &quot;Specifies whether the text should be displayed or not.&quot;,
+      defaultValue = &quot;true&quot;)
+  @JsonProperty(&quot;displayText&quot;)
+<span class="fc" id="L71">  private Boolean displayText = Boolean.TRUE;</span>
+
+  @Schema(
+      description = &quot;The description of the link.&quot;,
+      example = &quot;On the example page you can view some examples.&quot;)
+  @JsonProperty(&quot;description&quot;)
+<span class="fc" id="L77">  private String description;</span>
+
+  @Schema(description = &quot;The image URL of the card.&quot;)
+  @JsonProperty(&quot;cardImageUrl&quot;)
+<span class="fc" id="L81">  private String cardImageUrl;</span>
+
+  @Schema(description = &quot;The image URL of the menu entry.&quot;)
+  @JsonProperty(&quot;menuImageUrl&quot;)
+<span class="fc" id="L85">  private String menuImageUrl;</span>
+
+  /**
+   * Instantiates a new link.
+   *
+   * @param id the id
+   * @param href the href
+   * @param blank the blank
+   * @param text the text
+   * @param displayText the display text
+   * @param description the description
+   * @param cardImageUrl the card image url
+   * @param menuImageUrl the menu image url
+   */
+<span class="pc" id="L99">  @Builder(toBuilder = true)</span>
+  public Link(String id, String href, Boolean blank, String text, Boolean displayText,
+<span class="fc" id="L101">      String description, String cardImageUrl, String menuImageUrl) {</span>
+<span class="fc" id="L102">    this.id = id;</span>
+<span class="fc" id="L103">    this.href = href;</span>
+<span class="fc" id="L104">    setBlank(blank);</span>
+<span class="fc" id="L105">    this.text = text;</span>
+<span class="fc" id="L106">    setDisplayText(displayText);</span>
+<span class="fc" id="L107">    this.description = description;</span>
+<span class="fc" id="L108">    this.cardImageUrl = cardImageUrl;</span>
+<span class="fc" id="L109">    this.menuImageUrl = menuImageUrl;</span>
+<span class="fc" id="L110">  }</span>
+
+  /**
+   * Sets blank.
+   *
+   * @param blank the blank
+   */
+  public void setBlank(Boolean blank) {
+<span class="fc" id="L118">    this.blank = Boolean.TRUE.equals(blank);</span>
+<span class="fc" id="L119">  }</span>
+
+  /**
+   * Sets display text.
+   *
+   * @param displayText the display text
+   */
+  public void setDisplayText(Boolean displayText) {
+<span class="fc bfc" id="L127" title="All 4 branches covered.">    this.displayText = displayText == null || displayText;</span>
+<span class="fc" id="L128">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

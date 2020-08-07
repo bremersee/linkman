@@ -35,39 +35,51 @@ import org.bremersee.common.model.TwoLetterLanguageCode;
 import org.springframework.validation.annotation.Validated;
 
 /**
+ * The link specification.
+ *
  * @author Christian Bremer
  */
 @Schema(description = &quot;The specification of a link.&quot;)
 @Getter
-<span class="fc" id="L42">@Setter</span>
-<span class="fc" id="L43">@ToString</span>
-<span class="pc bpc" id="L44" title="42 of 72 branches missed.">@EqualsAndHashCode</span>
-<span class="fc" id="L45">@NoArgsConstructor</span>
+<span class="fc" id="L44">@Setter</span>
+<span class="fc" id="L45">@ToString</span>
+<span class="pc bpc" id="L46" title="60 of 96 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L47">@NoArgsConstructor</span>
 @Validated
 public class LinkSpec {
 
+  /**
+   * The constant CARD_IMAGE_NAME.
+   */
+  public static final String CARD_IMAGE_NAME = &quot;cardImage&quot;;
+
+  /**
+   * The constant MENU_IMAGE_NAME.
+   */
+  public static final String MENU_IMAGE_NAME = &quot;menuImage&quot;;
+
   @Schema(description = &quot;Unique identifier of the link.&quot;, accessMode = AccessMode.READ_ONLY)
   @JsonProperty(&quot;id&quot;)
-<span class="fc" id="L51">  private String id;</span>
+<span class="fc" id="L63">  private String id;</span>
 
-<span class="fc" id="L53">  @Schema(description = &quot;The category IDs.&quot;)</span>
+<span class="fc" id="L65">  @Schema(description = &quot;The category IDs.&quot;)</span>
   @JsonProperty(&quot;categoryIds&quot;)
-<span class="fc" id="L55">  private Set&lt;String&gt; categoryIds = new LinkedHashSet&lt;&gt;();</span>
+<span class="fc" id="L67">  private Set&lt;String&gt; categoryIds = new LinkedHashSet&lt;&gt;();</span>
 
   @Schema(description = &quot;The sort order.&quot;, required = true, example = &quot;100&quot;)
   @JsonProperty(value = &quot;order&quot;, required = true)
-<span class="fc" id="L59">  private int order;</span>
+<span class="fc" id="L71">  private int order;</span>
 
   @Schema(description = &quot;The linked resource.&quot;, required = true, example = &quot;http://example.org&quot;)
   @JsonProperty(value = &quot;href&quot;, required = true)
   @NotBlank
-<span class="fc" id="L64">  private String href;</span>
+<span class="fc" id="L76">  private String href;</span>
 
-<span class="fc" id="L66">  @Schema(</span>
+<span class="fc" id="L78">  @Schema(</span>
       description = &quot;Specified whether to open the link in a blank target (default is false).&quot;,
       defaultValue = &quot;false&quot;)
   @JsonProperty(&quot;blank&quot;)
-<span class="fc" id="L70">  private Boolean blank = Boolean.FALSE;</span>
+<span class="fc" id="L82">  private Boolean blank = Boolean.FALSE;</span>
 
   @Schema(
       description = &quot;The text that is displayed instead of the link.&quot;,
@@ -76,22 +88,34 @@ public class LinkSpec {
   @JsonProperty(value = &quot;text&quot;, required = true)
   @NotBlank
   @Size(min = 3, max = 75)
-<span class="fc" id="L79">  private String text;</span>
+<span class="fc" id="L91">  private String text;</span>
 
-<span class="fc" id="L81">  @Schema(description = &quot;The translations of the text.&quot;)</span>
+<span class="fc" id="L93">  @Schema(description = &quot;The translations of the text.&quot;)</span>
   @JsonProperty(&quot;textTranslations&quot;)
-<span class="fc" id="L83">  private Set&lt;Translation&gt; textTranslations = new LinkedHashSet&lt;&gt;();</span>
+<span class="fc" id="L95">  private Set&lt;Translation&gt; textTranslations = new LinkedHashSet&lt;&gt;();</span>
+
+<span class="fc" id="L97">  @Schema(description = &quot;Specifies whether the text should be displayed or not.&quot;)</span>
+  @JsonProperty(&quot;displayText&quot;)
+<span class="fc" id="L99">  private Boolean displayText = Boolean.TRUE;</span>
 
   @Schema(
       description = &quot;The description of the link.&quot;,
       example = &quot;On the example page you can view some examples.&quot;)
   @JsonProperty(&quot;description&quot;)
   @Size(max = 255)
-<span class="fc" id="L90">  private String description;</span>
+<span class="fc" id="L106">  private String description;</span>
 
-<span class="fc" id="L92">  @Schema(description = &quot;The translations of the description.&quot;)</span>
+<span class="fc" id="L108">  @Schema(description = &quot;The translations of the description.&quot;)</span>
   @JsonProperty(&quot;descriptionTranslations&quot;)
-<span class="fc" id="L94">  private Set&lt;Translation&gt; descriptionTranslations = new LinkedHashSet&lt;&gt;();</span>
+<span class="fc" id="L110">  private Set&lt;Translation&gt; descriptionTranslations = new LinkedHashSet&lt;&gt;();</span>
+
+  @Schema(description = &quot;The image URL of the card.&quot;)
+  @JsonProperty(&quot;cardImageUrl&quot;)
+<span class="fc" id="L114">  private String cardImageUrl;</span>
+
+  @Schema(description = &quot;The image URL of the menu entry.&quot;)
+  @JsonProperty(&quot;menuImageUrl&quot;)
+<span class="fc" id="L118">  private String menuImageUrl;</span>
 
   /**
    * Instantiates a new link specification.
@@ -103,10 +127,13 @@ public class LinkSpec {
    * @param blank specified whether to open the link in a blank target (default is false)
    * @param text the text that is displayed instead of the link
    * @param textTranslations the text translations
+   * @param displayText the display text
    * @param description the description
    * @param descriptionTranslations the description translations
+   * @param cardImageUrl the card image url
+   * @param menuImageUrl the menu image url
    */
-<span class="pc" id="L109">  @Builder(toBuilder = true)</span>
+<span class="pc" id="L136">  @Builder(toBuilder = true)</span>
   @SuppressWarnings(&quot;unused&quot;)
   public LinkSpec(
       String id,
@@ -116,25 +143,36 @@ public class LinkSpec {
       Boolean blank,
       String text,
       Set&lt;Translation&gt; textTranslations,
+      Boolean displayText,
       String description,
-<span class="fc" id="L120">      Set&lt;Translation&gt; descriptionTranslations) {</span>
-<span class="fc" id="L121">    this.id = id;</span>
-<span class="fc" id="L122">    setCategoryIds(categoryIds);</span>
-<span class="fc" id="L123">    this.order = order;</span>
-<span class="fc" id="L124">    this.href = href;</span>
-<span class="fc" id="L125">    setBlank(blank);</span>
-<span class="fc" id="L126">    this.text = text;</span>
-<span class="fc" id="L127">    setTextTranslations(textTranslations);</span>
-<span class="fc" id="L128">    this.description = description;</span>
-<span class="fc" id="L129">    setDescriptionTranslations(descriptionTranslations);</span>
-<span class="fc" id="L130">  }</span>
+      Set&lt;Translation&gt; descriptionTranslations,
+      String cardImageUrl,
+<span class="fc" id="L150">      String menuImageUrl) {</span>
+<span class="fc" id="L151">    this.id = id;</span>
+<span class="fc" id="L152">    setCategoryIds(categoryIds);</span>
+<span class="fc" id="L153">    this.order = order;</span>
+<span class="fc" id="L154">    this.href = href;</span>
+<span class="fc" id="L155">    setBlank(blank);</span>
+<span class="fc" id="L156">    this.text = text;</span>
+<span class="fc" id="L157">    setTextTranslations(textTranslations);</span>
+<span class="fc" id="L158">    setDisplayText(displayText);</span>
+<span class="fc" id="L159">    this.description = description;</span>
+<span class="fc" id="L160">    setDescriptionTranslations(descriptionTranslations);</span>
+<span class="fc" id="L161">    this.cardImageUrl = cardImageUrl;</span>
+<span class="fc" id="L162">    this.menuImageUrl = menuImageUrl;</span>
+<span class="fc" id="L163">  }</span>
 
+  /**
+   * Sets category ids.
+   *
+   * @param categoryIds the category ids
+   */
   public void setCategoryIds(Set&lt;String&gt; categoryIds) {
-<span class="fc" id="L133">    this.categoryIds.clear();</span>
-<span class="fc bfc" id="L134" title="All 2 branches covered.">    if (categoryIds != null) {</span>
-<span class="fc" id="L135">      this.categoryIds.addAll(categoryIds);</span>
+<span class="fc" id="L171">    this.categoryIds.clear();</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">    if (categoryIds != null) {</span>
+<span class="fc" id="L173">      this.categoryIds.addAll(categoryIds);</span>
     }
-<span class="fc" id="L137">  }</span>
+<span class="fc" id="L175">  }</span>
 
   /**
    * Sets blank.
@@ -142,8 +180,8 @@ public class LinkSpec {
    * @param blank the blank
    */
   public void setBlank(Boolean blank) {
-<span class="fc" id="L145">    this.blank = Boolean.TRUE.equals(blank);</span>
-<span class="fc" id="L146">  }</span>
+<span class="fc" id="L183">    this.blank = Boolean.TRUE.equals(blank);</span>
+<span class="fc" id="L184">  }</span>
 
   /**
    * Sets text translations.
@@ -151,11 +189,20 @@ public class LinkSpec {
    * @param textTranslations the text translations
    */
   public void setTextTranslations(Set&lt;Translation&gt; textTranslations) {
-<span class="fc" id="L154">    this.textTranslations.clear();</span>
-<span class="fc bfc" id="L155" title="All 2 branches covered.">    if (textTranslations != null) {</span>
-<span class="fc" id="L156">      this.textTranslations.addAll(textTranslations);</span>
+<span class="fc" id="L192">    this.textTranslations.clear();</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">    if (textTranslations != null) {</span>
+<span class="fc" id="L194">      this.textTranslations.addAll(textTranslations);</span>
     }
-<span class="fc" id="L158">  }</span>
+<span class="fc" id="L196">  }</span>
+
+  /**
+   * Sets display text.
+   *
+   * @param displayText the display text
+   */
+  public void setDisplayText(Boolean displayText) {
+<span class="fc bfc" id="L204" title="All 4 branches covered.">    this.displayText = displayText == null || displayText;</span>
+<span class="fc" id="L205">  }</span>
 
   /**
    * Sets description translations.
@@ -164,11 +211,11 @@ public class LinkSpec {
    */
   public void setDescriptionTranslations(
       Set&lt;Translation&gt; descriptionTranslations) {
-<span class="fc" id="L167">    this.descriptionTranslations.clear();</span>
-<span class="fc bfc" id="L168" title="All 2 branches covered.">    if (descriptionTranslations != null) {</span>
-<span class="fc" id="L169">      this.descriptionTranslations.addAll(descriptionTranslations);</span>
+<span class="fc" id="L214">    this.descriptionTranslations.clear();</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">    if (descriptionTranslations != null) {</span>
+<span class="fc" id="L216">      this.descriptionTranslations.addAll(descriptionTranslations);</span>
     }
-<span class="fc" id="L171">  }</span>
+<span class="fc" id="L218">  }</span>
 
   /**
    * Gets text.
@@ -177,13 +224,13 @@ public class LinkSpec {
    * @return the text
    */
   public String getText(TwoLetterLanguageCode language) {
-<span class="pc bpc" id="L180" title="1 of 2 branches missed.">    if (language == null) {</span>
-<span class="nc" id="L181">      return text;</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">    if (language == null) {</span>
+<span class="nc" id="L228">      return text;</span>
     }
-<span class="fc" id="L183">    return Optional.ofNullable(textTranslations)</span>
-<span class="pc bpc" id="L184" title="1 of 2 branches missed.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
-<span class="fc" id="L185">        .map(Translation::getValue)</span>
-<span class="fc" id="L186">        .orElse(text);</span>
+<span class="fc" id="L230">    return Optional.ofNullable(textTranslations)</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
+<span class="fc" id="L232">        .map(Translation::getValue)</span>
+<span class="fc" id="L233">        .orElse(text);</span>
   }
 
   /**
@@ -193,7 +240,7 @@ public class LinkSpec {
    * @return the text
    */
   public String getText(Locale language) {
-<span class="fc" id="L196">    return getText(TwoLetterLanguageCode.fromLocale(language));</span>
+<span class="fc" id="L243">    return getText(TwoLetterLanguageCode.fromLocale(language));</span>
   }
 
   /**
@@ -203,7 +250,7 @@ public class LinkSpec {
    * @return the text
    */
   public String getText(String language) {
-<span class="fc" id="L206">    return getText(TwoLetterLanguageCode.fromValue(language));</span>
+<span class="fc" id="L253">    return getText(TwoLetterLanguageCode.fromValue(language));</span>
   }
 
   /**
@@ -213,13 +260,13 @@ public class LinkSpec {
    * @return the description
    */
   public String getDescription(TwoLetterLanguageCode language) {
-<span class="pc bpc" id="L216" title="1 of 2 branches missed.">    if (language == null) {</span>
-<span class="nc" id="L217">      return description;</span>
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">    if (language == null) {</span>
+<span class="nc" id="L264">      return description;</span>
     }
-<span class="fc" id="L219">    return Optional.ofNullable(descriptionTranslations)</span>
-<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
-<span class="fc" id="L221">        .map(Translation::getValue)</span>
-<span class="fc" id="L222">        .orElse(description);</span>
+<span class="fc" id="L266">    return Optional.ofNullable(descriptionTranslations)</span>
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
+<span class="fc" id="L268">        .map(Translation::getValue)</span>
+<span class="fc" id="L269">        .orElse(description);</span>
   }
 
   /**
@@ -229,7 +276,7 @@ public class LinkSpec {
    * @return the description
    */
   public String getDescription(Locale language) {
-<span class="fc" id="L232">    return getDescription(TwoLetterLanguageCode.fromLocale(language));</span>
+<span class="fc" id="L279">    return getDescription(TwoLetterLanguageCode.fromLocale(language));</span>
   }
 
   /**
@@ -239,7 +286,7 @@ public class LinkSpec {
    * @return the description
    */
   public String getDescription(String language) {
-<span class="fc" id="L242">    return getDescription(TwoLetterLanguageCode.fromValue(language));</span>
+<span class="fc" id="L289">    return getDescription(TwoLetterLanguageCode.fromValue(language));</span>
   }
 
 }

@@ -124,7 +124,7 @@ public class CategorySpec {
 <span class="nc" id="L124">      return name;</span>
     }
 <span class="fc" id="L126">    return Optional.ofNullable(translations)</span>
-<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
 <span class="fc" id="L128">        .map(Translation::getValue)</span>
 <span class="fc" id="L129">        .orElse(name);</span>
   }

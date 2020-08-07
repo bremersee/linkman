@@ -16,18 +16,27 @@
 
 package org.bremersee.linkman.controller;
 
+import static org.bremersee.linkman.model.LinkSpec.CARD_IMAGE_NAME;
+import static org.bremersee.linkman.model.LinkSpec.MENU_IMAGE_NAME;
+import static org.bremersee.web.reactive.multipart.MultipartFileBuilder.getMultipartFile;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import javax.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.bremersee.linkman.model.LinkSpec;
 import org.bremersee.linkman.service.LinkService;
+import org.bremersee.web.reactive.multipart.MultipartFileBuilder;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +45,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -48,18 +58,25 @@ import reactor.core.publisher.Mono;
 @Tag(name = &quot;link-controller&quot;, description = &quot;The link API.&quot;)
 @RestController
 @Validated
+<span class="fc" id="L61">@Slf4j</span>
 public class LinkController {
 
   private final LinkService linkService;
+
+  private final MultipartFileBuilder multipartFileBuilder;
 
   /**
    * Instantiates a new link controller.
    *
    * @param linkService the link service
+   * @param multipartFileBuilder the multipart file builder
    */
-<span class="fc" id="L60">  public LinkController(LinkService linkService) {</span>
-<span class="fc" id="L61">    this.linkService = linkService;</span>
-<span class="fc" id="L62">  }</span>
+  public LinkController(
+      LinkService linkService,
+<span class="fc" id="L76">      MultipartFileBuilder multipartFileBuilder) {</span>
+<span class="fc" id="L77">    this.linkService = linkService;</span>
+<span class="fc" id="L78">    this.multipartFileBuilder = multipartFileBuilder;</span>
+<span class="fc" id="L79">  }</span>
 
   /**
    * Gets links.
@@ -86,7 +103,7 @@ public class LinkController {
   public Flux&lt;LinkSpec&gt; getLinks(
       @Parameter(name = &quot;categoryId&quot;, description = &quot;The category ID.&quot;)
       @RequestParam(name = &quot;categoryId&quot;, required = false) String categoryId) {
-<span class="fc" id="L89">    return linkService.getLinks(categoryId);</span>
+<span class="fc" id="L106">    return linkService.getLinks(categoryId);</span>
   }
 
   /**
@@ -123,13 +140,13 @@ public class LinkController {
       @Parameter(description = &quot;The new link.&quot;, required = true) @Valid @RequestBody
           LinkSpec link) {
 
-<span class="fc" id="L126">    return linkService.addLink(link);</span>
+<span class="fc" id="L143">    return linkService.addLink(link);</span>
   }
 
   /**
    * Gets link.
    *
-   * @param id the id
+   * @param id the link id
    * @return the link
    */
   @Operation(
@@ -156,13 +173,13 @@ public class LinkController {
   @GetMapping(path = &quot;/api/links/{id}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono&lt;LinkSpec&gt; getLink(
       @Parameter(description = &quot;The link ID.&quot;, required = true) @PathVariable(&quot;id&quot;) String id) {
-<span class="fc" id="L159">    return linkService.getLink(id);</span>
+<span class="fc" id="L176">    return linkService.getLink(id);</span>
   }
 
   /**
    * Update link.
    *
-   * @param id the id
+   * @param id the link id
    * @param link the link
    * @return the updated link
    */
@@ -201,13 +218,118 @@ public class LinkController {
       @Parameter(description = &quot;The new link specification.&quot;, required = true) @Valid @RequestBody
           LinkSpec link) {
 
-<span class="fc" id="L204">    return linkService.updateLink(id, link);</span>
+<span class="fc" id="L221">    return linkService.updateLink(id, link);</span>
+  }
+
+  /**
+   * Update link images.
+   *
+   * @param id the link id
+   * @param cardImage the card image
+   * @param menuImage the menu image
+   * @return the link
+   */
+  @Operation(
+      summary = &quot;Update link images. The multipart may contain a part with name 'cardImage' &quot;
+          + &quot;or/and a part with name 'menuImage'. The part can be a file or a value as data uri.&quot;,
+      operationId = &quot;updateLinkImages&quot;,
+      tags = {&quot;link-controller&quot;},
+      requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+          required = true,
+          content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
+      ))
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The updated link with the image URLs.&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = LinkSpec.class))),
+      @ApiResponse(
+          responseCode = &quot;400&quot;,
+          description = &quot;Bad Request&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;404&quot;,
+          description = &quot;Not Found&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @PostMapping(
+      path = &quot;/api/links/{id}/images&quot;,
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;LinkSpec&gt; updateLinkImages(
+      @Parameter(name = &quot;id&quot;, description = &quot;The link ID.&quot;, required = true)
+      @PathVariable(&quot;id&quot;) String id,
+
+      @Parameter(name = &quot;cardImage&quot;, description = &quot;The card image.&quot;, style = ParameterStyle.FORM)
+      @RequestPart(name = CARD_IMAGE_NAME, required = false) Flux&lt;Part&gt; cardImage,
+
+      @Parameter(name = &quot;menuImage&quot;, description = &quot;The menu image.&quot;, style = ParameterStyle.FORM)
+      @RequestPart(name = MENU_IMAGE_NAME, required = false) Flux&lt;Part&gt; menuImage) {
+
+<span class="fc" id="L278">    log.info(&quot;Updating link images (link id = {}).&quot;, id);</span>
+    //noinspection unchecked
+<span class="fc" id="L280">    return multipartFileBuilder.buildMap(cardImage, menuImage)</span>
+<span class="fc" id="L281">        .flatMap(map -&gt; linkService.updateLinkImages(</span>
+            id,
+<span class="fc" id="L283">            getMultipartFile(map, CARD_IMAGE_NAME),</span>
+<span class="fc" id="L284">            getMultipartFile(map, MENU_IMAGE_NAME)));</span>
+  }
+
+  /**
+   * Delete link images.
+   *
+   * @param id the link id
+   * @param names the image names ({@code cardImage} and/or {@code menuImage})
+   * @return the link
+   */
+  @Operation(
+      summary = &quot;Delete link images.&quot;,
+      operationId = &quot;deleteLinkImages&quot;,
+      tags = {&quot;link-controller&quot;})
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = &quot;200&quot;,
+          description = &quot;The link.&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = LinkSpec.class))),
+      @ApiResponse(
+          responseCode = &quot;404&quot;,
+          description = &quot;Not Found&quot;,
+          content = @Content(
+              schema = @Schema(
+                  implementation = org.bremersee.exception.model.RestApiException.class))),
+      @ApiResponse(
+          responseCode = &quot;403&quot;,
+          description = &quot;Forbidden&quot;)
+  })
+  @DeleteMapping(
+      path = &quot;/api/links/{id}/images&quot;,
+      consumes = MediaType.ALL_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono&lt;LinkSpec&gt; deleteLinkImages(
+      @Parameter(description = &quot;The link ID.&quot;, required = true) @PathVariable(&quot;id&quot;) String id,
+      @Parameter(
+          description = &quot;The names of the images ('cardImage' and/or 'menuImage').&quot;,
+          required = true)
+      @RequestParam(name = &quot;name&quot;) List&lt;String&gt; names) {
+
+<span class="fc" id="L326">    return linkService.deleteLinkImages(id, names);</span>
   }
 
   /**
    * Delete link.
    *
-   * @param id the id
+   * @param id the link id
    * @return void mono
    */
   @Operation(
@@ -226,7 +348,7 @@ public class LinkController {
   public Mono&lt;Void&gt; deleteLink(
       @Parameter(description = &quot;The link ID.&quot;, required = true) @PathVariable(&quot;id&quot;) String id) {
 
-<span class="fc" id="L229">    return linkService.deleteLink(id);</span>
+<span class="fc" id="L351">    return linkService.deleteLink(id);</span>
   }
 
 }

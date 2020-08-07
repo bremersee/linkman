@@ -28,6 +28,8 @@ import org.bremersee.web.reactive.function.client.DefaultWebClientErrorDecoder;
 import org.bremersee.web.reactive.function.client.proxy.InvocationFunctions;
 import org.bremersee.web.reactive.function.client.proxy.WebClientProxyBuilder;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -39,7 +41,9 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Christian Bremer
  */
 @Configuration
-<span class="fc" id="L42">@Slf4j</span>
+@ConditionalOnWebApplication
+@EnableConfigurationProperties(LinkmanProperties.class)
+<span class="fc" id="L46">@Slf4j</span>
 public class KeycloakClientConfiguration {
 
   private final AuthProperties AuthProperties;
@@ -54,10 +58,10 @@ public class KeycloakClientConfiguration {
    */
   public KeycloakClientConfiguration(
       AuthProperties AuthProperties,
-<span class="fc" id="L57">      LinkmanProperties linkmanProperties) {</span>
-<span class="fc" id="L58">    this.AuthProperties = AuthProperties;</span>
-<span class="fc" id="L59">    this.linkmanProperties = linkmanProperties;</span>
-<span class="fc" id="L60">  }</span>
+<span class="fc" id="L61">      LinkmanProperties linkmanProperties) {</span>
+<span class="fc" id="L62">    this.AuthProperties = AuthProperties;</span>
+<span class="fc" id="L63">    this.linkmanProperties = linkmanProperties;</span>
+<span class="fc" id="L64">  }</span>
 
   /**
    * Creates keycloak client api bean.
@@ -71,25 +75,25 @@ public class KeycloakClientConfiguration {
       RestApiExceptionParser parser,
       ObjectProvider&lt;WebClientAccessTokenRetriever&gt; tokenRetriever) {
 
-<span class="fc" id="L74">    final String baseUri = linkmanProperties.getKeycloakBaseUri();</span>
-<span class="pc bpc" id="L75" title="2 of 4 branches missed.">    if (!StringUtils.hasText(baseUri) || &quot;false&quot;.equalsIgnoreCase(baseUri.trim())) {</span>
-<span class="fc" id="L76">      log.warn(&quot;Using keycloak client mock, because no keycloak base uri was specified.&quot;);</span>
-<span class="fc" id="L77">      return new KeycloakClientMock();</span>
+<span class="fc" id="L78">    final String baseUri = linkmanProperties.getKeycloakBaseUri();</span>
+<span class="pc bpc" id="L79" title="2 of 4 branches missed.">    if (!StringUtils.hasText(baseUri) || &quot;false&quot;.equalsIgnoreCase(baseUri.trim())) {</span>
+<span class="fc" id="L80">      log.warn(&quot;Using keycloak client mock, because no keycloak base uri was specified.&quot;);</span>
+<span class="fc" id="L81">      return new KeycloakClientMock();</span>
     }
-<span class="nc" id="L79">    log.info(&quot;Using keycloak client with base uri {}&quot;, linkmanProperties.getKeycloakBaseUri());</span>
-<span class="nc" id="L80">    final WebClient webClient = WebClient.builder()</span>
-<span class="nc" id="L81">        .baseUrl(linkmanProperties.getKeycloakBaseUri())</span>
-<span class="nc" id="L82">        .filter(new AccessTokenAppender(ReactiveAccessTokenProviders</span>
-<span class="nc" id="L83">            .withAccessTokenRetriever(</span>
-<span class="nc" id="L84">                tokenRetriever.getIfAvailable(WebClientAccessTokenRetriever::new),</span>
-<span class="nc" id="L85">                AuthProperties.getClientCredentialsFlow())))</span>
-<span class="nc" id="L86">        .build();</span>
-<span class="nc" id="L87">    return WebClientProxyBuilder.defaultBuilder()</span>
-<span class="nc" id="L88">        .webClient(webClient)</span>
-<span class="nc" id="L89">        .commonFunctions(InvocationFunctions.builder()</span>
-<span class="nc" id="L90">            .errorDecoder(new DefaultWebClientErrorDecoder(parser))</span>
-<span class="nc" id="L91">            .build())</span>
-<span class="nc" id="L92">        .build(KeycloakClientApi.class);</span>
+<span class="nc" id="L83">    log.info(&quot;Using keycloak client with base uri {}&quot;, linkmanProperties.getKeycloakBaseUri());</span>
+<span class="nc" id="L84">    final WebClient webClient = WebClient.builder()</span>
+<span class="nc" id="L85">        .baseUrl(linkmanProperties.getKeycloakBaseUri())</span>
+<span class="nc" id="L86">        .filter(new AccessTokenAppender(ReactiveAccessTokenProviders</span>
+<span class="nc" id="L87">            .withAccessTokenRetriever(</span>
+<span class="nc" id="L88">                tokenRetriever.getIfAvailable(WebClientAccessTokenRetriever::new),</span>
+<span class="nc" id="L89">                AuthProperties.getClientCredentialsFlow())))</span>
+<span class="nc" id="L90">        .build();</span>
+<span class="nc" id="L91">    return WebClientProxyBuilder.defaultBuilder()</span>
+<span class="nc" id="L92">        .webClient(webClient)</span>
+<span class="nc" id="L93">        .commonFunctions(InvocationFunctions.builder()</span>
+<span class="nc" id="L94">            .errorDecoder(new DefaultWebClientErrorDecoder(parser))</span>
+<span class="nc" id="L95">            .build())</span>
+<span class="nc" id="L96">        .build(KeycloakClientApi.class);</span>
   }
 
 }

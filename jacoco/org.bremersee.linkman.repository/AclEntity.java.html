@@ -36,7 +36,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
  * @author Christian Bremer
  */
 @Getter
-<span class="nc" id="L39">@Setter</span>
+<span class="fc" id="L39">@Setter</span>
 <span class="nc" id="L40">@ToString</span>
 <span class="fc" id="L41">@NoArgsConstructor</span>
 @TypeAlias(&quot;acl&quot;)
@@ -45,7 +45,7 @@ public class AclEntity implements Acl&lt;AceEntity&gt; {
   @Indexed
 <span class="fc" id="L46">  private String owner;</span>
 
-<span class="pc" id="L48">  private AceEntity read = new AceEntity();</span>
+<span class="fc" id="L48">  private AceEntity read = new AceEntity();</span>
 
   /**
    * Instantiates a new access control list entity.
@@ -55,7 +55,7 @@ public class AclEntity implements Acl&lt;AceEntity&gt; {
    */
 <span class="fc" id="L56">  public AclEntity(final String owner, final Map&lt;String, ? extends Ace&gt; entries) {</span>
 <span class="fc" id="L57">    this.owner = owner;</span>
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">    if (entries != null) {</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">    if (entries != null) {</span>
 <span class="fc bfc" id="L59" title="All 2 branches covered.">      for (Map.Entry&lt;String, ? extends Ace&gt; entry : entries.entrySet()) {</span>
 <span class="pc bpc" id="L60" title="3 of 6 branches missed.">        if (entry != null &amp;&amp; entry.getKey() != null &amp;&amp; entry.getValue() != null) {</span>
 <span class="fc" id="L61">          final String permission = entry.getKey().toLowerCase();</span>
@@ -77,15 +77,15 @@ public class AclEntity implements Acl&lt;AceEntity&gt; {
 
   @Override
   public boolean equals(final Object o) {
-<span class="nc bnc" id="L80" title="All 2 branches missed.">    if (this == o) {</span>
-<span class="nc" id="L81">      return true;</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">    if (this == o) {</span>
+<span class="fc" id="L81">      return true;</span>
     }
-<span class="nc bnc" id="L83" title="All 2 branches missed.">    if (!(o instanceof Acl)) {</span>
-<span class="nc" id="L84">      return false;</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">    if (!(o instanceof Acl)) {</span>
+<span class="fc" id="L84">      return false;</span>
     }
-<span class="nc" id="L86">    Acl&lt;? extends Ace&gt; acl = (Acl&lt;? extends Ace&gt;) o;</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">    return Objects.equals(owner, acl.getOwner())</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        &amp;&amp; (new TreeMap&lt;&gt;(entryMap())).equals(new TreeMap&lt;&gt;(acl.entryMap()));</span>
+<span class="fc" id="L86">    Acl&lt;? extends Ace&gt; acl = (Acl&lt;? extends Ace&gt;) o;</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">    return Objects.equals(owner, acl.getOwner())</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        &amp;&amp; (new TreeMap&lt;&gt;(entryMap())).equals(new TreeMap&lt;&gt;(acl.entryMap()));</span>
   }
 
   @Override

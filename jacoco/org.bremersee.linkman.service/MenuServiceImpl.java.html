@@ -16,14 +16,19 @@
 
 package org.bremersee.linkman.service;
 
+import io.minio.http.Method;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import org.bremersee.common.model.Link;
+import org.bremersee.data.minio.MinioObjectId;
+import org.bremersee.data.minio.MinioRepository;
+import org.bremersee.linkman.model.Link;
 import org.bremersee.linkman.model.MenuEntry;
 import org.bremersee.linkman.repository.CategoryRepository;
 import org.bremersee.linkman.repository.LinkRepository;
 import org.bremersee.security.core.UserContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.util.function.Tuples;
 
@@ -39,46 +44,65 @@ public class MenuServiceImpl implements MenuService {
 
   private final LinkRepository linkRepository;
 
+  private final MinioRepository imageRepository;
+
   /**
    * Instantiates a new menu service.
    *
    * @param categoryRepository the category repository
    * @param linkRepository the link repository
+   * @param imageRepository the image repository
    */
-  public MenuServiceImpl(CategoryRepository categoryRepository,
-<span class="fc" id="L49">      LinkRepository linkRepository) {</span>
-<span class="fc" id="L50">    this.categoryRepository = categoryRepository;</span>
-<span class="fc" id="L51">    this.linkRepository = linkRepository;</span>
-<span class="fc" id="L52">  }</span>
+  public MenuServiceImpl(
+      CategoryRepository categoryRepository,
+      LinkRepository linkRepository,
+<span class="fc" id="L59">      MinioRepository imageRepository) {</span>
+
+<span class="fc" id="L61">    this.categoryRepository = categoryRepository;</span>
+<span class="fc" id="L62">    this.linkRepository = linkRepository;</span>
+<span class="fc" id="L63">    this.imageRepository = imageRepository;</span>
+<span class="fc" id="L64">  }</span>
 
   @Override
   public Flux&lt;MenuEntry&gt; getMenuEntries(
       UserContext userContext,
       Locale language) {
 
-<span class="fc" id="L59">    return categoryRepository</span>
-<span class="fc" id="L60">        .findReadableCategories(</span>
-<span class="fc" id="L61">            userContext.getUserId(),</span>
-<span class="fc" id="L62">            userContext.getRoles(),</span>
-<span class="fc" id="L63">            userContext.getGroups())</span>
-<span class="fc" id="L64">        .flatMap(category -&gt; linkRepository.findByCategoryId(category.getId())</span>
-<span class="pc" id="L65">            .collectSortedList((o1, o2) -&gt; o1.compareTo(o2, language))</span>
-<span class="fc" id="L66">            .map(links -&gt; Tuples.of(category, links)))</span>
-<span class="fc" id="L67">        .sort((o1, o2) -&gt; o1.getT1().compareTo(o2.getT1(), language))</span>
-<span class="fc" id="L68">        .map(tuple -&gt; MenuEntry.builder()</span>
-<span class="fc" id="L69">            .category(tuple.getT1().getName(language))</span>
-<span class="fc" id="L70">            .pub(tuple.getT1().isPublic())</span>
-<span class="fc" id="L71">            .links(tuple.getT2().stream()</span>
-<span class="fc" id="L72">                .map(linkEntity -&gt; Link.builder()</span>
-<span class="fc" id="L73">                    .id(linkEntity.getId())</span>
-<span class="fc" id="L74">                    .href(linkEntity.getHref())</span>
-<span class="fc" id="L75">                    .blank(linkEntity.getBlank())</span>
-<span class="fc" id="L76">                    .text(linkEntity.getText(language))</span>
-<span class="fc" id="L77">                    .description(linkEntity.getDescription(language))</span>
-<span class="fc" id="L78">                    .build())</span>
-<span class="fc" id="L79">                .collect(Collectors.toList()))</span>
-<span class="fc" id="L80">            .build())</span>
-<span class="pc bpc" id="L81" title="2 of 4 branches missed.">        .filter(menuEntry -&gt; menuEntry.getLinks() != null &amp;&amp; !menuEntry.getLinks().isEmpty());</span>
+<span class="fc" id="L71">    return categoryRepository</span>
+<span class="fc" id="L72">        .findReadableCategories(</span>
+<span class="fc" id="L73">            userContext.getUserId(),</span>
+<span class="fc" id="L74">            userContext.getRoles(),</span>
+<span class="fc" id="L75">            userContext.getGroups())</span>
+<span class="fc" id="L76">        .flatMap(category -&gt; linkRepository.findByCategoryId(category.getId())</span>
+<span class="pc" id="L77">            .collectSortedList((o1, o2) -&gt; o1.compareTo(o2, language))</span>
+<span class="fc" id="L78">            .map(links -&gt; Tuples.of(category, links)))</span>
+<span class="fc" id="L79">        .sort((o1, o2) -&gt; o1.getT1().compareTo(o2.getT1(), language))</span>
+<span class="fc" id="L80">        .map(tuple -&gt; MenuEntry.builder()</span>
+<span class="fc" id="L81">            .category(tuple.getT1().getName(language))</span>
+<span class="fc" id="L82">            .pub(tuple.getT1().isPublic())</span>
+<span class="fc" id="L83">            .links(tuple.getT2().stream()</span>
+<span class="fc" id="L84">                .map(linkEntity -&gt; Link.builder()</span>
+<span class="fc" id="L85">                    .id(linkEntity.getId())</span>
+<span class="fc" id="L86">                    .href(linkEntity.getHref())</span>
+<span class="fc" id="L87">                    .blank(linkEntity.getBlank())</span>
+<span class="fc" id="L88">                    .text(linkEntity.getText(language))</span>
+<span class="fc" id="L89">                    .displayText(linkEntity.getDisplayText())</span>
+<span class="fc" id="L90">                    .description(linkEntity.getDescription(language))</span>
+<span class="fc" id="L91">                    .cardImageUrl(getPresignedUrl(linkEntity.getCardImage()))</span>
+<span class="fc" id="L92">                    .menuImageUrl(getPresignedUrl(linkEntity.getMenuImage()))</span>
+<span class="fc" id="L93">                    .build())</span>
+<span class="fc" id="L94">                .collect(Collectors.toList()))</span>
+<span class="fc" id="L95">            .build())</span>
+<span class="pc bpc" id="L96" title="2 of 4 branches missed.">        .filter(menuEntry -&gt; menuEntry.getLinks() != null &amp;&amp; !menuEntry.getLinks().isEmpty());</span>
   }
+
+  private String getPresignedUrl(String objectName) {
+<span class="fc" id="L100">    return Optional.ofNullable(objectName)</span>
+<span class="fc" id="L101">        .filter(StringUtils::hasText)</span>
+<span class="fc" id="L102">        .map(MinioObjectId::from)</span>
+<span class="pc" id="L103">        .map(id -&gt; imageRepository.getPresignedObjectUrl(id, Method.GET))</span>
+<span class="fc" id="L104">        .orElse(null);</span>
+  }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

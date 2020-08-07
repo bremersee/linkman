@@ -1,0 +1,4 @@
+org.bremersee.linkman.controller
+org.bremersee.linkman.mapper
+org.bremersee.linkman.model
+org.bremersee.linkman.repository

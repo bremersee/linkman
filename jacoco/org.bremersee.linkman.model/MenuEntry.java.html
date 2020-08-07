@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.bremersee.common.model.Link;
 
 /**
  * The menu entry is a category with it's links.
@@ -34,24 +33,24 @@ import org.bremersee.common.model.Link;
  */
 @Schema(description = &quot;The category and it's links.&quot;)
 @Getter
-<span class="fc" id="L37">@Setter</span>
-<span class="fc" id="L38">@ToString</span>
-<span class="pc bpc" id="L39" title="12 of 26 branches missed.">@EqualsAndHashCode</span>
-<span class="fc" id="L40">@NoArgsConstructor</span>
+<span class="fc" id="L36">@Setter</span>
+<span class="fc" id="L37">@ToString</span>
+<span class="pc bpc" id="L38" title="12 of 26 branches missed.">@EqualsAndHashCode</span>
+<span class="fc" id="L39">@NoArgsConstructor</span>
 public class MenuEntry {
 
   @Schema(description = &quot;The name of the category.&quot;, required = true)
   @JsonProperty(value = &quot;category&quot;, required = true)
-<span class="fc" id="L45">  private String category;</span>
+<span class="fc" id="L44">  private String category;</span>
 
   @Schema(description = &quot;Specifies whether the links of this category can be seen without &quot;
       + &quot;authentication. Default is false.&quot;, required = true)
   @JsonProperty(value = &quot;pub&quot;, required = true)
-<span class="fc" id="L50">  private boolean pub;</span>
+<span class="fc" id="L49">  private boolean pub;</span>
 
   @Schema(description = &quot;The links of the category.&quot;)
   @JsonProperty(&quot;links&quot;)
-<span class="fc" id="L54">  private List&lt;Link&gt; links;</span>
+<span class="fc" id="L53">  private List&lt;Link&gt; links;</span>
 
   /**
    * Instantiates a new link container.
@@ -60,16 +59,16 @@ public class MenuEntry {
    * @param pub specifies whether the category is public or not
    * @param links the links
    */
-<span class="pc" id="L63">  @Builder(toBuilder = true)</span>
+<span class="pc" id="L62">  @Builder(toBuilder = true)</span>
   @SuppressWarnings(&quot;unused&quot;)
   public MenuEntry(
       String category,
       boolean pub,
-<span class="fc" id="L68">      List&lt;Link&gt; links) {</span>
-<span class="fc" id="L69">    this.category = category;</span>
-<span class="fc" id="L70">    this.pub = pub;</span>
-<span class="fc" id="L71">    this.links = links;</span>
-<span class="fc" id="L72">  }</span>
+<span class="fc" id="L67">      List&lt;Link&gt; links) {</span>
+<span class="fc" id="L68">    this.category = category;</span>
+<span class="fc" id="L69">    this.pub = pub;</span>
+<span class="fc" id="L70">    this.links = links;</span>
+<span class="fc" id="L71">  }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

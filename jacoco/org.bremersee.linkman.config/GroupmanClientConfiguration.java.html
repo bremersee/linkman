@@ -26,6 +26,7 @@ import org.bremersee.web.reactive.function.client.DefaultWebClientErrorDecoder;
 import org.bremersee.web.reactive.function.client.proxy.InvocationFunctions;
 import org.bremersee.web.reactive.function.client.proxy.WebClientProxyBuilder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.loadbalancer.reactive.ReactorLoadBalancerExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +39,8 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Christian Bremer
  */
 @Configuration
-<span class="fc" id="L41">@Slf4j</span>
+@EnableConfigurationProperties(LinkmanProperties.class)
+<span class="fc" id="L43">@Slf4j</span>
 public class GroupmanClientConfiguration {
 
   private final LinkmanProperties properties;
@@ -48,9 +50,9 @@ public class GroupmanClientConfiguration {
    *
    * @param properties the properties
    */
-<span class="fc" id="L51">  public GroupmanClientConfiguration(LinkmanProperties properties) {</span>
-<span class="fc" id="L52">    this.properties = properties;</span>
-<span class="fc" id="L53">  }</span>
+<span class="fc" id="L53">  public GroupmanClientConfiguration(LinkmanProperties properties) {</span>
+<span class="fc" id="L54">    this.properties = properties;</span>
+<span class="fc" id="L55">  }</span>
 
   /**
    * Group service group webflux controller api.
@@ -62,16 +64,16 @@ public class GroupmanClientConfiguration {
   @Bean(&quot;groupService&quot;)
   public GroupWebfluxControllerApi groupService(RestApiExceptionParser parser) {
 
-<span class="fc" id="L65">    final String baseUri = properties.getGroupmanBaseUri();</span>
-<span class="pc bpc" id="L66" title="2 of 4 branches missed.">    if (!StringUtils.hasText(baseUri) || &quot;false&quot;.equalsIgnoreCase(baseUri.trim())) {</span>
-<span class="fc" id="L67">      return new GroupWebfluxControllerMock();</span>
+<span class="fc" id="L67">    final String baseUri = properties.getGroupmanBaseUri();</span>
+<span class="pc bpc" id="L68" title="2 of 4 branches missed.">    if (!StringUtils.hasText(baseUri) || &quot;false&quot;.equalsIgnoreCase(baseUri.trim())) {</span>
+<span class="fc" id="L69">      return new GroupWebfluxControllerMock();</span>
     }
 
-<span class="nc" id="L70">    final WebClient webClient = WebClient.builder()</span>
-<span class="nc" id="L71">        .baseUrl(baseUri)</span>
-<span class="nc" id="L72">        .filter(new AccessTokenAppender(ReactiveAccessTokenProviders.fromAuthentication()))</span>
-<span class="nc" id="L73">        .build();</span>
-<span class="nc" id="L74">    return groupService(parser, webClient);</span>
+<span class="nc" id="L72">    final WebClient webClient = WebClient.builder()</span>
+<span class="nc" id="L73">        .baseUrl(baseUri)</span>
+<span class="nc" id="L74">        .filter(new AccessTokenAppender(ReactiveAccessTokenProviders.fromAuthentication()))</span>
+<span class="nc" id="L75">        .build();</span>
+<span class="nc" id="L76">    return groupService(parser, webClient);</span>
   }
 
   @ConditionalOnProperty(
@@ -83,35 +85,35 @@ public class GroupmanClientConfiguration {
       RestApiExceptionParser parser,
       ReactorLoadBalancerExchangeFilterFunction lbFunction) {
 
-<span class="nc" id="L86">    final String baseUri = properties.getGroupmanBaseUri();</span>
-<span class="nc bnc" id="L87" title="All 4 branches missed.">    if (!StringUtils.hasText(baseUri) || &quot;false&quot;.equalsIgnoreCase(baseUri.trim())) {</span>
-<span class="nc" id="L88">      return new GroupWebfluxControllerMock();</span>
+<span class="nc" id="L88">    final String baseUri = properties.getGroupmanBaseUri();</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">    if (!StringUtils.hasText(baseUri) || &quot;false&quot;.equalsIgnoreCase(baseUri.trim())) {</span>
+<span class="nc" id="L90">      return new GroupWebfluxControllerMock();</span>
     }
 
-<span class="nc" id="L91">    final WebClient webClient = WebClient.builder()</span>
-<span class="nc" id="L92">        .baseUrl(baseUri)</span>
-<span class="nc" id="L93">        .filter(new AccessTokenAppender(ReactiveAccessTokenProviders.fromAuthentication()))</span>
-<span class="nc" id="L94">        .filter(lbFunction)</span>
-<span class="nc" id="L95">        .build();</span>
-<span class="nc" id="L96">    return groupService(parser, webClient);</span>
+<span class="nc" id="L93">    final WebClient webClient = WebClient.builder()</span>
+<span class="nc" id="L94">        .baseUrl(baseUri)</span>
+<span class="nc" id="L95">        .filter(new AccessTokenAppender(ReactiveAccessTokenProviders.fromAuthentication()))</span>
+<span class="nc" id="L96">        .filter(lbFunction)</span>
+<span class="nc" id="L97">        .build();</span>
+<span class="nc" id="L98">    return groupService(parser, webClient);</span>
   }
 
   private GroupWebfluxControllerApi groupService(
       RestApiExceptionParser parser,
       WebClient webClient) {
 
-<span class="nc" id="L103">    final String baseUri = properties.getGroupmanBaseUri();</span>
-<span class="nc bnc" id="L104" title="All 4 branches missed.">    if (!StringUtils.hasText(baseUri) || &quot;false&quot;.equalsIgnoreCase(baseUri.trim())) {</span>
-<span class="nc" id="L105">      log.warn(&quot;Using groupman mock, because no groupman base uri was specified.&quot;);</span>
-<span class="nc" id="L106">      return new GroupWebfluxControllerMock();</span>
+<span class="nc" id="L105">    final String baseUri = properties.getGroupmanBaseUri();</span>
+<span class="nc bnc" id="L106" title="All 4 branches missed.">    if (!StringUtils.hasText(baseUri) || &quot;false&quot;.equalsIgnoreCase(baseUri.trim())) {</span>
+<span class="nc" id="L107">      log.warn(&quot;Using groupman mock, because no groupman base uri was specified.&quot;);</span>
+<span class="nc" id="L108">      return new GroupWebfluxControllerMock();</span>
     }
-<span class="nc" id="L108">    log.info(&quot;Using groupman client with base uri {}&quot;, properties.getGroupmanBaseUri());</span>
-<span class="nc" id="L109">    return WebClientProxyBuilder.defaultBuilder()</span>
-<span class="nc" id="L110">        .webClient(webClient)</span>
-<span class="nc" id="L111">        .commonFunctions(InvocationFunctions.builder()</span>
-<span class="nc" id="L112">            .errorDecoder(new DefaultWebClientErrorDecoder(parser))</span>
-<span class="nc" id="L113">            .build())</span>
-<span class="nc" id="L114">        .build(GroupWebfluxControllerApi.class);</span>
+<span class="nc" id="L110">    log.info(&quot;Using groupman client with base uri {}&quot;, properties.getGroupmanBaseUri());</span>
+<span class="nc" id="L111">    return WebClientProxyBuilder.defaultBuilder()</span>
+<span class="nc" id="L112">        .webClient(webClient)</span>
+<span class="nc" id="L113">        .commonFunctions(InvocationFunctions.builder()</span>
+<span class="nc" id="L114">            .errorDecoder(new DefaultWebClientErrorDecoder(parser))</span>
+<span class="nc" id="L115">            .build())</span>
+<span class="nc" id="L116">        .build(GroupWebfluxControllerApi.class);</span>
   }
 
 }

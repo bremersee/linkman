@@ -25,9 +25,9 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2020 bremersee.org</copyright>
     <item>
-      <title>File: 50,
+      <title>File: 61,
              Errors: 0,
-             Warnings: 17,
+             Warnings: 10,
              Infos: 0
       </title>
             <link>https://github.com/bremersee/linkman/checkstyle.html</link>
@@ -47,6 +47,20 @@ under the License.
                           <tr>
                 <td>
                   <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.RoleControllerTest.java">org/bremersee/linkman/controller/RoleControllerTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.AclEntityTest.java">org/bremersee/linkman/repository/AclEntityTest.java</a>
                 </td>
                 <td>
                   0
@@ -88,6 +102,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.AceEntityTest.java">org/bremersee/linkman/repository/AceEntityTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.CategorySpecTest.java">org/bremersee/linkman/model/CategorySpecTest.java</a>
                 </td>
                 <td>
@@ -109,6 +137,20 @@ under the License.
                 </td>
                 <td>
                   2
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.SelectOptionTest.java">org/bremersee/linkman/model/SelectOptionTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
                 </td>
                 <td>
                   0
@@ -145,6 +187,20 @@ under the License.
                           <tr>
                 <td>
                   <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.service.RoleService.java">org/bremersee/linkman/service/RoleService.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.GroupRepresentationTest.java">org/bremersee/linkman/model/GroupRepresentationTest.java</a>
                 </td>
                 <td>
                   0
@@ -228,6 +284,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.CategoryEntityTest.java">org/bremersee/linkman/repository/CategoryEntityTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.controller.CategoryControllerTest.java">org/bremersee/linkman/controller/CategoryControllerTest.java</a>
                 </td>
                 <td>
@@ -243,6 +313,20 @@ under the License.
                           <tr>
                 <td>
                   <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.config.LinkmanProperties.java">org/bremersee/linkman/config/LinkmanProperties.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.mapper.ModelMapperTest.java">org/bremersee/linkman/mapper/ModelMapperTest.java</a>
                 </td>
                 <td>
                   0
@@ -312,6 +396,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.RoleRepresentationTest.java">org/bremersee/linkman/model/RoleRepresentationTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.AceEntity.java">org/bremersee/linkman/repository/AceEntity.java</a>
                 </td>
                 <td>
@@ -368,6 +466,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.Link.java">org/bremersee/linkman/model/Link.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.RoleRepresentation.java">org/bremersee/linkman/model/RoleRepresentation.java</a>
                 </td>
                 <td>
@@ -389,6 +501,34 @@ under the License.
                 </td>
                 <td>
                   0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.model.LinkTest.java">org/bremersee/linkman/model/LinkTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.config.ModelMapperConfiguration.java">org/bremersee/linkman/config/ModelMapperConfiguration.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
                 </td>
                 <td>
                   0
@@ -542,7 +682,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/bremersee/linkman/checkstyle.html#org.bremersee.linkman.repository.LinkEntityTest.java">org/bremersee/linkman/repository/LinkEntityTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
                 <td>
                   0
@@ -556,7 +710,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
                 </td>
                 <td>
                   0
@@ -724,7 +878,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  0
                 </td>
                 <td>
                   0
