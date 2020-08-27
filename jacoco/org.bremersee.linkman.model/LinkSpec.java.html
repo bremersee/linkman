@@ -228,7 +228,7 @@ public class LinkSpec {
 <span class="nc" id="L228">      return text;</span>
     }
 <span class="fc" id="L230">    return Optional.ofNullable(textTranslations)</span>
-<span class="fc bfc" id="L231" title="All 2 branches covered.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        .flatMap(set -&gt; set.stream().filter(entry -&gt; language == entry.getLanguage()).findAny())</span>
 <span class="fc" id="L232">        .map(Translation::getValue)</span>
 <span class="fc" id="L233">        .orElse(text);</span>
   }

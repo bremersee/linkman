@@ -19,13 +19,13 @@ linkman,org.bremersee.linkman.config,KeycloakClientConfiguration,40,32,2,2,14,9,
 linkman,org.bremersee.linkman.config,PersistenceConfiguration,0,41,0,0,0,11,0,5,0,5
 linkman,org.bremersee.linkman.config,LinkmanProperties.Category,102,18,22,0,2,4,16,4,5,4
 linkman,org.bremersee.linkman.config,LinkmanProperties,349,97,78,0,2,19,48,14,9,14
-linkman,org.bremersee.linkman.model,LinkSpec,229,512,63,51,2,66,46,53,1,41
+linkman,org.bremersee.linkman.model,LinkSpec,230,511,64,50,2,66,47,52,1,41
 linkman,org.bremersee.linkman.model,RoleRepresentation,12,126,7,15,0,11,7,16,0,12
 linkman,org.bremersee.linkman.model,GroupRepresentation,12,126,7,15,0,11,7,16,0,12
 linkman,org.bremersee.linkman.model,LinkSpec.LinkSpecBuilder,26,91,0,0,0,1,1,14,1,14
 linkman,org.bremersee.linkman.model,SelectOption.SelectOptionBuilder,6,21,0,0,0,1,1,4,1,4
 linkman,org.bremersee.linkman.model,CategorySpec.CategorySpecBuilder,12,42,0,0,0,1,1,7,1,7
-linkman,org.bremersee.linkman.model,CategorySpec,90,261,21,25,1,36,17,33,1,26
+linkman,org.bremersee.linkman.model,CategorySpec,91,260,22,24,1,36,18,32,1,26
 linkman,org.bremersee.linkman.model,RoleRepresentation.RoleRepresentationBuilder,6,21,0,0,0,1,1,4,1,4
 linkman,org.bremersee.linkman.model,Translation,21,130,7,7,0,25,7,16,1,15
 linkman,org.bremersee.linkman.model,SelectOption,12,126,7,15,0,11,7,16,0,12
